@@ -730,17 +730,15 @@ new Chart(document.getElementById('evoChart'), {
 
 // ── REFRESH ──
 async function doRefresh() {
-  const key = getKey();
-  if (!key) { openSetup(); return; }
   const btn = document.getElementById('refreshBtn');
   const bar = document.getElementById('statusBar');
   btn.disabled = true;
   btn.textContent = '↻ Buscando...';
   bar.style.display = 'none';
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 1000,
         system: 'Você verifica dados do Monday.com board 18404519367 e Google Sheets 1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc. Responda em 1 frase curta se os dados mudaram em relação a: Semana 10, Ciclo 2, 705 alunos, 107 MNM.',
@@ -767,12 +765,8 @@ async function doRefresh() {
 
 // ── INIT ──
 (function init() {
-  const key = getKey();
-  if (key) {
-    document.getElementById('setup').style.display = 'none';
-  } else {
-    document.getElementById('refreshBtn').disabled = true;
-  }
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('refreshBtn').disabled = false;
 })();
 </script>
 </body>
