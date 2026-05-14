@@ -743,10 +743,7 @@ async function doRefresh() {
         model: 'claude-sonnet-4-20250514', max_tokens: 1000,
         system: 'Você verifica dados do Monday.com board 18404519367 e Google Sheets 1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc. Responda em 1 frase curta se os dados mudaram em relação a: Semana 10, Ciclo 2, 705 alunos, 107 MNM.',
         messages: [{ role: 'user', content: 'Há dados novos?' }],
-        mcp_servers: [
-          { type: 'url', url: 'https://mcp.monday.com/mcp', name: 'monday' },
-          { type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }
-        ]
+
       })
     });
     const d = await res.json();
