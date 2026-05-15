@@ -19,7 +19,6 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         query: `{
           boards(ids: [18404519367]) {
-            name
             items_page(limit: 50) {
               items {
                 id
@@ -37,44 +36,58 @@ export default async function handler(req, res) {
       })
     });
 
-    const mondayData = await mondayRes.json();
+    const data = await mondayRes.json();
+    if (data.errors) return res.status(400).json({ error: data.errors[0].message });
 
-    if (mondayData.errors) {
-      return res.status(400).json({ error: mondayData.errors[0].message });
+    const items = data?.data?.boards?.[0]?.items_page?.items || [];
+
+    // Filtra apenas M1-M5
+    const marcoItems = items.filter(i => /^M[1-5]\s/i.test(i.name));
+
+    // Agrupa por ID do marco (M1..M5), mantendo a ordem de aparição
+    // Primeiro conjunto = Ciclo 1, segundo = Ciclo 2
+    const grouped = {};
+    for (const item of marcoItems) {
+      const key = item.name.substring(0, 2).toUpperCase(); // "M1"..."M5"
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(item);
     }
 
-    const items = mondayData?.data?.boards?.[0]?.items_page?.items || [];
+    function parseMarco(item) {
+      const statusCol = item.column_values.find(c => c.id === 'color_mm1jjjjy');
+      const status = statusCol?.text || 'Não iniciado';
 
-    const milestones = items
-      .filter(item => /^M[1-5]\s/i.test(item.name))
-      .map(item => {
-        const statusCol = item.column_values.find(c => c.id === 'status' || c.id === 'color');
-        const status = statusCol?.text || 'Não iniciado';
-
-        const subitems = (item.subitems || []).map(sub => {
-          const subStatus = sub.column_values.find(c => c.id === 'status' || c.id === 'color');
-          return { nome: sub.name, status: subStatus?.text || 'Não iniciado' };
-        });
-
-        const done  = subitems.filter(s => ['Feito','Done','Concluído'].includes(s.status)).length;
-        const total = subitems.length || 1;
-        const acomp = Math.round((done / total) * 100);
-
-        return {
-          id: item.name.substring(0, 2).toUpperCase(),
-          nome: item.name.replace(/^M[1-5]\s[-–]\s?/i, ''),
-          status,
-          acomp,
-          done,
-          total,
-          subitems
-        };
+      const subitems = (item.subitems || []).map(sub => {
+        const subStatus = sub.column_values.find(c => c.id === 'status');
+        return { nome: sub.name, status: subStatus?.text || 'Não iniciado' };
       });
 
+      const done = subitems.filter(s => s.status === 'Feito').length;
+      const total = subitems.length || 1;
+
+      return {
+        id: item.name.substring(0, 2).toUpperCase(),
+        nome: item.name.replace(/^M[1-5]\s[-–]\s?/i, ''),
+        status,
+        acomp: Math.round((done / total) * 100),
+        done,
+        total,
+        subitems
+      };
+    }
+
+    const ciclo1 = ['M1','M2','M3','M4','M5']
+      .filter(k => grouped[k]?.[0])
+      .map(k => parseMarco(grouped[k][0]));
+
+    const ciclo2 = ['M1','M2','M3','M4','M5']
+      .filter(k => grouped[k]?.[1])
+      .map(k => parseMarco(grouped[k][1]));
+
     return res.status(200).json({
-      source: 'monday',
       updatedAt: new Date().toLocaleDateString('pt-BR'),
-      milestones
+      ciclo1,
+      ciclo2
     });
 
   } catch (err) {
