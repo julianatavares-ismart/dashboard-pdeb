@@ -350,13 +350,44 @@ section { margin-bottom: 28px; }
     <span class="badge badge-ciclo">Ciclo 2 em andamento</span>
   </div>
   <div class="header-right">
-    <div class="header-date">Atualizado em<br><strong style="color:rgba(255,255,255,.85)">11/05/2026</strong></div>
+    <div class="header-date">Atualizado em<br><strong style="color:rgba(255,255,255,.85)" id="headerDate">11/05/2026</strong></div>
     <button id="settingsBtn" onclick="openSetup()">⚙ Configurar</button>
     <button id="refreshBtn" onclick="doRefresh()">↻ Atualizar dados</button>
   </div>
 </header>
 
 <div id="statusBar"></div>
+
+<!-- CONTEXTO ESTRATÉGICO -->
+<div style="background:linear-gradient(135deg,#001845 0%,#002561 100%);padding:20px 32px;border-bottom:1px solid rgba(0,142,211,0.2);">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:24px;align-items:start;">
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Sobre o projeto</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.6;">O <strong style="color:#fff;">PDEB 2026</strong> é o novo currículo de desenvolvimento da Educação de Base do Ismart — uma jornada integrada e intencional do 8º EF ao 3º EM, com ciclos estruturados de Oficina, Mão na Massa e Fala aí!, orientada por 4 eixos de competência.</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Eixo 1</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.85);font-weight:600;">Aprendizagem e Curiosidade</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;">Mentalidade de crescimento, pensamento crítico, autonomia acadêmica</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Eixo 2</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.85);font-weight:600;">Autonomia e Autogestão</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;">Garra, resiliência, bem-estar e autoestima</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Eixo 3</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.85);font-weight:600;">Relacionamento e Liderança</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;">Maturidade para se relacionar e mobilizar pessoas</div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Eixo 4</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.85);font-weight:600;">Protagonismo Comunitário</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;">Atuação coletiva e impacto positivo além de si</div>
+    </div>
+  </div>
+</div>
+
 
 <!-- MAIN -->
 <main>
@@ -396,7 +427,7 @@ section { margin-bottom: 28px; }
   <section>
     <div class="section-label">Marcos do projeto · Ciclo 1</div>
 
-    <div class="marco">
+    <div id="marcos-ciclo1"><div class="marco">
       <div class="marco-row">
         <div class="marco-id">M1</div>
         <div class="marco-body">
@@ -497,6 +528,15 @@ section { margin-bottom: 28px; }
         <div class="sub-item"><span class="sub-icon icon-done">✓</span>Frente 2: Avaliação do treinamento e oportunidades</div>
         <div class="sub-item"><span class="sub-icon icon-done">✓</span>Apresentado e validado no Comitê de Melhoria Contínua</div>
       </div>
+    </div>
+  </section>
+
+
+  <!-- MARCOS CICLO 2 -->
+  <section id="section-ciclo2" style="display:none">
+    <div class="section-label">Marcos do projeto · Ciclo 2 <span style="font-size:10px;font-weight:500;color:var(--amber);background:#FEF3C7;padding:2px 8px;border-radius:10px;margin-left:6px;">Em andamento</span></div>
+    <div id="marcos-ciclo2">
+      <!-- preenchido via JS -->
     </div>
   </section>
 
@@ -728,6 +768,54 @@ new Chart(document.getElementById('evoChart'), {
   }
 });
 
+// ── HELPERS ──
+function pillClass(s) {
+  if (s === 'Feito') return 'pill pill-done';
+  if (s === 'Em andamento') return 'pill pill-wip';
+  return 'pill pill-frozen';
+}
+function pillLabel(s) {
+  if (s === 'Feito') return '✓ Feito';
+  if (s === 'Em andamento') return '⏳ Em andamento';
+  if (s === 'Congelado') return '❄ Congelado';
+  return s;
+}
+function barColor(s) {
+  if (s === 'Feito') return 'var(--green)';
+  if (s === 'Em andamento') return 'var(--amber)';
+  return '#94A3B8';
+}
+function subIcon(s) {
+  if (s === 'Feito') return '<span style="color:var(--green);font-weight:600;">✓</span>';
+  if (s === 'Em andamento') return '<span style="color:var(--amber);">⏳</span>';
+  if (s === 'Congelado') return '<span style="color:#94A3B8;">❄</span>';
+  return '<span style="color:#94A3B8;">○</span>';
+}
+
+function renderMarcos(milestones, containerId, prefix) {
+  const container = document.getElementById(containerId);
+  if (!container || !milestones.length) return;
+  container.innerHTML = milestones.map((m, idx) => `
+    <div class="marco">
+      <div class="marco-row">
+        <div class="marco-id">${m.id}</div>
+        <div class="marco-body">
+          <div class="marco-nome">${m.nome}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${m.acomp}%;background:${barColor(m.status)}"></div></div>
+          <div class="bar-meta"><span>${m.done} de ${m.total} subelementos</span><span>${m.acomp}%</span></div>
+        </div>
+        <div class="marco-right">
+          <span class="${pillClass(m.status)}">${pillLabel(m.status)}</span>
+          <button class="expand-btn" onclick="expandir('${prefix}-subs-${idx}', this)">ver mais</button>
+        </div>
+      </div>
+      <div class="marco-subs" id="${prefix}-subs-${idx}" style="display:none">
+        ${m.subitems.map(s => `<div class="sub-item">${subIcon(s.status)}<span>${s.nome}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
 // ── REFRESH ──
 async function doRefresh() {
   const btn = document.getElementById('refreshBtn');
@@ -739,17 +827,23 @@ async function doRefresh() {
     const res = await fetch('/api/proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
-        system: 'Você verifica dados do Monday.com board 18404519367 e Google Sheets 1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc. Responda em 1 frase curta se os dados mudaram em relação a: Semana 10, Ciclo 2, 705 alunos, 107 MNM.',
-        messages: [{ role: 'user', content: 'Há dados novos?' }],
-
-      })
+      body: JSON.stringify({ action: 'get_milestones' })
     });
     const d = await res.json();
     if (d.error) throw new Error(d.error.message);
-    const txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('').substring(0, 200);
-    bar.textContent = '✓ ' + txt;
+
+    if (d.updatedAt) {
+      document.getElementById('headerDate').textContent = d.updatedAt;
+    }
+    if (d.ciclo1?.length) {
+      renderMarcos(d.ciclo1, 'marcos-ciclo1', 'c1');
+    }
+    if (d.ciclo2?.length) {
+      document.getElementById('section-ciclo2').style.display = 'block';
+      renderMarcos(d.ciclo2, 'marcos-ciclo2', 'c2');
+    }
+
+    bar.textContent = '✓ Dados atualizados em ' + (d.updatedAt || new Date().toLocaleDateString('pt-BR'));
     bar.style.cssText = 'display:block;padding:10px 32px;font-size:13px;background:#F0FDF4;border-bottom:1px solid #BBF7D0;color:#15803D;';
   } catch(e) {
     bar.textContent = '⚠ Erro ao conectar: ' + e.message;
