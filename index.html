@@ -725,7 +725,7 @@ section { margin-bottom: 28px; }
               <th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;">Praça</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="obs-tbody">
             <tr style="border-bottom:1px solid var(--border);">
               <td style="padding:6px;font-weight:500;">Beatrice Leite</td>
               <td style="text-align:center;padding:6px;">4,0</td>
@@ -764,7 +764,7 @@ section { margin-bottom: 28px; }
             </tr>
           </tbody>
         </table>
-        <div style="font-size:10px;color:var(--soft);margin-top:8px;">* apenas autoavaliação disponível · observações externas em andamento</div>
+        <div id="obs-nota" style="font-size:10px;color:var(--soft);margin-top:8px;">* apenas autoavaliação disponível · observações externas em andamento</div>
       </div>
 
       <!-- Média por praça + pilares -->
@@ -989,8 +989,8 @@ section { margin-bottom: 28px; }
       <div class="card">
         <div class="card-title">2º Ano · 202 inscritos · <span style="color:var(--soft);font-weight:400">atualizado 15/05</span></div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#D97706;">91,6%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:91.6%;background:var(--amber)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#16A34A;">91,6%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:91.6%;background:var(--green)"></div></div>
           <div style="font-size:11px;color:var(--soft);margin-top:3px;">185 alunos</div>
         </div>
         <div style="margin-bottom:14px;">
@@ -1005,6 +1005,53 @@ section { margin-bottom: 28px; }
         </div>
       </div>
 
+    </div>
+  </section>
+
+
+  <!-- VOZES DOS ALUNOS -->
+  <section>
+    <div class="section-label">Vozes dos alunos · Comentários em destaque</div>
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div>
+          <div class="card-title" style="margin-bottom:4px;">O que os alunos estão dizendo</div>
+          <div style="font-size:12px;color:var(--muted);">6 comentários selecionados e revisados automaticamente · formulários Ciclo 1 e Ciclo 2</div>
+        </div>
+        <div id="vozes-loading" style="display:none;font-size:12px;color:var(--muted);align-self:center;">✦ Selecionando comentários...</div>
+      </div>
+      <div id="vozes-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--navy);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Aprendi a me organizar melhor e entender que posso pedir ajuda sem vergonha.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 1ºEM</div>
+        </div>
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--pink);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Gostei bastante da oficina, mas achei o tempo muito curto para tudo que tinha para fazer.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">BH · 2ºEM</div>
+        </div>
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--teal);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">O orientador me ajudou a entender que eu não preciso ter tudo resolvido agora.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
+        </div>
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--purple);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Não entendi muito bem a conexão com o vestibular. Seria legal ter mais exemplos práticos.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SJC · 2ºEM</div>
+        </div>
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--navy);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Foi a primeira vez que falei sobre meus objetivos em voz alta. Isso fez diferença.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 2ºEM</div>
+        </div>
+        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:var(--pink);line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Achei muito pesado acumular tudo com as provas. Preciso de mais tempo para o projeto.</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1260,8 +1307,10 @@ async function doRefreshAll() {
     erros.push('Sheets: ' + e.message);
   }
 
-  // Sentimento — roda sempre, erros são silenciosos
+  try { await carregarObservacoes(); } catch(_) {}
+  // Sentimento e vozes — rodam sempre, erros são silenciosos
   try { await analisarEmocoes(); } catch(_) {}
+  try { await curarVozes(); } catch(_) {}
 
   if (erros.length === 0) {
     bar.textContent = '✓ Dados atualizados em ' + new Date().toLocaleDateString('pt-BR');
@@ -1289,6 +1338,91 @@ const FORM_TEXTOS = `Alguns exemplos de justificativas dos orientadores sobre o 
 - "A turma demonstrou bastante clareza sobre as diferenças entre cursos e carreiras."
 - "Sinto que o fala aí fica um pouco vago, talvez poderíamos ter uma reflexão mais direcionada."
 - "Os alunos compartilharam percepções e aprendizados sobre liderança a partir das experiências vivenciadas."`;
+
+async function carregarObservacoes() {
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_observacoes' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    if (d.error || !Array.isArray(d.orientadores) || d.orientadores.length === 0) return;
+
+    function scoreColor(v) {
+      if (v === null) return { bg: '#F1F5F9', text: '#64748B' };
+      if (v >= 3.5) return { bg: '#DCFCE7', text: '#15803D' };
+      if (v >= 3.0) return { bg: '#FEF3C7', text: '#92400E' };
+      return { bg: '#FEE2E2', text: '#DC2626' };
+    }
+
+    function fmt(v, apenasAutoav) {
+      if (v === null) return '<span style="color:var(--soft)">—</span>';
+      const c = scoreColor(v);
+      const suffix = apenasAutoav ? '*' : '';
+      return `<span style="background:${c.bg};color:${c.text};padding:2px 8px;border-radius:10px;font-weight:600;">${v.toFixed(1)}${suffix}</span>`;
+    }
+
+    const tbody = document.getElementById('obs-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = d.orientadores.map(o => `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:6px;font-weight:500;">${o.nome}</td>
+        <td style="text-align:center;padding:6px;">${o.autoav !== null ? o.autoav.toFixed(1) : '—'}</td>
+        <td style="text-align:center;padding:6px;">${o.obs !== null ? o.obs.toFixed(1) : '<span style="color:var(--soft)">—</span>'}</td>
+        <td style="text-align:center;padding:6px;">${fmt(o.media, o.apenasAutoav)}</td>
+        <td style="padding:6px;color:var(--muted);">${o.praca}</td>
+      </tr>`).join('');
+
+    // Atualiza nota de rodapé se houver apenas autoavaliação
+    const temParcial = d.orientadores.some(o => o.apenasAutoav);
+    const nota = document.getElementById('obs-nota');
+    if (nota) nota.style.display = temParcial ? 'block' : 'none';
+
+  } catch(e) {
+    console.warn('Observações não disponível:', e.message);
+  }
+}
+
+async function curarVozes() {
+  const loading = document.getElementById('vozes-loading');
+  const grid = document.getElementById('vozes-grid');
+  loading.style.display = 'block';
+
+  const CORES = ['var(--navy)', 'var(--pink)', 'var(--teal)', 'var(--purple)', 'var(--navy)', 'var(--pink)'];
+
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_vozes_alunos' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+
+    let vozes;
+    try {
+      const clean = (d.vozes || '').replace(/```json|```/g, '').trim();
+      vozes = JSON.parse(clean);
+    } catch(_) { return; }
+
+    if (!Array.isArray(vozes) || vozes.length === 0) return;
+
+    grid.innerHTML = vozes.slice(0, 6).map((v, i) => `
+      <div style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:20px;color:${CORES[i]};line-height:1;">"</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">${v.texto}</div>
+        <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">${v.praca} · ${v.serie}</div>
+      </div>`).join('');
+  } catch(e) {
+    console.warn('Vozes dos alunos não disponível:', e.message);
+  } finally {
+    loading.style.display = 'none';
+  }
+}
 
 async function analisarEmocoes() {
   const loading = document.getElementById('emocao-loading');
