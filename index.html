@@ -579,7 +579,7 @@ section { margin-bottom: 28px; }
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
       <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Ciclo 2</span>
       <span class="pill pill-wip">⏳ Em andamento</span>
-      <button onclick="toggleMarcosCiclo2()" id="btnToggleC2" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:4px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;">▲ Ocultar Ciclo 2</button>
+      <button onclick="toggleMarcosCiclo2()" id="btnToggleC2" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:4px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;">▲ Ocultar marcos</button>
     </div>
     <div id="marcos-ciclo2-wrapper">
       <div id="marcos-ciclo2">
@@ -773,19 +773,19 @@ section { margin-bottom: 28px; }
         <div style="font-size:11px;color:var(--soft);margin-bottom:12px;">Média combinada (autoavaliação + observadores) por dimensão</div>
 
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">RJ — Rio de Janeiro</span><span style="font-size:13px;font-weight:600;color:#16A34A;">3,5</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:87.5%;background:var(--green)"></div></div>
-          <div style="font-size:10px;color:var(--soft);margin-top:2px;">Beatrice Leite + Milena Ferreira · destaque: Engajamento e Mediação Socioemocional</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">RJ — Rio de Janeiro</span><span id="praca-rj-val" style="font-size:13px;font-weight:600;color:#16A34A;">3,5</span></div>
+          <div class="bar-bg"><div class="bar-fill" id="praca-rj-bar" style="width:87.5%;background:var(--green)"></div></div>
+          <div id="praca-rj-nomes" style="font-size:10px;color:var(--soft);margin-top:2px;">Beatrice Leite + Milena Ferreira · destaque: Engajamento e Mediação Socioemocional</div>
         </div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">BH — Belo Horizonte</span><span style="font-size:13px;font-weight:600;color:#D97706;">3,3</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:82.5%;background:var(--amber)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">BH — Belo Horizonte</span><span id="praca-bh-val" style="font-size:13px;font-weight:600;color:#16A34A;">3,3</span></div>
+          <div class="bar-bg"><div class="bar-fill" id="praca-bh-bar" style="width:82.5%;background:var(--green)"></div></div>
           <div style="font-size:10px;color:var(--soft);margin-top:2px;">Alexis Gonçalves + Lais Oliveira · oportunidade: Construção de Sentido</div>
         </div>
         <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">SP — São Paulo</span><span style="font-size:13px;font-weight:600;color:var(--soft);">3,6*</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#94A3B8"></div></div>
-          <div style="font-size:10px;color:var(--soft);margin-top:2px;">Lucas Aprile · apenas autoavaliação · obs. externas pendentes</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">SP — São Paulo</span><span id="praca-sp-val" style="font-size:13px;font-weight:600;color:#94A3B8;">3,6*</span></div>
+          <div class="bar-bg"><div class="bar-fill" id="praca-sp-bar" style="width:90%;background:#94A3B8"></div></div>
+          <div id="praca-sp-nomes" style="font-size:10px;color:var(--soft);margin-top:2px;">Lucas Aprile · apenas autoavaliação · obs. externas pendentes</div>
         </div>
 
 
@@ -880,9 +880,17 @@ section { margin-bottom: 28px; }
               <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
               <td style="text-align:center;padding:5px 6px;color:var(--soft);">C2</td>
             </tr>
+            <tr id="row-3em-c1" style="border-bottom:1px solid var(--border);">
+              <td style="padding:5px 6px;font-weight:500;">3ºEM</td>
+              <td id="3em-c1-resp" style="text-align:center;padding:5px 6px;">—</td>
+              <td id="3em-c1-media" style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;">C1</td>
+            </tr>
             <tr style="background:var(--surface2);">
-              <td style="padding:5px 6px;color:var(--soft);">3ºEM · C1 e C2</td>
-              <td style="text-align:center;padding:5px 6px;color:var(--soft);" colspan="3">em coleta</td>
+              <td style="padding:5px 6px;color:var(--soft);">3ºEM · C2</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">C2</td>
             </tr>
           </tbody>
         </table>
@@ -1114,7 +1122,7 @@ function toggleMarcosCiclo2() {
   const btn = document.getElementById('btnToggleC2');
   const isOpen = wrapper.style.display !== 'none';
   wrapper.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '▼ Ver marcos Ciclo 2' : '▲ Ocultar marcos Ciclo 2';
+  btn.textContent = isOpen ? '▼ Ver marcos' : '▲ Ocultar marcos';
 }
 
 function toggleAllMarcos() {
@@ -1122,7 +1130,7 @@ function toggleAllMarcos() {
   const btn = document.getElementById('btnToggleMarcos');
   const isOpen = wrapper.style.display !== 'none';
   wrapper.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '▼ Ver todos os marcos' : '▲ Ocultar marcos';
+  btn.textContent = isOpen ? '▼ Ver marcos' : '▲ Ocultar marcos';
 }
 
 function expandir(id, btn) {
@@ -1308,6 +1316,7 @@ async function doRefreshAll() {
   }
 
   try { await carregarObservacoes(); } catch(_) {}
+  try { await carregarFeedbackAlunos(); } catch(_) {}
   // Sentimento e vozes — rodam sempre, erros são silenciosos
   try { await analisarEmocoes(); } catch(_) {}
   try { await curarVozes(); } catch(_) {}
@@ -1339,6 +1348,37 @@ const FORM_TEXTOS = `Alguns exemplos de justificativas dos orientadores sobre o 
 - "Sinto que o fala aí fica um pouco vago, talvez poderíamos ter uma reflexão mais direcionada."
 - "Os alunos compartilharam percepções e aprendizados sobre liderança a partir das experiências vivenciadas."`;
 
+async function carregarFeedbackAlunos() {
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_feedback_alunos' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    if (d.error || !Array.isArray(d.feedback)) return;
+
+    for (const f of d.feedback) {
+      if (f.respostas === 0 || f.media === null) continue;
+      const mediaFmt = f.media.toFixed(1).replace('.', ',');
+      const cor = f.media >= 4.0 ? '#16A34A' : f.media >= 3.0 ? '#D97706' : '#DC2626';
+
+      if (f.serie === '3ºEM' && f.ciclo === 'C1') {
+        const elResp = document.getElementById('3em-c1-resp');
+        const elMedia = document.getElementById('3em-c1-media');
+        if (elResp) elResp.textContent = f.respostas;
+        if (elMedia) elMedia.innerHTML = `<span style="color:${cor};font-weight:600;">${mediaFmt} ★</span>`;
+        // Remove o fundo acinzentado quando tem dados
+        const row = document.getElementById('row-3em-c1');
+        if (row) { row.style.background = ''; row.querySelector('td').style.color = ''; row.querySelector('td').style.fontWeight = '500'; }
+      }
+    }
+  } catch(e) {
+    console.warn('Feedback alunos não disponível:', e.message);
+  }
+}
+
 async function carregarObservacoes() {
   try {
     const res = await fetch('/api/proxy', {
@@ -1352,8 +1392,8 @@ async function carregarObservacoes() {
 
     function scoreColor(v) {
       if (v === null) return { bg: '#F1F5F9', text: '#64748B' };
-      if (v >= 3.5) return { bg: '#DCFCE7', text: '#15803D' };
-      if (v >= 3.0) return { bg: '#FEF3C7', text: '#92400E' };
+      if (v >= 3.0) return { bg: '#DCFCE7', text: '#15803D' };
+      if (v > 1.0)  return { bg: '#FEF3C7', text: '#92400E' };
       return { bg: '#FEE2E2', text: '#DC2626' };
     }
 
@@ -1376,10 +1416,39 @@ async function carregarObservacoes() {
         <td style="padding:6px;color:var(--muted);">${o.praca}</td>
       </tr>`).join('');
 
-    // Atualiza nota de rodapé se houver apenas autoavaliação
+    // Nota de rodapé
     const temParcial = d.orientadores.some(o => o.apenasAutoav);
     const nota = document.getElementById('obs-nota');
     if (nota) nota.style.display = temParcial ? 'block' : 'none';
+
+    // Recalcula médias por praça
+    const pracas = {};
+    for (const o of d.orientadores) {
+      if (!o.praca || o.praca === '—' || o.media === null) continue;
+      if (!pracas[o.praca]) pracas[o.praca] = { scores: [], nomes: [], soAutoav: true };
+      pracas[o.praca].scores.push(o.media);
+      pracas[o.praca].nomes.push(o.nome);
+      if (!o.apenasAutoav) pracas[o.praca].soAutoav = false;
+    }
+
+    function atualizaPraca(id, dados) {
+      const elVal = document.getElementById('praca-' + id + '-val');
+      const elBar = document.getElementById('praca-' + id + '-bar');
+      const elNomes = document.getElementById('praca-' + id + '-nomes');
+      if (!elVal || !dados) return;
+      const avg = Math.round(dados.scores.reduce((a, b) => a + b, 0) / dados.scores.length * 10) / 10;
+      const cor = avg >= 3.0 ? '#16A34A' : avg > 1.0 ? '#D97706' : '#DC2626';
+      const barCor = dados.soAutoav ? '#94A3B8' : (avg >= 3.0 ? 'var(--green)' : 'var(--amber)');
+      const sufixo = dados.soAutoav ? '*' : '';
+      elVal.textContent = avg.toFixed(1) + sufixo;
+      elVal.style.color = dados.soAutoav ? '#94A3B8' : cor;
+      if (elBar) { elBar.style.width = (avg / 4 * 100) + '%'; elBar.style.background = barCor; }
+      if (elNomes) elNomes.textContent = dados.nomes.join(' + ') + (dados.soAutoav ? ' · apenas autoavaliação' : '');
+    }
+
+    atualizaPraca('rj', pracas['RJ']);
+    atualizaPraca('bh', pracas['BH']);
+    atualizaPraca('sp', pracas['SP']);
 
   } catch(e) {
     console.warn('Observações não disponível:', e.message);
