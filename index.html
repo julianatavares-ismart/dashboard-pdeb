@@ -342,7 +342,7 @@ section { margin-bottom: 28px; }
     <div class="logo-mark">PD</div>
     <div>
       <div class="logo-title">Dashboard PDEB 2026</div>
-      <div class="logo-sub">Programa de Desenvolvimento · Educação de Base</div>
+      <div class="logo-sub">Programa de Desenvolvimento · Educação Básica</div>
     </div>
   </div>
   <div class="header-badges">
@@ -352,7 +352,7 @@ section { margin-bottom: 28px; }
   <div class="header-right">
     <div class="header-date">Atualizado em<br><strong style="color:rgba(255,255,255,.85)" id="headerDate">11/05/2026</strong></div>
     <button id="settingsBtn" onclick="openSetup()">⚙ Configurar</button>
-    <button id="refreshBtn" onclick="doRefresh()">↻ Atualizar dados</button>
+    <button id="refreshBtn" onclick="doRefreshAll()">↻ Atualizar dados</button>
   </div>
 </header>
 
@@ -363,7 +363,7 @@ section { margin-bottom: 28px; }
   <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:24px;align-items:start;">
     <div>
       <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Sobre o projeto</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.6;">O <strong style="color:#fff;">PDEB 2026</strong> é o novo currículo de desenvolvimento da Educação de Base do Ismart — uma jornada integrada e intencional do 8º EF ao 3º EM, com ciclos estruturados de Oficina, Mão na Massa e Fala aí!, orientada por 4 eixos de competência.</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.6;">O <strong style="color:#fff;">PDEB 2026</strong> é o novo currículo de desenvolvimento da Educação Básica do Ismart — uma jornada integrada e intencional do 8º EF ao 3º EM, com ciclos estruturados de Oficina, Mão na Massa e Fala aí!, orientada por 4 eixos de competência.</div>
     </div>
     <div>
       <div style="font-size:10px;font-weight:600;color:#8EC5B1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Eixo 1</div>
@@ -396,36 +396,77 @@ section { margin-bottom: 28px; }
   <section>
     <div class="section-label">Indicadores da semana</div>
     <div class="kpi-grid">
+
+      <!-- 1. IMPACTO — o que mais importa para uma diretora -->
       <div class="kpi blue">
-        <div class="kpi-label">Alunos no Classroom</div>
-        <div class="kpi-value">705</div>
-        <div class="kpi-sub">de 715 alunos EB</div>
-        <div class="kpi-trend ok">↑ 98,6% de cobertura</div>
+        <div class="kpi-label">Alunos avançaram nas competências</div>
+        <div class="kpi-value">55<span style="font-size:18px;font-weight:400;color:var(--soft)">%</span></div>
+        <div class="kpi-sub">percepção dos orientadores · 108 registros · Ciclos 1 e 2</div>
+        <div class="kpi-trend" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="background:#DCFCE7;color:#15803D;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">55% claramente</span>
+          <span style="background:#FEF3C7;color:#92400E;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">35% parcialmente</span>
+          <span style="background:#F1F5F9;color:#64748B;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">8% sem clareza</span>
+        </div>
       </div>
+
+      <!-- 2. LEARN TO FLY — impacto no autoconhecimento -->
+      <div class="kpi teal">
+        <div class="kpi-label">Learn To Fly · 1º + 2º Ano</div>
+        <div class="kpi-value">321<span style="font-size:18px;font-weight:400;color:var(--soft)"> map.</span></div>
+        <div class="kpi-sub">mapeamentos próprios concluídos · 178 no 1ºAno · 143 no 2ºAno</div>
+        <div class="kpi-trend" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+          <span style="background:#DCFCE7;color:#15803D;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">81,7% no 1ºAno</span>
+          <span style="background:#DCFCE7;color:#15803D;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;">70,8% no 2ºAno</span>
+        </div>
+      </div>
+
+      <!-- 3. SATISFAÇÃO DOS ALUNOS -->
       <div class="kpi purple">
-        <div class="kpi-label">Entregas MNM</div>
-        <div class="kpi-value">107</div>
-        <div class="kpi-sub">taxa de 15,18% · Ciclo 2</div>
+        <div class="kpi-label">Satisfação dos alunos · Ciclo 1</div>
+        <div class="kpi-value">4,05<span style="font-size:18px;font-weight:400;color:var(--soft)"> ★</span></div>
+        <div class="kpi-sub">209 respostas · 1ºEM + 2ºEM</div>
+        <div class="kpi-trend ok" style="margin-top:8px;">3ºEM Ciclo 1 e Ciclo 2 em coleta</div>
+      </div>
+
+      <!-- 4. OPERACIONAL — por último -->
+      <div class="kpi amber">
+        <div class="kpi-label">Entregas MNM · Ciclo 2</div>
+        <div class="kpi-value" id="kpi-mnm">107</div>
+        <div class="kpi-sub">taxa de 15,18% · meta em construção</div>
         <div class="kpi-trend up">▲ +30 na semana</div>
       </div>
-      <div class="kpi teal">
-        <div class="kpi-label">Respostas Forms</div>
-        <div class="kpi-value">125</div>
-        <div class="kpi-sub">autoavaliação Ciclo 2</div>
-        <div class="kpi-trend up">▲ +25 na semana</div>
-      </div>
-      <div class="kpi amber">
-        <div class="kpi-label">Amostra p/ análise</div>
-        <div class="kpi-value">229<span>/408</span></div>
-        <div class="kpi-sub">mínimo estatístico</div>
-        <div class="kpi-trend warn">⚡ 56% do mínimo — Ciclo 1</div>
-      </div>
+
+    </div>
+
+    <!-- Barra secundária -->
+    <div style="background:var(--surface2);border-radius:8px;padding:10px 16px;margin-top:10px;display:flex;gap:32px;align-items:center;border:1px solid var(--border);flex-wrap:wrap;">
+      <span style="font-size:11px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Dados complementares</span>
+      <span style="font-size:12px;color:var(--muted);">Alunos no Classroom: <strong style="color:var(--text)">705 / 715</strong> <span style="color:var(--soft)">(98,6%)</span></span>
+      <span style="font-size:12px;color:var(--muted);">Respostas forms: <strong style="color:var(--text)">125</strong> <span style="color:var(--soft)">autoavaliação Ciclo 2</span></span>
+      <span style="font-size:12px;color:var(--muted);">Amostra p/ análise: <strong style="color:var(--text)">229/408</strong> <span style="color:var(--amber)">⚡ 56% do mínimo</span></span>
     </div>
   </section>
 
   <!-- MARCOS -->
   <section>
-    <div class="section-label">Marcos do projeto · Ciclo 1</div>
+    <div class="section-label">Marcos do projeto</div>
+
+    <!-- Legenda única -->
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:14px;flex-wrap:wrap;padding:9px 14px;background:var(--surface2);border-radius:9px;border:1px solid var(--border);">
+      <span style="font-size:11px;font-weight:600;color:var(--muted);">Legenda:</span>
+      <span style="font-size:12px;color:#16A34A;font-weight:500;">✓ Feito</span>
+      <span style="font-size:12px;color:#D97706;font-weight:500;">⏳ Em andamento</span>
+      <span style="font-size:12px;color:var(--soft);">○ Não iniciado</span>
+      <span style="font-size:12px;color:var(--soft);">❄ Congelado</span>
+    </div>
+
+    <!-- Ciclo 1 -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.08em;">Ciclo 1</span>
+      <span class="pill pill-done">✓ 5 de 5 marcos entregues</span>
+      <button onclick="toggleAllMarcos()" id="btnToggleMarcos" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:4px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;">▼ Ver marcos</button>
+    </div>
+    <div id="marcos-ciclo1-wrapper" style="display:none;">
 
     <div id="marcos-ciclo1"><div class="marco">
       <div class="marco-row">
@@ -475,18 +516,18 @@ section { margin-bottom: 28px; }
         <div class="marco-id">M3</div>
         <div class="marco-body">
           <div class="marco-nome">Rubricas do Mão na Massa ajustadas após cada ciclo</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:67%;background:var(--amber)"></div></div>
-          <div class="bar-meta"><span>2 de 3 subelementos · 1 em andamento</span><span>67%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:100%;background:var(--green)"></div></div>
+          <div class="bar-meta"><span>3 de 3 subelementos</span><span>100%</span></div>
         </div>
         <div class="marco-right">
-          <span class="pill pill-wip">⏳ Em andamento</span>
+          <span class="pill pill-done">✓ Feito</span>
           <button class="expand-btn" onclick="expandir('subs-m3', this)">ver mais</button>
         </div>
       </div>
       <div class="marco-subs" id="subs-m3" style="display:none">
         <div class="sub-item"><span class="sub-icon icon-done">✓</span>Ajustes implementados antes do ciclo seguinte</div>
         <div class="sub-item"><span class="sub-icon icon-done">✓</span>Análise de distribuição de notas após cada ciclo</div>
-        <div class="sub-item"><span class="sub-icon icon-wip">⏳</span>Registro dos ajustes e materiais atualizados</div>
+        <div class="sub-item"><span class="sub-icon icon-done">✓</span>Registro dos ajustes e materiais atualizados</div>
       </div>
     </div>
 
@@ -533,16 +574,87 @@ section { margin-bottom: 28px; }
 
 
   <!-- MARCOS CICLO 2 -->
-  <section id="section-ciclo2" style="display:none">
-    <div class="section-label">Marcos do projeto · Ciclo 2 <span style="font-size:10px;font-weight:500;color:var(--amber);background:#FEF3C7;padding:2px 8px;border-radius:10px;margin-left:6px;">Em andamento</span></div>
-    <div id="marcos-ciclo2">
-      <!-- preenchido via JS -->
+  <section id="section-ciclo2" style="margin-top:16px;">
+    <!-- Ciclo 2 título com badge consistente -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Ciclo 2</span>
+      <span class="pill pill-wip">⏳ Em andamento</span>
+      <button onclick="toggleMarcosCiclo2()" id="btnToggleC2" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:4px 12px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;">▲ Ocultar Ciclo 2</button>
+    </div>
+    <div id="marcos-ciclo2-wrapper">
+      <div id="marcos-ciclo2">
+
+        <!-- M1 C2 estático -->
+        <div class="marco">
+          <div class="marco-row">
+            <div class="marco-id">M1</div>
+            <div class="marco-body">
+              <div class="marco-nome">Treinamento inicial de qualidade entregue ao Presencial</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:40%;background:var(--amber)"></div></div>
+              <div class="bar-meta"><span>Em coleta — atualize para ver dados do Monday</span><span>—</span></div>
+            </div>
+            <div class="marco-right">
+              <span class="pill pill-wip">⏳ Em andamento</span>
+              <button class="expand-btn" onclick="expandir('c2-subs-m1', this)">ver mais</button>
+            </div>
+          </div>
+          <div class="marco-subs" id="c2-subs-m1" style="display:none">
+            <div class="sub-item"><span style="color:var(--soft)">○</span><span>Dados carregados via botão Atualizar</span></div>
+          </div>
+        </div>
+
+        <!-- M2 C2 estático -->
+        <div class="marco">
+          <div class="marco-row">
+            <div class="marco-id">M2</div>
+            <div class="marco-body">
+              <div class="marco-nome">Observações em campo realizadas sistematicamente</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:60%;background:var(--amber)"></div></div>
+              <div class="bar-meta"><span>Em coleta — atualize para ver dados do Monday</span><span>—</span></div>
+            </div>
+            <div class="marco-right">
+              <span class="pill pill-wip">⏳ Em andamento</span>
+              <button class="expand-btn" onclick="expandir('c2-subs-m2', this)">ver mais</button>
+            </div>
+          </div>
+          <div class="marco-subs" id="c2-subs-m2" style="display:none">
+            <div class="sub-item"><span style="color:var(--soft)">○</span><span>Dados carregados via botão Atualizar</span></div>
+          </div>
+        </div>
+
+        <!-- M3 C2 estático -->
+        <div class="marco">
+          <div class="marco-row">
+            <div class="marco-id">M3</div>
+            <div class="marco-body">
+              <div class="marco-nome">Rubricas do Mão na Massa ajustadas após cada ciclo</div>
+              <div class="bar-bg"><div class="bar-fill" style="width:50%;background:var(--amber)"></div></div>
+              <div class="bar-meta"><span>Em coleta — atualize para ver dados do Monday</span><span>—</span></div>
+            </div>
+            <div class="marco-right">
+              <span class="pill pill-wip">⏳ Em andamento</span>
+              <button class="expand-btn" onclick="expandir('c2-subs-m3', this)">ver mais</button>
+            </div>
+          </div>
+          <div class="marco-subs" id="c2-subs-m3" style="display:none">
+            <div class="sub-item"><span style="color:var(--soft)">○</span><span>Dados carregados via botão Atualizar</span></div>
+          </div>
+        </div>
+
+        <div style="padding:10px 14px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--muted);border:1px solid var(--border);">
+          💡 Clique em <strong>Atualizar dados</strong> para carregar os status reais do Ciclo 2 diretamente do Monday.com
+        </div>
+
+      </div>
     </div>
   </section>
 
   <!-- PRACAS -->
   <section>
     <div class="section-label">Performance por praça</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
+      <strong style="color:var(--text);">Como calculamos o Score:</strong> média de % Oficinas realizadas + % Fala Aí respondidos + % Feedbacks dos orientadores, com pesos iguais entre os três indicadores.
+    </div>
     <div class="pracas-grid">
       <div class="card">
         <div class="card-title">Ranking Ciclo 1 — encerrado</div>
@@ -593,6 +705,245 @@ section { margin-bottom: 28px; }
     </div>
   </section>
 
+
+  <!-- OBSERVAÇÕES -->
+  <section>
+    <div class="section-label">Observações em campo · Ciclo 2</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
+
+      <!-- Média por orientador -->
+      <div class="card">
+        <div class="card-title">Média por orientador (autoavaliação + observador)</div>
+        <div style="font-size:11px;color:var(--soft);margin-bottom:12px;">Escala 1–4 · Inicial = Proficiente = Avançado · match por orientador + escola + série + ciclo</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;">Orientador</th>
+              <th style="text-align:center;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;">Autoav.</th>
+              <th style="text-align:center;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;">Observador</th>
+              <th style="text-align:center;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;">Média</th>
+              <th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:600;font-size:10px;">Praça</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px;font-weight:500;">Beatrice Leite</td>
+              <td style="text-align:center;padding:6px;">4,0</td>
+              <td style="text-align:center;padding:6px;">3,3</td>
+              <td style="text-align:center;padding:6px;"><span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:10px;font-weight:600;">3,5</span></td>
+              <td style="padding:6px;color:var(--muted);">RJ</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px;font-weight:500;">Milena Ferreira</td>
+              <td style="text-align:center;padding:6px;">3,8</td>
+              <td style="text-align:center;padding:6px;">3,3</td>
+              <td style="text-align:center;padding:6px;"><span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:10px;font-weight:600;">3,5</span></td>
+              <td style="padding:6px;color:var(--muted);">RJ</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px;font-weight:500;">Lais Oliveira</td>
+              <td style="text-align:center;padding:6px;">3,8</td>
+              <td style="text-align:center;padding:6px;">3,3</td>
+              <td style="text-align:center;padding:6px;"><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-weight:600;">3,4</span></td>
+              <td style="padding:6px;color:var(--muted);">BH</td>
+            </tr>
+
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px;font-weight:500;">Alexis Gonçalves</td>
+              <td style="text-align:center;padding:6px;">3,8</td>
+              <td style="text-align:center;padding:6px;">3,0</td>
+              <td style="text-align:center;padding:6px;"><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-weight:600;">3,4</span></td>
+              <td style="padding:6px;color:var(--muted);">BH</td>
+            </tr>
+            <tr>
+              <td style="padding:6px;font-weight:500;">Lucas Aprile</td>
+              <td style="text-align:center;padding:6px;">3,6</td>
+              <td style="text-align:center;padding:6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:6px;"><span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:10px;font-weight:600;">3,6*</span></td>
+              <td style="padding:6px;color:var(--muted);">SP</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:10px;color:var(--soft);margin-top:8px;">* apenas autoavaliação disponível · observações externas em andamento</div>
+      </div>
+
+      <!-- Média por praça + pilares -->
+      <div class="card">
+        <div class="card-title">Média geral por praça · 8 pilares de facilitação</div>
+        <div style="font-size:11px;color:var(--soft);margin-bottom:12px;">Média combinada (autoavaliação + observadores) por dimensão</div>
+
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">RJ — Rio de Janeiro</span><span style="font-size:13px;font-weight:600;color:#16A34A;">3,5</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:87.5%;background:var(--green)"></div></div>
+          <div style="font-size:10px;color:var(--soft);margin-top:2px;">Beatrice Leite + Milena Ferreira · destaque: Engajamento e Mediação Socioemocional</div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">BH — Belo Horizonte</span><span style="font-size:13px;font-weight:600;color:#D97706;">3,3</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:82.5%;background:var(--amber)"></div></div>
+          <div style="font-size:10px;color:var(--soft);margin-top:2px;">Alexis Gonçalves + Lais Oliveira · oportunidade: Construção de Sentido</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">SP — São Paulo</span><span style="font-size:13px;font-weight:600;color:var(--soft);">3,6*</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#94A3B8"></div></div>
+          <div style="font-size:10px;color:var(--soft);margin-top:2px;">Lucas Aprile · apenas autoavaliação · obs. externas pendentes</div>
+        </div>
+
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK ORIENTADORES E ALUNOS -->
+  <section>
+    <div class="section-label">Formulário pós-Oficina · percepção dos orientadores</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+
+      <!-- Avançaram nas competências? -->
+      <div class="card">
+        <div class="card-title">Estudantes avançaram nas competências?</div>
+        <div style="font-size:11px;color:var(--soft);margin-bottom:14px;">108 respostas · Ciclos 1 e 2 · todas as praças</div>
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">Sim, claramente</span><span style="font-size:12px;font-weight:600;color:#16A34A;">55%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:55%;background:var(--green)"></div></div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">Sim, parcialmente</span><span style="font-size:12px;font-weight:600;color:#D97706;">35%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:35%;background:var(--amber)"></div></div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">Não sei avaliar</span><span style="font-size:12px;font-weight:600;color:var(--soft);">8%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:8%;background:var(--soft)"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:12px;">Não percebi avanço</span><span style="font-size:12px;font-weight:600;color:var(--red);">2%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:2%;background:var(--red)"></div></div>
+        </div>
+      </div>
+
+      <!-- Adaptações -->
+      <div class="card">
+        <div class="card-title">Principais adaptações realizadas</div>
+        <div style="font-size:11px;color:var(--soft);margin-bottom:14px;">Motivos mais frequentes · Ciclos 1 e 2</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;">⏱</div>
+            <div><div style="font-size:12px;font-weight:500;">Falta de tempo</div><div style="font-size:11px;color:var(--soft);">Motivo mais citado — roteiro extenso</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;">🎯</div>
+            <div><div style="font-size:12px;font-weight:500;">Decisão pedagógica</div><div style="font-size:11px;color:var(--soft);">Adaptações intencionais à turma</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;">🔄</div>
+            <div><div style="font-size:12px;font-weight:500;">Reorganização de atividade</div><div style="font-size:11px;color:var(--soft);">Necessidade de ajustar o roteiro</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback alunos todas as séries -->
+      <div class="card">
+        <div class="card-title">Feedback alunos · por série e ciclo</div>
+        <div style="font-size:11px;color:var(--soft);margin-bottom:12px;">Pontos convergentes entre 1ºEM e 2ºEM · Ciclo 1</div>
+
+        <!-- Tabela resumo por série -->
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);">
+              <th style="text-align:left;padding:4px 6px;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;">Série</th>
+              <th style="text-align:center;padding:4px 6px;font-size:10px;color:var(--muted);font-weight:600;">Respostas</th>
+              <th style="text-align:center;padding:4px 6px;font-size:10px;color:var(--muted);font-weight:600;">Média ★</th>
+              <th style="text-align:center;padding:4px 6px;font-size:10px;color:var(--muted);font-weight:600;">Ciclo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:5px 6px;font-weight:500;">1ºEM</td>
+              <td style="text-align:center;padding:5px 6px;">131</td>
+              <td style="text-align:center;padding:5px 6px;"><span style="color:#16A34A;font-weight:600;">4,0 ★</span></td>
+              <td style="text-align:center;padding:5px 6px;">C1</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:5px 6px;font-weight:500;">2ºEM</td>
+              <td style="text-align:center;padding:5px 6px;">78</td>
+              <td style="text-align:center;padding:5px 6px;"><span style="color:#16A34A;font-weight:600;">4,1 ★</span></td>
+              <td style="text-align:center;padding:5px 6px;">C1</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--surface2);">
+              <td style="padding:5px 6px;color:var(--soft);">1ºEM · C2</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">C2</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--surface2);">
+              <td style="padding:5px 6px;color:var(--soft);">2ºEM · C2</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">—</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);">C2</td>
+            </tr>
+            <tr style="background:var(--surface2);">
+              <td style="padding:5px 6px;color:var(--soft);">3ºEM · C1 e C2</td>
+              <td style="text-align:center;padding:5px 6px;color:var(--soft);" colspan="3">em coleta</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="padding-top:10px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Pontos convergentes (1ºEM + 2ºEM)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:10px;font-weight:600;color:var(--soft);text-transform:uppercase;margin-bottom:2px;">Pontos altos</div>
+              <div>🤝 Perceber que não estou sozinho</div>
+              <div>👂 Apoio e escuta do orientador</div>
+              <div>🛠 Ferramentas práticas</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:10px;font-weight:600;color:var(--soft);text-transform:uppercase;margin-bottom:2px;">Melhorias</div>
+              <div>⏱ Tempo (longo ou corrido)</div>
+              <div>💻 Plataforma / acesso</div>
+              <div>🎯 Conexão com vestibular</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ANÁLISE DE EMOÇÕES DOS ORIENTADORES -->
+  <section>
+    <div class="section-label">Análise de sentimento · Orientadores</div>
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div>
+          <div class="card-title" style="margin-bottom:4px;">Percepção qualitativa dos orientadores</div>
+          <div style="font-size:12px;color:var(--muted);">Atualizada automaticamente com base nas justificativas abertas do Formulário pós-Oficina</div>
+        </div>
+        <div id="emocao-loading" style="display:none;font-size:12px;color:var(--muted);align-self:center;">✦ Atualizando análise...</div>
+      </div>
+      <div id="emocao-static" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        <div id="card-tom" style="padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Tom predominante</div>
+          <div id="tom-emoji" style="font-size:22px;margin-bottom:4px;">😊</div>
+          <div id="tom-titulo" style="font-size:13px;font-weight:600;color:#16A34A;">Positivo</div>
+          <div id="tom-desc" style="font-size:11px;color:var(--soft);margin-top:3px;">Engajamento e satisfação na maioria dos registros</div>
+        </div>
+        <div id="card-tensao" style="padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Tensão mais citada</div>
+          <div id="tensao-emoji" style="font-size:22px;margin-bottom:4px;">⏱</div>
+          <div id="tensao-titulo" style="font-size:13px;font-weight:600;color:#D97706;">Gestão de tempo</div>
+          <div id="tensao-desc" style="font-size:11px;color:var(--soft);margin-top:3px;">Roteiro extenso vs. tempo disponível por turma</div>
+        </div>
+        <div id="card-orgulho" style="padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Ponto de orgulho</div>
+          <div id="orgulho-emoji" style="font-size:22px;margin-bottom:4px;">🌱</div>
+          <div id="orgulho-titulo" style="font-size:13px;font-weight:600;color:var(--blue);">Vínculo e escuta</div>
+          <div id="orgulho-desc" style="font-size:11px;color:var(--soft);margin-top:3px;">Rodas de conversa mencionadas como diferencial</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CHART -->
   <section>
     <div class="section-label">Evolução semanal</div>
@@ -608,51 +959,8 @@ section { margin-bottom: 28px; }
     </div>
   </section>
 
-  <!-- DELTA -->
-  <section>
-    <div class="section-label">Autoavaliação — delta Ciclo 1 por série</div>
-    <div class="delta-grid">
-      <div class="delta-card">
-        <div class="delta-header">
-          <span class="delta-serie">1º EM</span>
-          <span class="delta-badge db-warn">⚡ 94% — 131/139</span>
-        </div>
-        <div class="delta-resp">amostra quase completa</div>
-        <div class="bar-bg"><div class="bar-fill" style="width:94%;background:var(--amber)"></div></div>
-        <div class="delta-pts">
-          <div class="dp"><div class="dp-label">P1</div><div class="dp-val">+0,16</div></div>
-          <div class="dp"><div class="dp-label">P2</div><div class="dp-val">+0,02</div></div>
-          <div class="dp"><div class="dp-label">P3</div><div class="dp-val">+0,11</div></div>
-        </div>
-      </div>
-      <div class="delta-card">
-        <div class="delta-header">
-          <span class="delta-serie">2º EM</span>
-          <span class="delta-badge db-bad">⚠ 59% — 78/132</span>
-        </div>
-        <div class="delta-resp">amostra insuficiente</div>
-        <div class="bar-bg"><div class="bar-fill" style="width:59%;background:var(--red)"></div></div>
-        <div class="delta-pts">
-          <div class="dp"><div class="dp-label">P1</div><div class="dp-val">+0,48</div></div>
-          <div class="dp"><div class="dp-label">P2</div><div class="dp-val">+0,25</div></div>
-          <div class="dp"><div class="dp-label">P3</div><div class="dp-val">+0,23</div></div>
-        </div>
-      </div>
-      <div class="delta-card">
-        <div class="delta-header">
-          <span class="delta-serie">3º EM</span>
-          <span class="delta-badge db-bad">⚠ 15% — 20/137</span>
-        </div>
-        <div class="delta-resp">amostra insuficiente</div>
-        <div class="bar-bg"><div class="bar-fill" style="width:15%;background:var(--red)"></div></div>
-        <div class="delta-pts">
-          <div class="dp"><div class="dp-label">P1</div><div class="dp-val">+0,18</div></div>
-          <div class="dp"><div class="dp-label">P2</div><div class="dp-val">+0,30</div></div>
-          <div class="dp"><div class="dp-label">P3</div><div class="dp-val">+0,43</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
+
+
 
   <!-- MAPEAMENTO DE COMPETÊNCIAS -->
   <section>
@@ -660,45 +968,81 @@ section { margin-bottom: 28px; }
     <div class="pracas-grid">
 
       <div class="card">
-        <div class="card-title">1º Ano · 218 inscritos</div>
+        <div class="card-title">1º Ano · 218 inscritos · <span style="color:var(--soft);font-weight:400">atualizado 15/05</span></div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#16A34A;">94,5%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:94.5%;background:var(--green)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">206 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#16A34A;">95,9%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:95.9%;background:var(--green)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">209 alunos</div>
         </div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Mapeamento próprio</span><span style="font-size:12px;font-weight:600;color:#D97706;">78,0%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:78%;background:var(--amber)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">170 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Mapeamento próprio</span><span style="font-size:12px;font-weight:600;color:#D97706;">81,7%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:81.7%;background:var(--amber)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">178 alunos</div>
         </div>
         <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Rede de apoio</span><span style="font-size:12px;font-weight:600;color:#DC2626;">34,9%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:34.9%;background:var(--red)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">76 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Rede de apoio</span><span style="font-size:12px;font-weight:600;color:#DC2626;">36,7%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:36.7%;background:var(--red)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">80 alunos</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">2º Ano · 202 inscritos</div>
+        <div class="card-title">2º Ano · 202 inscritos · <span style="color:var(--soft);font-weight:400">atualizado 15/05</span></div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#D97706;">89,6%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:89.6%;background:var(--amber)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">181 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Acessaram a plataforma</span><span style="font-size:12px;font-weight:600;color:#D97706;">91,6%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:91.6%;background:var(--amber)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">185 alunos</div>
         </div>
         <div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Mapeamento próprio</span><span style="font-size:12px;font-weight:600;color:#D97706;">67,3%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:67.3%;background:var(--amber)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">136 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Mapeamento próprio</span><span style="font-size:12px;font-weight:600;color:#D97706;">70,8%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:70.8%;background:var(--amber)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">143 alunos</div>
         </div>
         <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Rede de apoio</span><span style="font-size:12px;font-weight:600;color:#DC2626;">32,7%</span></div>
-          <div class="bar-bg"><div class="bar-fill" style="width:32.7%;background:var(--red)"></div></div>
-          <div style="font-size:11px;color:var(--soft);margin-top:3px;">66 alunos</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;color:var(--muted);">Rede de apoio</span><span style="font-size:12px;font-weight:600;color:#DC2626;">33,7%</span></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:33.7%;background:var(--red)"></div></div>
+          <div style="font-size:11px;color:var(--soft);margin-top:3px;">68 alunos</div>
         </div>
       </div>
 
     </div>
   </section>
+
+  <!-- NUVEM DE PALAVRAS -->
+  <section>
+    <div class="section-label">Nuvem de palavras · Feedback dos alunos</div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Palavras mais frequentes nos formulários de feedback · 1ºEM + 2ºEM · Ciclo 1 (209 respostas)</div>
+      <div style="position:relative;width:100%;min-height:200px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;padding:16px 0;">
+        <span style="font-size:32px;font-weight:700;color:#002561;opacity:.9;">colegas</span>
+        <span style="font-size:28px;font-weight:600;color:#ED2D67;opacity:.85;">estudar</span>
+        <span style="font-size:27px;font-weight:600;color:#008ED3;">prova</span>
+        <span style="font-size:26px;font-weight:600;color:#924A7C;">ismart</span>
+        <span style="font-size:26px;font-weight:600;color:#002561;opacity:.75;">organizar</span>
+        <span style="font-size:24px;font-weight:500;color:#ED2D67;opacity:.7;">protagonismo</span>
+        <span style="font-size:23px;font-weight:500;color:#008ED3;opacity:.8;">orientador</span>
+        <span style="font-size:22px;font-weight:500;color:#8EC5B1;filter:saturate(1.5);">descansar</span>
+        <span style="font-size:22px;font-weight:500;color:#924A7C;opacity:.75;">liderança</span>
+        <span style="font-size:21px;font-weight:500;color:#002561;opacity:.65;">rotina</span>
+        <span style="font-size:20px;font-weight:500;color:#ED2D67;opacity:.65;">grupo</span>
+        <span style="font-size:20px;font-weight:400;color:#008ED3;opacity:.7;">ajuda</span>
+        <span style="font-size:19px;font-weight:400;color:#64748B;">cansado</span>
+        <span style="font-size:19px;font-weight:400;color:#924A7C;opacity:.7;">planejamento</span>
+        <span style="font-size:18px;font-weight:400;color:#002561;opacity:.6;">calma</span>
+        <span style="font-size:18px;font-weight:400;color:#ED2D67;opacity:.6;">trabalho</span>
+        <span style="font-size:17px;font-weight:400;color:#008ED3;opacity:.6;">atitude</span>
+        <span style="font-size:17px;font-weight:400;color:#8EC5B1;filter:saturate(1.5);opacity:.8;">ciclo</span>
+        <span style="font-size:16px;font-weight:400;color:#64748B;opacity:.8;">iniciativa</span>
+        <span style="font-size:16px;font-weight:400;color:#924A7C;opacity:.6;">ferramentas</span>
+        <span style="font-size:15px;font-weight:400;color:#64748B;opacity:.7;">limite</span>
+        <span style="font-size:15px;font-weight:400;color:#002561;opacity:.5;">decisão</span>
+        <span style="font-size:14px;font-weight:400;color:#008ED3;opacity:.55;">suporte</span>
+        <span style="font-size:14px;font-weight:400;color:#ED2D67;opacity:.5;">coragem</span>
+      </div>
+      <div style="font-size:10px;color:var(--soft);margin-top:8px;text-align:center;">Tamanho proporcional à frequência de aparição nos formulários de feedback</div>
+    </div>
+  </section>
+
 
 </main>
 
@@ -718,6 +1062,22 @@ function skipSetup() {
 function openSetup() { document.getElementById('setup').style.display = 'flex'; }
 
 // ── MARCOS ──
+function toggleMarcosCiclo2() {
+  const wrapper = document.getElementById('marcos-ciclo2-wrapper');
+  const btn = document.getElementById('btnToggleC2');
+  const isOpen = wrapper.style.display !== 'none';
+  wrapper.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '▼ Ver marcos Ciclo 2' : '▲ Ocultar marcos Ciclo 2';
+}
+
+function toggleAllMarcos() {
+  const wrapper = document.getElementById('marcos-ciclo1-wrapper');
+  const btn = document.getElementById('btnToggleMarcos');
+  const isOpen = wrapper.style.display !== 'none';
+  wrapper.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '▼ Ver todos os marcos' : '▲ Ocultar marcos';
+}
+
 function expandir(id, btn) {
   const el = document.getElementById(id);
   const open = el.style.display === 'none' || el.style.display === '';
@@ -840,6 +1200,7 @@ async function doRefresh() {
     }
     if (d.ciclo2?.length) {
       document.getElementById('section-ciclo2').style.display = 'block';
+      document.getElementById('btnToggleC2').click();
       renderMarcos(d.ciclo2, 'marcos-ciclo2', 'c2');
     }
 
@@ -854,10 +1215,132 @@ async function doRefresh() {
   }
 }
 
+
+
+// ── REFRESH ALL (Monday + Sheets) ──
+async function doRefreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  const bar = document.getElementById('statusBar');
+  btn.disabled = true;
+  btn.textContent = '↻ Buscando...';
+  bar.style.display = 'none';
+
+  const erros = [];
+
+  // Monday
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_milestones' })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    if (d.updatedAt) document.getElementById('headerDate').textContent = d.updatedAt;
+    if (d.ciclo1?.length) renderMarcos(d.ciclo1, 'marcos-ciclo1', 'c1');
+    if (d.ciclo2?.length) {
+      document.getElementById('section-ciclo2').style.display = 'block';
+      renderMarcos(d.ciclo2, 'marcos-ciclo2', 'c2');
+    }
+  } catch(e) {
+    erros.push('Monday: ' + e.message);
+  }
+
+  // Sheets
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_sheets_data' })
+    });
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+    // dados disponíveis para uso futuro
+  } catch(e) {
+    erros.push('Sheets: ' + e.message);
+  }
+
+  // Sentimento — roda sempre, erros são silenciosos
+  try { await analisarEmocoes(); } catch(_) {}
+
+  if (erros.length === 0) {
+    bar.textContent = '✓ Dados atualizados em ' + new Date().toLocaleDateString('pt-BR');
+    bar.style.cssText = 'display:block;padding:10px 32px;font-size:13px;background:#F0FDF4;border-bottom:1px solid #BBF7D0;color:#15803D;';
+  } else {
+    bar.textContent = '⚠ Atualizado parcialmente — ' + erros.join(' · ');
+    bar.style.cssText = 'display:block;padding:10px 32px;font-size:13px;background:#FEF3C7;border-bottom:1px solid #FDE68A;color:#92400E;';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '↻ Atualizar dados';
+}
+
+// ── ANÁLISE DE EMOÇÕES ──
+const FORM_TEXTOS = `Alguns exemplos de justificativas dos orientadores sobre o avanço dos alunos:
+- "Com as adaptações necessárias à turma, a roda foi fluida e os alunos conseguiram engajar na proposta."
+- "Os alunos conseguiram refletir sobre as diferenças entre liderança e protagonismo, trazendo exemplos de situações."
+- "Percebo que a proposta foi muito dinâmica para os alunos mas abriu espaço para muitas dúvidas sobre o futuro."
+- "Não consegui encontrar ferramentas de avaliação diagnóstica para responder com precisão."
+- "Sinto que é desafiador avaliar essas competências a partir de uma única oficina."
+- "A turma foi bastante participativa e conseguiram identificar elementos de liderança e protagonismo."
+- "O tempo estimado de 1h30 foi ultrapassado, totalizando entre 2h e 2h30."
+- "Os alunos relataram que a atividade gerou reflexões importantes sobre suas próprias atitudes."
+- "Acredito que a alta quantidade de competências mobilizadas não nos permite um trabalho assertivo."
+- "A turma demonstrou bastante clareza sobre as diferenças entre cursos e carreiras."
+- "Sinto que o fala aí fica um pouco vago, talvez poderíamos ter uma reflexão mais direcionada."
+- "Os alunos compartilharam percepções e aprendizados sobre liderança a partir das experiências vivenciadas."`;
+
+async function analisarEmocoes() {
+  const loading = document.getElementById('emocao-loading');
+  loading.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'analyze_sentiment', texts: FORM_TEXTOS })
+    });
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status} — resposta não é JSON: ${txt.substring(0, 120)}`);
+    }
+    const d = await res.json();
+    if (d.error) throw new Error(d.error);
+
+    // Tenta parsear JSON estruturado; se falhar, mantém os valores atuais
+    let parsed;
+    try {
+      const clean = (d.analysis || '').replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch(_) { return; }
+
+    if (parsed.tom) {
+      document.getElementById('tom-emoji').textContent = parsed.tom.emoji || '😊';
+      document.getElementById('tom-titulo').textContent = parsed.tom.titulo || '';
+      document.getElementById('tom-desc').textContent = parsed.tom.descricao || '';
+    }
+    if (parsed.tensao) {
+      document.getElementById('tensao-emoji').textContent = parsed.tensao.emoji || '⏱';
+      document.getElementById('tensao-titulo').textContent = parsed.tensao.titulo || '';
+      document.getElementById('tensao-desc').textContent = parsed.tensao.descricao || '';
+    }
+    if (parsed.orgulho) {
+      document.getElementById('orgulho-emoji').textContent = parsed.orgulho.emoji || '🌱';
+      document.getElementById('orgulho-titulo').textContent = parsed.orgulho.titulo || '';
+      document.getElementById('orgulho-desc').textContent = parsed.orgulho.descricao || '';
+    }
+  } catch(e) {
+    console.warn('Análise de sentimento não disponível:', e.message);
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
 // ── INIT ──
 (function init() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('refreshBtn').disabled = false;
+  doRefreshAll();
 })();
 </script>
 </body>
