@@ -192,6 +192,79 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     }
   }
 
+  // ── FEEDBACK ALUNOS (por série/ciclo) ───────────────────────────
+  if (action === 'get_feedback_alunos') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    const SHEETS = [
+      { id: '1jxBS2ISCFYkLqM7Su0SBP7dJUbfi9N6plXwWWsHjEYk', serie: '1ºEM', ciclo: 'C1' },
+      { id: '10joUR_7AY2udwvSgrZLq7sYQTbl0Tj9s0jpTeot_soQ', serie: '1ºEM', ciclo: 'C2' },
+      { id: '1BH39N32YFrx_duEcunXRy6ktuOkyS0f2g5z0T5QIuNA', serie: '2ºEM', ciclo: 'C1' },
+      { id: '1eyJZziZL0GFnYreJqE5iy07Z087yIbPI6y-MNrjQ6zY', serie: '2ºEM', ciclo: 'C2' },
+      { id: '1v4cDuh06cTt36ShqpbJajY1I1wKfXGgOIqU9YIAr6ig', serie: '3ºEM', ciclo: 'C1' },
+      { id: '1DB0hSzQQqYqPRSzlGIPbhuXqQUFrOc8IRUZsuxeeA3A', serie: '3ºEM', ciclo: 'C2' }
+    ];
+
+    async function fetchSheet(id) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/A1:Z500?key=${sheetsKey}`;
+      const r = await fetch(url);
+      return r.json();
+    }
+
+    function parseRating(txt) {
+      if (!txt) return null;
+      // Aceita formatos: "4", "4 - ...", "4 estrelas", número puro
+      const m = /^(\d+)/.exec(txt.trim());
+      const n = m ? parseInt(m[1]) : null;
+      return (n >= 1 && n <= 5) ? n : null;
+    }
+
+    try {
+      const results = await Promise.all(SHEETS.map(async s => {
+        try {
+          const d = await fetchSheet(s.id);
+          const rows = d.values || [];
+          if (rows.length < 2) return { ...s, respostas: 0, media: null };
+
+          const headers = rows[0].map(h => (h || '').toLowerCase());
+          // Procura coluna de nota: "nota", "avalia", "estrela", "satisfa", "como foi"
+          let ratingIdx = headers.findIndex(h =>
+            h.includes('nota') || h.includes('avalia') || h.includes('estrela') ||
+            h.includes('satisfa') || h.includes('como foi') || h.includes('como você')
+          );
+
+          // Fallback: coluna com mais valores numéricos entre 1-5
+          if (ratingIdx === -1) {
+            let bestCol = -1, bestCount = 0;
+            for (let ci = 1; ci < (rows[0] || []).length; ci++) {
+              const count = rows.slice(1).filter(r => parseRating(r[ci]) !== null).length;
+              if (count > bestCount) { bestCount = count; bestCol = ci; }
+            }
+            if (bestCount > rows.length * 0.3) ratingIdx = bestCol;
+          }
+
+          if (ratingIdx === -1) return { ...s, respostas: 0, media: null };
+
+          const scores = rows.slice(1)
+            .map(r => parseRating(r[ratingIdx]))
+            .filter(n => n !== null);
+
+          if (scores.length === 0) return { ...s, respostas: 0, media: null };
+
+          const media = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10;
+          return { ...s, respostas: scores.length, media };
+        } catch(_) {
+          return { ...s, respostas: 0, media: null };
+        }
+      }));
+
+      return res.status(200).json({ feedback: results });
+    } catch(err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   // ── VOZES DOS ALUNOS ────────────────────────────────────────────
   if (action === 'get_vozes_alunos') {
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
