@@ -651,7 +651,7 @@ section { margin-bottom: 28px; }
 
   <!-- PRACAS -->
   <section>
-    <div class="section-label">Performance por praça</div>
+    <div class="section-label">Performance por praça · Ciclo 2</div>
     <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
       <!-- SP -->
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
@@ -1415,6 +1415,7 @@ async function carregarPracasC2() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const d = await res.json();
     if (d.error || !d.pracas) return;
+    console.log('[praças C2] resposta:', JSON.stringify(d));
 
     function barColor(pct) {
       if (pct >= 70) return 'var(--green)';
