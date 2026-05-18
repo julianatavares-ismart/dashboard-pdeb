@@ -424,7 +424,7 @@ section { margin-bottom: 28px; }
       <div class="kpi purple">
         <div class="kpi-label">Satisfação dos alunos · Ciclo 1</div>
         <div class="kpi-value">4,05<span style="font-size:18px;font-weight:400;color:var(--soft)">/5 ★</span></div>
-        <div class="kpi-sub">209 respostas · 1ºEM + 2ºEM</div>
+        <div class="kpi-sub">209 respostas · 33% da base elegível (628 alunos)</div>
         <div class="kpi-trend ok" style="margin-top:8px;">C1 encerrado · C2 em coleta</div>
       </div>
 
@@ -652,55 +652,11 @@ section { margin-bottom: 28px; }
   <!-- PRACAS -->
   <section>
     <div class="section-label">Performance por praça · Ciclo 2</div>
-    <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-      <!-- SP -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">SP · São Paulo</div>
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="sp-ofic" style="font-size:12px;font-weight:600;color:#D97706;">56,8%</span></div>
-          <div class="bar-bg"><div id="sp-ofic-bar" class="bar-fill" style="width:56.8%;background:var(--amber)"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="sp-fa" style="font-size:12px;font-weight:600;color:#DC2626;">5,4%</span></div>
-          <div class="bar-bg"><div id="sp-fa-bar" class="bar-fill" style="width:5.4%;background:var(--red)"></div></div>
-        </div>
-      </div>
-      <!-- BH -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">BH · Belo Horizonte</div>
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="bh-ofic" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="bh-ofic-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="bh-fa" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="bh-fa-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-      </div>
-      <!-- RJ -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">RJ · Rio de Janeiro</div>
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="rj-ofic" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="rj-ofic-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="rj-fa" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="rj-fa-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-      </div>
-      <!-- SJC -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">SJC · S. J. Campos</div>
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="sjc-ofic" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="sjc-ofic-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="sjc-fa" style="font-size:12px;font-weight:600;">—</span></div>
-          <div class="bar-bg"><div id="sjc-fa-bar" class="bar-fill" style="width:0%"></div></div>
-        </div>
-      </div>
+    <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+    <div style="font-size:10px;color:var(--soft);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap;">
+      <span>🟢 No prazo</span>
+      <span>🟡 Última semana</span>
+      <span>🔴 Prazo encerrado sem 100%</span>
     </div>
   </section>
 
@@ -1405,6 +1361,28 @@ const FORM_TEXTOS = `Alguns exemplos de justificativas dos orientadores sobre o 
 - "Sinto que o fala aí fica um pouco vago, talvez poderíamos ter uma reflexão mais direcionada."
 - "Os alunos compartilharam percepções e aprendizados sobre liderança a partir das experiências vivenciadas."`;
 
+// Datas do Ciclo 2
+const C2_INICIO   = new Date('2026-04-01');
+const C2_FIM_GERAL = new Date('2026-05-31'); // 8ºEF, 9ºEF, 1ºEM, 2ºEM
+const C2_FIM_3EM   = new Date('2026-06-30'); // 3ºEM
+
+function statusPraca(pct, fimCiclo) {
+  if (pct === null) return { cor: '#94A3B8', barCor: '#94A3B8' };
+  const hoje = new Date();
+  const diasRestantes = Math.ceil((fimCiclo - hoje) / 86400000);
+  const totalDias = Math.ceil((fimCiclo - C2_INICIO) / 86400000);
+  const pctDecorrido = Math.min(100, Math.max(0, (hoje - C2_INICIO) / (fimCiclo - C2_INICIO) * 100));
+
+  // Vermelho: ≤ 15 dias pro prazo
+  if (diasRestantes <= 15) return { cor: '#DC2626', barCor: '#DC2626' };
+  // Amarelo: ≤ 30 dias E menos de 50% feito
+  if (diasRestantes <= 30 && pct < 50) return { cor: '#D97706', barCor: '#F59E0B' };
+  // Verde: no prazo (realizado ≥ decorrido) com mais de 30 dias sobrando
+  if (diasRestantes > 30 && pct >= pctDecorrido) return { cor: '#16A34A', barCor: 'var(--green)' };
+  // Neutro: no prazo mas levemente atrás, ainda com tempo
+  return { cor: '#16A34A', barCor: 'var(--green)' };
+}
+
 async function carregarPracasC2() {
   try {
     const res = await fetch('/api/proxy', {
@@ -1415,34 +1393,52 @@ async function carregarPracasC2() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const d = await res.json();
     if (d.error || !d.pracas) return;
-    console.log('[praças C2] resposta:', JSON.stringify(d));
 
-    function barColor(pct) {
-      if (pct >= 70) return 'var(--green)';
-      if (pct >= 40) return 'var(--amber)';
-      return 'var(--red)';
+    const NOMES = { SP: 'SP · São Paulo', BH: 'BH · Belo Horizonte', RJ: 'RJ · Rio de Janeiro', SJC: 'SJC · S. J. Campos' };
+    const grid = document.getElementById('pracas-c2-grid');
+    if (!grid) return;
+
+    const hoje = new Date();
+
+    function badgePrazo(fimCiclo) {
+      const dias = Math.ceil((fimCiclo - hoje) / 86400000);
+      const fmt  = fimCiclo.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      if (dias <= 0)  return { bg: '#FEE2E2', txt: '#DC2626', label: 'Encerrado' };
+      if (dias <= 15) return { bg: '#FEE2E2', txt: '#DC2626', label: dias + 'd restantes' };
+      if (dias <= 30) return { bg: '#FEF3C7', txt: '#92400E', label: dias + 'd restantes' };
+      return { bg: '#DCFCE7', txt: '#15803D', label: 'até ' + fmt };
     }
 
-    for (const [id, dados] of Object.entries(d.pracas)) {
-      const lid = id.toLowerCase();
-      const elOfic = document.getElementById(lid + '-ofic');
-      const elOficBar = document.getElementById(lid + '-ofic-bar');
-      const elFa = document.getElementById(lid + '-fa');
-      const elFaBar = document.getElementById(lid + '-fa-bar');
-
-      if (dados.oficinas !== null && elOfic) {
-        const pct = dados.oficinas;
-        elOfic.textContent = pct.toFixed(1).replace('.', ',') + '%';
-        elOfic.style.color = barColor(pct);
-        if (elOficBar) { elOficBar.style.width = pct + '%'; elOficBar.style.background = barColor(pct); }
-      }
-      if (dados.falaAi !== null && elFa) {
-        const pct = dados.falaAi;
-        elFa.textContent = pct.toFixed(1).replace('.', ',') + '%';
-        elFa.style.color = barColor(pct);
-        if (elFaBar) { elFaBar.style.width = pct + '%'; elFaBar.style.background = barColor(pct); }
-      }
+    function cardPraca(id, fimCiclo) {
+      const dados = d.pracas[id] || { oficinas: null, falaAi: null };
+      const stOfic = statusPraca(dados.oficinas, fimCiclo);
+      const stFa   = statusPraca(dados.falaAi,   fimCiclo);
+      const badge  = badgePrazo(fimCiclo);
+      const barra  = (pct, st) => pct === null
+        ? '<span style="font-size:12px;color:var(--soft)">—</span>'
+        : '<span style="font-size:12px;font-weight:600;color:' + st.cor + ';">' + pct.toFixed(1).replace('.', ',') + '%</span>';
+      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+        + '<span style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;">' + NOMES[id] + '</span>'
+        + '<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:' + badge.bg + ';color:' + badge.txt + ';">' + badge.label + '</span>'
+        + '</div>'
+        + '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span>' + barra(dados.oficinas, stOfic) + '</div>'
+        + '<div class="bar-bg"><div class="bar-fill" style="width:' + (dados.oficinas || 0) + '%;background:' + stOfic.barCor + '"></div></div></div>'
+        + '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span>' + barra(dados.falaAi, stFa) + '</div>'
+        + '<div class="bar-bg"><div class="bar-fill" style="width:' + (dados.falaAi || 0) + '%;background:' + stFa.barCor + '"></div></div></div>'
+        + '</div>';
     }
+
+    const pracas = ['SP', 'BH', 'RJ', 'SJC'];
+    grid.innerHTML =
+      '<div style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--muted);">8ºEF · 9ºEF · 1ºEM · 2ºEM</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'
+      + pracas.map(id => cardPraca(id, C2_FIM_GERAL)).join('')
+      + '</div>'
+      + '<div style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--muted);">3ºEM</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">'
+      + pracas.map(id => cardPraca(id, C2_FIM_3EM)).join('')
+      + '</div>';
   } catch(e) {
     console.warn('Praças C2 não disponível:', e.message);
   }
@@ -1609,13 +1605,19 @@ async function curarVozes() {
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">${cards}</div>`;
     }).join('');
 
-    // Popula percentuais
+    // Popula percentuais — aceita plural e singular nas chaves
     if (vozes.percentuais) {
       const p = vozes.percentuais;
+      console.log('[vozes] percentuais recebidos:', JSON.stringify(p));
       const el = (id) => document.getElementById(id);
-      if (el('pct-positivo'))  el('pct-positivo').textContent  = (p.positivos  || 0) + '%';
-      if (el('pct-critica'))   el('pct-critica').textContent   = (p.criticas   || 0) + '%';
-      if (el('pct-melhoria'))  el('pct-melhoria').textContent  = (p.melhorias  || 0) + '%';
+      const pos = p.positivos ?? p.positivo ?? p.positive ?? 0;
+      const cri = p.criticas  ?? p.critica  ?? p.negativo ?? p.negative ?? 0;
+      const mel = p.melhorias ?? p.melhoria ?? p.improvement ?? 0;
+      if (el('pct-positivo'))  el('pct-positivo').textContent  = pos + '%';
+      if (el('pct-critica'))   el('pct-critica').textContent   = cri + '%';
+      if (el('pct-melhoria'))  el('pct-melhoria').textContent  = mel + '%';
+    } else {
+      console.warn('[vozes] percentuais ausentes. Estrutura recebida:', JSON.stringify(vozes).slice(0, 300));
     }
   } catch(e) {
     console.warn('Vozes dos alunos não disponível:', e.message);
