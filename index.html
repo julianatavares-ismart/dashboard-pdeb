@@ -423,9 +423,9 @@ section { margin-bottom: 28px; }
       <!-- 3. SATISFAÇÃO DOS ALUNOS -->
       <div class="kpi purple">
         <div class="kpi-label">Satisfação dos alunos · Ciclo 1</div>
-        <div class="kpi-value">4,05<span style="font-size:18px;font-weight:400;color:var(--soft)"> ★</span></div>
+        <div class="kpi-value">4,05<span style="font-size:18px;font-weight:400;color:var(--soft)">/5 ★</span></div>
         <div class="kpi-sub">209 respostas · 1ºEM + 2ºEM</div>
-        <div class="kpi-trend ok" style="margin-top:8px;">3ºEM Ciclo 1 e Ciclo 2 em coleta</div>
+        <div class="kpi-trend ok" style="margin-top:8px;">3ºEM C1 encerrado · C2 em coleta</div>
       </div>
 
       <!-- 4. OPERACIONAL — por último -->
@@ -443,7 +443,7 @@ section { margin-bottom: 28px; }
       <span style="font-size:11px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Dados complementares</span>
       <span style="font-size:12px;color:var(--muted);">Alunos no Classroom: <strong style="color:var(--text)">705 / 715</strong> <span style="color:var(--soft)">(98,6%)</span></span>
       <span style="font-size:12px;color:var(--muted);">Respostas forms: <strong style="color:var(--text)">125</strong> <span style="color:var(--soft)">autoavaliação Ciclo 2</span></span>
-      <span style="font-size:12px;color:var(--muted);">Amostra p/ análise: <strong style="color:var(--text)">229/408</strong> <span style="color:var(--amber)">⚡ 56% do mínimo</span></span>
+      <span style="font-size:12px;color:var(--muted);">Amostra p/ análise: <strong style="color:var(--text)">229/408</strong> <span style="color:var(--amber)">⚡ 56%</span></span>
     </div>
   </section>
 
@@ -655,51 +655,53 @@ section { margin-bottom: 28px; }
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
       <strong style="color:var(--text);">Como calculamos o Score:</strong> média de % Oficinas realizadas + % Fala Aí respondidos + % Feedbacks dos orientadores, com pesos iguais entre os três indicadores.
     </div>
-    <div class="pracas-grid">
-      <div class="card">
-        <div class="card-title">Ranking Ciclo 1 — encerrado</div>
-        <div class="rank-row r1">
-          <div class="rank-badge rb1">1</div>
-          <div class="rank-info"><div class="rank-nome">BH <span class="rank-cidade">Belo Horizonte</span></div></div>
-          <div class="rank-pts green">96,1 pts</div>
+    <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+      <!-- SP -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">SP · São Paulo</div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="sp-ofic" style="font-size:12px;font-weight:600;color:#D97706;">56,8%</span></div>
+          <div class="bar-bg"><div id="sp-ofic-bar" class="bar-fill" style="width:56.8%;background:var(--amber)"></div></div>
         </div>
-        <div class="rank-row rx">
-          <div class="rank-badge rb2">2</div>
-          <div class="rank-info"><div class="rank-nome">SJC <span class="rank-cidade">S. J. Campos</span></div></div>
-          <div class="rank-pts">87,1 pts</div>
-        </div>
-        <div class="rank-row rx">
-          <div class="rank-badge rb3">3</div>
-          <div class="rank-info"><div class="rank-nome">RJ <span class="rank-cidade">Rio de Janeiro</span></div></div>
-          <div class="rank-pts">83,7 pts</div>
-        </div>
-        <div class="rank-row rd">
-          <div class="rank-badge rb4">4</div>
-          <div class="rank-info"><div class="rank-nome">SP <span class="rank-cidade">São Paulo</span></div></div>
-          <div class="rank-pts red">77,4 pts</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="sp-fa" style="font-size:12px;font-weight:600;color:#DC2626;">5,4%</span></div>
+          <div class="bar-bg"><div id="sp-fa-bar" class="bar-fill" style="width:5.4%;background:var(--red)"></div></div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">Ranking Ciclo 2 — parcial</div>
-        <div class="rank-row r1">
-          <div class="rank-badge rb1">1</div>
-          <div class="rank-info"><div class="rank-nome">RJ <span class="rank-cidade">Rio de Janeiro</span></div></div>
-          <div class="rank-pts green">29,6 pts</div>
+      <!-- BH -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">BH · Belo Horizonte</div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="bh-ofic" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="bh-ofic-bar" class="bar-fill" style="width:0%"></div></div>
         </div>
-        <div class="rank-row rx">
-          <div class="rank-badge rb2">2</div>
-          <div class="rank-info"><div class="rank-nome">SJC <span class="rank-cidade">S. J. Campos</span></div></div>
-          <div class="rank-pts">23,3 pts</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="bh-fa" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="bh-fa-bar" class="bar-fill" style="width:0%"></div></div>
         </div>
-        <div class="rank-row rx">
-          <div class="rank-badge rb3">3</div>
-          <div class="rank-info"><div class="rank-nome">SP <span class="rank-cidade">São Paulo</span></div></div>
-          <div class="rank-pts">14,6 pts</div>
+      </div>
+      <!-- RJ -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">RJ · Rio de Janeiro</div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="rj-ofic" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="rj-ofic-bar" class="bar-fill" style="width:0%"></div></div>
         </div>
-        <div class="rank-row rd">
-          <div class="rank-badge rb4">4</div>
-          <div class="rank-info"><div class="rank-nome">BH <span class="rank-cidade">Belo Horizonte</span></div></div>
-          <div class="rank-pts red">0,0 pts</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="rj-fa" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="rj-fa-bar" class="bar-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <!-- SJC -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+        <div style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">SJC · S. J. Campos</div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span><span id="sjc-ofic" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="sjc-ofic-bar" class="bar-fill" style="width:0%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span><span id="sjc-fa" style="font-size:12px;font-weight:600;">—</span></div>
+          <div class="bar-bg"><div id="sjc-fa-bar" class="bar-fill" style="width:0%"></div></div>
         </div>
       </div>
     </div>
@@ -1021,12 +1023,27 @@ section { margin-bottom: 28px; }
   <section>
     <div class="section-label">Vozes dos alunos · Comentários em destaque</div>
     <div class="card">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
-        <div>
-          <div class="card-title" style="margin-bottom:4px;">O que os alunos estão dizendo</div>
-          <div style="font-size:12px;color:var(--muted);">6 comentários selecionados e revisados automaticamente · formulários Ciclo 1 e Ciclo 2</div>
+      <div style="margin-bottom:16px;">
+        <div class="card-title" style="margin-bottom:4px;">O que os alunos estão dizendo</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">6 comentários selecionados e revisados automaticamente · formulários Ciclo 1 e Ciclo 2</div>
+        <div id="vozes-percentuais" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="flex:1;min-width:120px;padding:12px 16px;background:#DCFCE7;border-radius:10px;border:1px solid #BBF7D0;">
+            <div style="font-size:10px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Positivos</div>
+            <div id="pct-positivo" style="font-size:22px;font-weight:700;color:#15803D;">—</div>
+            <div style="font-size:10px;color:#16A34A;margin-top:2px;">dos comentários</div>
+          </div>
+          <div style="flex:1;min-width:120px;padding:12px 16px;background:#FEF3C7;border-radius:10px;border:1px solid #FDE68A;">
+            <div style="font-size:10px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Críticas</div>
+            <div id="pct-critica" style="font-size:22px;font-weight:700;color:#D97706;">—</div>
+            <div style="font-size:10px;color:#92400E;margin-top:2px;">dos comentários</div>
+          </div>
+          <div style="flex:1;min-width:120px;padding:12px 16px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;">
+            <div style="font-size:10px;font-weight:700;color:#1D4ED8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sugestões de melhoria</div>
+            <div id="pct-melhoria" style="font-size:22px;font-weight:700;color:#2563EB;">—</div>
+            <div style="font-size:10px;color:#1D4ED8;margin-top:2px;">dos comentários</div>
+          </div>
         </div>
-        <div id="vozes-loading" style="display:none;font-size:12px;color:var(--muted);align-self:center;">✦ Selecionando comentários...</div>
+        <div id="vozes-loading" style="display:none;font-size:12px;color:var(--muted);margin-bottom:8px;">✦ Selecionando comentários...</div>
       </div>
       <div id="vozes-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
         <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
@@ -1316,6 +1333,7 @@ async function doRefreshAll() {
   }
 
   try { await carregarObservacoes(); } catch(_) {}
+  try { await carregarPracasC2(); } catch(_) {}
   try { await carregarFeedbackAlunos(); } catch(_) {}
   // Sentimento e vozes — rodam sempre, erros são silenciosos
   try { await analisarEmocoes(); } catch(_) {}
@@ -1347,6 +1365,48 @@ const FORM_TEXTOS = `Alguns exemplos de justificativas dos orientadores sobre o 
 - "A turma demonstrou bastante clareza sobre as diferenças entre cursos e carreiras."
 - "Sinto que o fala aí fica um pouco vago, talvez poderíamos ter uma reflexão mais direcionada."
 - "Os alunos compartilharam percepções e aprendizados sobre liderança a partir das experiências vivenciadas."`;
+
+async function carregarPracasC2() {
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_pracas_c2' })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    if (d.error || !d.pracas) return;
+
+    function barColor(pct) {
+      if (pct >= 70) return 'var(--green)';
+      if (pct >= 40) return 'var(--amber)';
+      return 'var(--red)';
+    }
+
+    for (const [id, dados] of Object.entries(d.pracas)) {
+      const lid = id.toLowerCase();
+      const elOfic = document.getElementById(lid + '-ofic');
+      const elOficBar = document.getElementById(lid + '-ofic-bar');
+      const elFa = document.getElementById(lid + '-fa');
+      const elFaBar = document.getElementById(lid + '-fa-bar');
+
+      if (dados.oficinas !== null && elOfic) {
+        const pct = dados.oficinas;
+        elOfic.textContent = pct.toFixed(1).replace('.', ',') + '%';
+        elOfic.style.color = barColor(pct);
+        if (elOficBar) { elOficBar.style.width = pct + '%'; elOficBar.style.background = barColor(pct); }
+      }
+      if (dados.falaAi !== null && elFa) {
+        const pct = dados.falaAi;
+        elFa.textContent = pct.toFixed(1).replace('.', ',') + '%';
+        elFa.style.color = barColor(pct);
+        if (elFaBar) { elFaBar.style.width = pct + '%'; elFaBar.style.background = barColor(pct); }
+      }
+    }
+  } catch(e) {
+    console.warn('Praças C2 não disponível:', e.message);
+  }
+}
 
 async function carregarFeedbackAlunos() {
   try {
@@ -1478,14 +1538,23 @@ async function curarVozes() {
       vozes = JSON.parse(clean);
     } catch(_) { return; }
 
-    if (!Array.isArray(vozes) || vozes.length === 0) return;
+    if (!vozes || !Array.isArray(vozes.comentarios) || vozes.comentarios.length === 0) return;
 
-    grid.innerHTML = vozes.slice(0, 6).map((v, i) => `
+    grid.innerHTML = vozes.comentarios.slice(0, 6).map((v, i) => `
       <div style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
         <div style="font-size:20px;color:${CORES[i]};line-height:1;">"</div>
         <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">${v.texto}</div>
         <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">${v.praca} · ${v.serie}</div>
       </div>`).join('');
+
+    // Popula percentuais
+    if (vozes.percentuais) {
+      const p = vozes.percentuais;
+      const el = (id) => document.getElementById(id);
+      if (el('pct-positivo'))  el('pct-positivo').textContent  = (p.positivos  || 0) + '%';
+      if (el('pct-critica'))   el('pct-critica').textContent   = (p.criticas   || 0) + '%';
+      if (el('pct-melhoria'))  el('pct-melhoria').textContent  = (p.melhorias  || 0) + '%';
+    }
   } catch(e) {
     console.warn('Vozes dos alunos não disponível:', e.message);
   } finally {
