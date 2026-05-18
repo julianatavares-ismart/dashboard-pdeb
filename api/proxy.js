@@ -381,10 +381,10 @@ TEXTOS:
     }
 
     try {
-      // Monta um range único com todas as células de uma vez
+      // Monta ranges — usa o nome da aba sem aspas simples no encode
       const ranges = Object.values(CELULAS).flatMap(c => [
-        `'${ABA}'!${c.ofic}`,
-        `'${ABA}'!${c.fa}`
+        `Ciclo 2 - Detalhes!${c.ofic}`,
+        `Ciclo 2 - Detalhes!${c.fa}`
       ]);
 
       const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values:batchGet?${
@@ -405,7 +405,7 @@ TEXTOS:
         };
       });
 
-      return res.status(200).json({ pracas: resultado });
+      return res.status(200).json({ pracas: resultado, _vals: vals, _count: vals.length });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
