@@ -371,64 +371,44 @@ COMENTÁRIOS:
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
-    const ID = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
+    const ID  = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
+    const ABA = 'Ciclo 2 - Detalhes';
 
-    const CELULAS = {
-      SP:  { ofic: 'B22', fa: 'C22' },
-      RJ:  { ofic: 'B53', fa: 'C53' },
-      BH:  { ofic: 'B80', fa: 'C80' },
-      SJC: { ofic: 'B105', fa: 'C105' }
-    };
+    // Índices 0-based: B22 = row 21 col 1, C22 = row 21 col 2, etc.
+    const PRACAS = [
+      { id: 'SP',  rowOfic: 21, rowFa: 21  },
+      { id: 'RJ',  rowOfic: 52, rowFa: 52  },
+      { id: 'BH',  rowOfic: 79, rowFa: 79  },
+      { id: 'SJC', rowOfic: 104, rowFa: 104 }
+    ];
 
     function parseNum(txt) {
-      if (!txt) return null;
+      if (txt === null || txt === undefined || txt === '') return null;
       const n = parseFloat((txt + '').replace('%', '').replace(',', '.').trim());
       return isNaN(n) ? null : n;
     }
 
     try {
-      // Passo 1: busca metadados para encontrar o nome exato da aba
-      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${ID}?fields=sheets.properties&key=${sheetsKey}`;
-      const metaRes = await fetch(metaUrl);
-      const meta = await metaRes.json();
+      // Mesma abordagem do get_sheets_data — fetch simples com encodeURIComponent
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values/${encodeURIComponent(ABA + '!A1:D110')}?key=${sheetsKey}`;
+      const r = await fetch(url);
+      const d = await r.json();
 
-      const sheets = (meta.sheets || []).map(s => s.properties);
-      // Encontra a aba pelo gid ou por nome parcial "ciclo 2"
-      const aba = sheets.find(s => s.sheetId === 1690583706)
-               || sheets.find(s => s.title.toLowerCase().includes('ciclo 2'));
+      if (d.error) return res.status(200).json({ error: d.error.message || d.error });
 
-      if (!aba) {
-        return res.status(200).json({ error: 'Aba Ciclo 2 não encontrada', sheets: sheets.map(s => s.title) });
+      const rows = d.values || [];
+      const resultado = {};
+
+      for (const p of PRACAS) {
+        const rowOfic = rows[p.rowOfic] || [];
+        const rowFa   = rows[p.rowFa]   || [];
+        resultado[p.id] = {
+          oficinas: parseNum(rowOfic[1]),  // coluna B
+          falaAi:   parseNum(rowFa[2])     // coluna C
+        };
       }
 
-      const abaName = aba.title;
-
-      // Passo 2: batchGet com o nome real da aba
-      const ranges = Object.values(CELULAS).flatMap(c => [
-        `${abaName}!${c.ofic}`,
-        `${abaName}!${c.fa}`
-      ]);
-
-      const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values:batchGet?${
-        ranges.map(r => 'ranges=' + encodeURIComponent(r)).join('&')
-      }&key=${sheetsKey}`;
-
-      const batchRes = await fetch(batchUrl);
-      const d = await batchRes.json();
-
-      if (d.error) return res.status(200).json({ error: d.error, abaName });
-
-      const vals = (d.valueRanges || []).map(vr => vr.values?.[0]?.[0] ?? null);
-      const pracaKeys = ['SP', 'RJ', 'BH', 'SJC'];
-      const resultado = {};
-      pracaKeys.forEach((p, i) => {
-        resultado[p] = {
-          oficinas: parseNum(vals[i * 2]),
-          falaAi:   parseNum(vals[i * 2 + 1])
-        };
-      });
-
-      return res.status(200).json({ pracas: resultado, abaName });
+      return res.status(200).json({ pracas: resultado });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
