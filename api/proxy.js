@@ -309,24 +309,31 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     }
 
     const prompt = `Você é curador de comunicação educacional do Ismart.
-Selecione 6 comentários reais de alunos do Ensino Médio do programa PDEB 2026, a partir dos textos abaixo.
+Analise todos os comentários abertos de alunos do Ensino Médio do programa PDEB 2026.
 
-Regras obrigatórias:
-- Escolha comentários que representem tanto pontos positivos quanto críticas reais
-- Corrija ortografia, pontuação e capitalização — nunca deixe tudo em maiúsculas ou tudo em minúsculas
+TAREFAS:
+1. Classifique TODOS os comentários como: positivo, crítica ou melhoria (sugestão construtiva)
+2. Calcule a porcentagem de cada categoria em relação ao total de comentários válidos
+3. Selecione 6 comentários representativos (mistura dos três tipos)
+
+Regras para os comentários selecionados:
+- Corrija ortografia, pontuação e capitalização — nunca tudo em maiúsculas ou tudo em minúsculas
 - Mantenha o sentido original, apenas corrija a forma
-- Cada comentário deve ter entre 15 e 120 caracteres depois de corrigido
-- Extraia a praça e a série da tag no início de cada linha (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
-- Se não houver textos reais suficientes, crie 6 comentários verossímeis e representativos
+- Cada comentário deve ter entre 15 e 120 caracteres
+- Extraia praça e série da tag no início de cada linha (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
+- Se não houver textos reais suficientes, crie comentários verossímeis representativos
 
-Responda APENAS com JSON válido, sem markdown:
-[
-  {"texto": "...", "praca": "SP", "serie": "1ºEM"},
-  {"texto": "...", "praca": "BH", "serie": "2ºEM"}
-]
+Responda APENAS com JSON válido, sem markdown, nesse formato exato:
+{
+  "percentuais": { "positivos": 60, "criticas": 20, "melhorias": 20 },
+  "comentarios": [
+    {"texto": "...", "praca": "SP", "serie": "1ºEM"},
+    {"texto": "...", "praca": "BH", "serie": "2ºEM"}
+  ]
+}
 
 TEXTOS:
-${textos}`;
+\${textos}`;
 
     try {
       const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -346,6 +353,55 @@ ${textos}`;
       const text = (aiData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
       return res.status(200).json({ vozes: text });
     } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // ── PRAÇAS CICLO 2 (oficinas + fala aí) ─────────────────────────
+  if (action === 'get_pracas_c2') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    const ID = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values/${encodeURIComponent('Ciclo 2 - Detalhes')}!A1:Z200?key=${sheetsKey}`;
+
+    try {
+      const r = await fetch(url);
+      const d = await r.json();
+      const rows = d.values || [];
+      if (rows.length < 2) return res.status(200).json({ pracas: {} });
+
+      const headers = rows[0].map(h => (h || '').toLowerCase().trim());
+
+      // Colunas esperadas — busca por palavras-chave
+      const iPraca   = headers.findIndex(h => h.includes('praça') || h.includes('praca') || h.includes('cidade'));
+      const iOfic    = headers.findIndex(h => h.includes('ofic') && (h.includes('%') || h.includes('pct') || h.includes('realiz')));
+      const iFalaAi  = headers.findIndex(h => (h.includes('fala') || h.includes('fala aí')) && (h.includes('%') || h.includes('pct') || h.includes('realiz')));
+
+      if (iPraca === -1) return res.status(200).json({ pracas: {}, debug: 'coluna praça não encontrada', headers });
+
+      const PRACAS = ['SP', 'BH', 'RJ', 'SJC'];
+      const resultado = {};
+
+      for (const row of rows.slice(1)) {
+        const praca = (row[iPraca] || '').toUpperCase().trim();
+        if (!PRACAS.includes(praca)) continue;
+
+        const parseNum = (idx) => {
+          if (idx === -1) return null;
+          const txt = (row[idx] || '').replace('%', '').replace(',', '.').trim();
+          const n = parseFloat(txt);
+          return isNaN(n) ? null : n;
+        };
+
+        resultado[praca] = {
+          oficinas: parseNum(iOfic),
+          falaAi:   parseNum(iFalaAi)
+        };
+      }
+
+      return res.status(200).json({ pracas: resultado });
+    } catch(err) {
       return res.status(500).json({ error: err.message });
     }
   }
