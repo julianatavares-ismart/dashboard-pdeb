@@ -308,32 +308,39 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       textos = '[dados das planilhas não disponíveis — use comentários fictícios representativos de alunos do Ensino Médio em programa de desenvolvimento pessoal]';
     }
 
-    const prompt = `Você é curador de comunicação educacional do Ismart.
-Analise todos os comentários abertos de alunos do Ensino Médio do programa PDEB 2026.
+    const prompt = `Você é analista de dados educacionais do Ismart.
+Analise TODOS os comentários abertos de alunos do Ensino Médio do programa PDEB 2026 listados abaixo.
 
-TAREFAS:
-1. Classifique TODOS os comentários como: positivo, critica ou melhoria (sugestão construtiva)
-2. Calcule a porcentagem de cada categoria em relação ao total de comentários válidos
-3. Selecione 12 comentários representativos — exatamente 4 de cada categoria
+PASSO 1 — Classificação completa:
+Classifique CADA comentário válido (com mais de 10 caracteres) como exatamente uma categoria:
+- "positivo": expressões de satisfação, aprendizado, impacto pessoal
+- "critica": insatisfação, dificuldade, algo que não funcionou
+- "melhoria": sugestão construtiva de mudança ou adição
 
-Regras para os comentários selecionados:
+PASSO 2 — Percentuais reais:
+Conte o total de comentários válidos classificados.
+Calcule a porcentagem exata de cada categoria (positivos / total * 100, arredondado).
+Os três percentuais devem somar 100.
+
+PASSO 3 — Seleção de 12:
+Selecione exatamente 4 comentários de cada categoria para exibição.
 - Corrija ortografia, pontuação e capitalização — nunca tudo em maiúsculas ou tudo em minúsculas
 - Mantenha o sentido original, apenas corrija a forma
-- Cada comentário deve ter entre 15 e 120 caracteres
-- Extraia praça e série da tag no início de cada linha (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
-- Se não houver textos suficientes numa categoria, crie comentários verossímeis e representativos para completar os 4
-- Inclua o campo "categoria" em cada comentário: "positivo", "critica" ou "melhoria"
+- Cada comentário entre 15 e 120 caracteres
+- Extraia praça e série da tag (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
+- Se faltar comentários reais em alguma categoria, complete com exemplos verossímeis
 
-Responda APENAS com JSON válido, sem markdown, nesse formato exato:
+Responda APENAS com JSON válido, sem markdown:
 {
-  "percentuais": { "positivos": 60, "criticas": 20, "melhorias": 20 },
+  "total_comentarios": 209,
+  "percentuais": { "positivos": 62, "criticas": 18, "melhorias": 20 },
   "comentarios": [
     {"texto": "...", "praca": "SP", "serie": "1ºEM", "categoria": "positivo"},
     {"texto": "...", "praca": "BH", "serie": "2ºEM", "categoria": "critica"}
   ]
 }
 
-TEXTOS:
+COMENTÁRIOS:
 \${textos}`;
 
     try {
@@ -346,7 +353,8 @@ TEXTOS:
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 800,
+          max_tokens: 1200,
+          temperature: 0,
           messages: [{ role: 'user', content: prompt }]
         })
       });
@@ -364,9 +372,7 @@ TEXTOS:
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
     const ID = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
-    const ABA = 'Ciclo 2 - Detalhes';
 
-    // Células exatas mapeadas por praça (B=col 1, C=col 2, linha 1-based)
     const CELULAS = {
       SP:  { ofic: 'B22', fa: 'C22' },
       RJ:  { ofic: 'B53', fa: 'C53' },
@@ -381,21 +387,38 @@ TEXTOS:
     }
 
     try {
-      // Monta ranges — usa o nome da aba sem aspas simples no encode
+      // Passo 1: busca metadados para encontrar o nome exato da aba
+      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${ID}?fields=sheets.properties&key=${sheetsKey}`;
+      const metaRes = await fetch(metaUrl);
+      const meta = await metaRes.json();
+
+      const sheets = (meta.sheets || []).map(s => s.properties);
+      // Encontra a aba pelo gid ou por nome parcial "ciclo 2"
+      const aba = sheets.find(s => s.sheetId === 1690583706)
+               || sheets.find(s => s.title.toLowerCase().includes('ciclo 2'));
+
+      if (!aba) {
+        return res.status(200).json({ error: 'Aba Ciclo 2 não encontrada', sheets: sheets.map(s => s.title) });
+      }
+
+      const abaName = aba.title;
+
+      // Passo 2: batchGet com o nome real da aba
       const ranges = Object.values(CELULAS).flatMap(c => [
-        `Ciclo 2 - Detalhes!${c.ofic}`,
-        `Ciclo 2 - Detalhes!${c.fa}`
+        `${abaName}!${c.ofic}`,
+        `${abaName}!${c.fa}`
       ]);
 
       const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values:batchGet?${
         ranges.map(r => 'ranges=' + encodeURIComponent(r)).join('&')
       }&key=${sheetsKey}`;
 
-      const r = await fetch(batchUrl);
-      const d = await r.json();
-      const vals = (d.valueRanges || []).map(vr => vr.values?.[0]?.[0] ?? null);
+      const batchRes = await fetch(batchUrl);
+      const d = await batchRes.json();
 
-      // vals[0]=SP ofic, vals[1]=SP fa, vals[2]=RJ ofic, vals[3]=RJ fa, ...
+      if (d.error) return res.status(200).json({ error: d.error, abaName });
+
+      const vals = (d.valueRanges || []).map(vr => vr.values?.[0]?.[0] ?? null);
       const pracaKeys = ['SP', 'RJ', 'BH', 'SJC'];
       const resultado = {};
       pracaKeys.forEach((p, i) => {
@@ -405,7 +428,7 @@ TEXTOS:
         };
       });
 
-      return res.status(200).json({ pracas: resultado, _vals: vals, _count: vals.length });
+      return res.status(200).json({ pracas: resultado, abaName });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
