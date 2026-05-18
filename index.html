@@ -425,7 +425,7 @@ section { margin-bottom: 28px; }
         <div class="kpi-label">Satisfação dos alunos · Ciclo 1</div>
         <div class="kpi-value">4,05<span style="font-size:18px;font-weight:400;color:var(--soft)">/5 ★</span></div>
         <div class="kpi-sub">209 respostas · 1ºEM + 2ºEM</div>
-        <div class="kpi-trend ok" style="margin-top:8px;">3ºEM C1 encerrado · C2 em coleta</div>
+        <div class="kpi-trend ok" style="margin-top:8px;">C1 encerrado · C2 em coleta</div>
       </div>
 
       <!-- 4. OPERACIONAL — por último -->
@@ -652,9 +652,6 @@ section { margin-bottom: 28px; }
   <!-- PRACAS -->
   <section>
     <div class="section-label">Performance por praça</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);">
-      <strong style="color:var(--text);">Como calculamos o Score:</strong> média de % Oficinas realizadas + % Fala Aí respondidos + % Feedbacks dos orientadores, com pesos iguais entre os três indicadores.
-    </div>
     <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
       <!-- SP -->
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
@@ -1025,7 +1022,7 @@ section { margin-bottom: 28px; }
     <div class="card">
       <div style="margin-bottom:16px;">
         <div class="card-title" style="margin-bottom:4px;">O que os alunos estão dizendo</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">6 comentários selecionados e revisados automaticamente · formulários Ciclo 1 e Ciclo 2</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">12 comentários selecionados e revisados automaticamente · 4 por categoria · formulários Ciclo 1 e Ciclo 2</div>
         <div id="vozes-percentuais" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
           <div style="flex:1;min-width:120px;padding:12px 16px;background:#DCFCE7;border-radius:10px;border:1px solid #BBF7D0;">
             <div style="font-size:10px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Positivos</div>
@@ -1045,36 +1042,78 @@ section { margin-bottom: 28px; }
         </div>
         <div id="vozes-loading" style="display:none;font-size:12px;color:var(--muted);margin-bottom:8px;">✦ Selecionando comentários...</div>
       </div>
-      <div id="vozes-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--navy);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Aprendi a me organizar melhor e entender que posso pedir ajuda sem vergonha.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 1ºEM</div>
+      <div id="vozes-grid">
+        <!-- POSITIVOS -->
+        <div style="font-size:10px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.07em;margin:0 0 8px;">Positivos</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+          <div style="padding:14px;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#16A34A;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Aprendi a me organizar melhor e entender que posso pedir ajuda sem vergonha.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 1ºEM</div>
+          </div>
+          <div style="padding:14px;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#16A34A;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">O orientador me ajudou a entender que não preciso ter tudo resolvido agora.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
+          </div>
+          <div style="padding:14px;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#16A34A;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Foi a primeira vez que falei sobre meus objetivos em voz alta. Isso fez diferença.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 2ºEM</div>
+          </div>
+          <div style="padding:14px;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#16A34A;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Me sinto mais seguro para tomar decisões depois das oficinas.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">BH · 1ºEM</div>
+          </div>
         </div>
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--pink);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Gostei bastante da oficina, mas achei o tempo muito curto para tudo que tinha para fazer.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">BH · 2ºEM</div>
+        <!-- CRÍTICAS -->
+        <div style="font-size:10px;font-weight:700;color:#D97706;text-transform:uppercase;letter-spacing:.07em;margin:0 0 8px;">Críticas</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+          <div style="padding:14px;background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#D97706;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Achei muito pesado acumular tudo com as provas. Preciso de mais tempo para o projeto.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
+          </div>
+          <div style="padding:14px;background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#D97706;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Algumas atividades foram repetitivas. Preferia algo mais novo a cada encontro.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 2ºEM</div>
+          </div>
+          <div style="padding:14px;background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#D97706;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">A plataforma trava bastante no celular. Fica difícil fazer as tarefas assim.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SJC · 1ºEM</div>
+          </div>
+          <div style="padding:14px;background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#D97706;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Não consigo ver como isso vai me ajudar no vestibular de verdade.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">BH · 3ºEM</div>
+          </div>
         </div>
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--teal);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">O orientador me ajudou a entender que eu não preciso ter tudo resolvido agora.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
-        </div>
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--purple);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Não entendi muito bem a conexão com o vestibular. Seria legal ter mais exemplos práticos.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SJC · 2ºEM</div>
-        </div>
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--navy);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Foi a primeira vez que falei sobre meus objetivos em voz alta. Isso fez diferença.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 2ºEM</div>
-        </div>
-        <div class="voz-card" style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-          <div style="font-size:20px;color:var(--pink);line-height:1;">"</div>
-          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Achei muito pesado acumular tudo com as provas. Preciso de mais tempo para o projeto.</div>
-          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 1ºEM</div>
+        <!-- MELHORIAS -->
+        <div style="font-size:10px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:.07em;margin:0 0 8px;">Sugestões de melhoria</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          <div style="padding:14px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#2563EB;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Não entendi a conexão com o vestibular. Seria legal ter mais exemplos práticos.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SJC · 2ºEM</div>
+          </div>
+          <div style="padding:14px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#2563EB;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Seria bom ter mais encontros individuais além da roda de conversa em grupo.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">RJ · 2ºEM</div>
+          </div>
+          <div style="padding:14px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#2563EB;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Gostaria de atividades menores para encaixar melhor na rotina de estudos.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">SP · 3ºEM</div>
+          </div>
+          <div style="padding:14px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:20px;color:#2563EB;line-height:1;">"</div>
+            <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">Poderia ter mais espaço para falar sobre ansiedade e saúde mental no programa.</div>
+            <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">BH · 2ºEM</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1540,12 +1579,34 @@ async function curarVozes() {
 
     if (!vozes || !Array.isArray(vozes.comentarios) || vozes.comentarios.length === 0) return;
 
-    grid.innerHTML = vozes.comentarios.slice(0, 6).map((v, i) => `
-      <div style="padding:14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;">
-        <div style="font-size:20px;color:${CORES[i]};line-height:1;">"</div>
-        <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">${v.texto}</div>
-        <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">${v.praca} · ${v.serie}</div>
-      </div>`).join('');
+    const grupos = { positivo: [], critica: [], melhoria: [] };
+    for (const c of vozes.comentarios) {
+      const cat = (c.categoria || '').toLowerCase();
+      if (cat.includes('positiv')) grupos.positivo.push(c);
+      else if (cat.includes('criti') || cat.includes('negati')) grupos.critica.push(c);
+      else grupos.melhoria.push(c);
+    }
+
+    const ESTILOS = {
+      positivo: { bg: '#F0FDF4', border: '#BBF7D0', cor: '#16A34A', label: 'Positivos' },
+      critica:  { bg: '#FFFBEB', border: '#FDE68A', cor: '#D97706', label: 'Críticas' },
+      melhoria: { bg: '#EFF6FF', border: '#BFDBFE', cor: '#2563EB', label: 'Sugestões de melhoria' }
+    };
+
+    const labelCor = { positivo: '#15803D', critica: '#D97706', melhoria: '#2563EB' };
+
+    grid.innerHTML = ['positivo', 'critica', 'melhoria'].map(cat => {
+      const s = ESTILOS[cat];
+      const cards = grupos[cat].slice(0, 4).map(v => `
+        <div style="padding:14px;background:${s.bg};border-radius:10px;border:1px solid ${s.border};display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:20px;color:${s.cor};line-height:1;">"</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6;font-style:italic;">${v.texto}</div>
+          <div style="font-size:10px;color:var(--soft);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:auto;">${v.praca} · ${v.serie}</div>
+        </div>`).join('');
+      return `
+        <div style="font-size:10px;font-weight:700;color:${labelCor[cat]};text-transform:uppercase;letter-spacing:.07em;margin:0 0 8px;">${s.label}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">${cards}</div>`;
+    }).join('');
 
     // Popula percentuais
     if (vozes.percentuais) {
