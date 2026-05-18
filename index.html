@@ -1394,7 +1394,7 @@ async function carregarPracasC2() {
     const d = await res.json();
     if (d.error || !d.pracas) return;
 
-    const NOMES = { SP: 'SP · São Paulo', BH: 'BH · Belo Horizonte', RJ: 'RJ · Rio de Janeiro', SJC: 'SJC · S. J. Campos' };
+    const NOMES = { SP: 'SP · São Paulo', BH: 'BH · Belo Horizonte', RJ: 'RJ · Rio de Janeiro', SJC: 'SJC · São José dos Campos' };
     const grid = document.getElementById('pracas-c2-grid');
     if (!grid) return;
 
@@ -1414,19 +1414,44 @@ async function carregarPracasC2() {
       const stOfic = statusPraca(dados.oficinas, fimCiclo);
       const stFa   = statusPraca(dados.falaAi,   fimCiclo);
       const badge  = badgePrazo(fimCiclo);
-      const barra  = (pct, st) => pct === null
-        ? '<span style="font-size:12px;color:var(--soft)">—</span>'
-        : '<span style="font-size:12px;font-weight:600;color:' + st.cor + ';">' + pct.toFixed(1).replace('.', ',') + '%</span>';
-      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
-        + '<span style="font-size:11px;font-weight:700;color:var(--soft);text-transform:uppercase;letter-spacing:.07em;">' + NOMES[id] + '</span>'
-        + '<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:' + badge.bg + ';color:' + badge.txt + ';">' + badge.label + '</span>'
-        + '</div>'
-        + '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Oficinas</span>' + barra(dados.oficinas, stOfic) + '</div>'
-        + '<div class="bar-bg"><div class="bar-fill" style="width:' + (dados.oficinas || 0) + '%;background:' + stOfic.barCor + '"></div></div></div>'
-        + '<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:11px;color:var(--muted);">Fala Aí</span>' + barra(dados.falaAi, stFa) + '</div>'
-        + '<div class="bar-bg"><div class="bar-fill" style="width:' + (dados.falaAi || 0) + '%;background:' + stFa.barCor + '"></div></div></div>'
+      const fmtPct = (pct, st) => pct === null
+        ? '<span style="color:var(--soft);font-size:13px;">—</span>'
+        : '<span style="font-size:13px;font-weight:700;color:' + st.cor + ';">' + pct.toFixed(1).replace('.', ',') + '%</span>';
+      return ''
+        + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;">'
+        +   '<div style="margin-bottom:14px;">'
+        +     '<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">' + NOMES[id] + '</div>'
+        +     '<span style="font-size:10px;font-weight:600;padding:2px 10px;border-radius:20px;background:' + badge.bg + ';color:' + badge.txt + ';">' + badge.label + '</span>'
+        +   '</div>'
+        +   '<div style="margin-bottom:10px;">'
+        +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+        +       '<span style="font-size:11px;color:var(--muted);">Oficinas</span>' + fmtPct(dados.oficinas, stOfic)
+        +     '</div>'
+        +     '<div style="height:6px;background:var(--surface2);border-radius:4px;overflow:hidden;">'
+        +       '<div style="height:100%;width:' + (dados.oficinas || 0) + '%;background:' + stOfic.barCor + ';border-radius:4px;transition:width .4s;"></div>'
+        +     '</div>'
+        +   '</div>'
+        +   '<div>'
+        +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+        +       '<span style="font-size:11px;color:var(--muted);">Fala Aí</span>' + fmtPct(dados.falaAi, stFa)
+        +     '</div>'
+        +     '<div style="height:6px;background:var(--surface2);border-radius:4px;overflow:hidden;">'
+        +       '<div style="height:100%;width:' + (dados.falaAi || 0) + '%;background:' + stFa.barCor + ';border-radius:4px;transition:width .4s;"></div>'
+        +     '</div>'
+        +   '</div>'
         + '</div>';
+    }
+
+    const pracas = ['SP', 'BH', 'RJ', 'SJC'];
+    grid.innerHTML =
+        '<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">8ºEF · 9ºEF · 1ºEM · 2ºEM</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">'
+      +   pracas.map(id => cardPraca(id, C2_FIM_GERAL)).join('')
+      + '</div>'
+      + '<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">3ºEM</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">'
+      +   pracas.map(id => cardPraca(id, C2_FIM_3EM)).join('')
+      + '</div>';
     }
 
     const pracas = ['SP', 'BH', 'RJ', 'SJC'];
