@@ -371,42 +371,62 @@ COMENTÁRIOS:
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
-    const ID  = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
-    const ABA = 'Ciclo 2 - Detalhes';
+    const SHEETS = {
+      SP:  '1anki0VweR8LweziQkN-KDTJbklAp9asfdxtU5JhkMhk',
+      BH:  '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
+      RJ:  '1TsCj4_MqfIWCZF8j30E_hnpw8z3nDz8Ph5lMIXZEAuc',
+      SJC: '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
+    };
 
-    // Índices 0-based: B22 = row 21 col 1, C22 = row 21 col 2, etc.
-    const PRACAS = [
-      { id: 'SP',  rowOfic: 21, rowFa: 21  },
-      { id: 'RJ',  rowOfic: 52, rowFa: 52  },
-      { id: 'BH',  rowOfic: 79, rowFa: 79  },
-      { id: 'SJC', rowOfic: 104, rowFa: 104 }
-    ];
+    const SERIES_GERAL = ['8ºef','9ºef','1ºem','2ºem','8ef','9ef','1em','2em','8º','9º','1º','2º'];
+    const SERIES_3EM   = ['3ºem','3em','3º'];
 
-    function parseNum(txt) {
-      if (txt === null || txt === undefined || txt === '') return null;
-      const n = parseFloat((txt + '').replace('%', '').replace(',', '.').trim());
-      return isNaN(n) ? null : n;
+    function matchSerie(turma, grupo) {
+      const t = (turma || '').toLowerCase().trim();
+      return grupo.some(s => t.includes(s));
+    }
+
+    function calcPct(rows, iturma, iofic, ifa, grupo) {
+      const filtrado = rows.filter(r => matchSerie(r[iturma], grupo));
+      if (filtrado.length === 0) return { oficinas: null, falaAi: null };
+      const ofic = filtrado.filter(r => (r[iofic] || '').toLowerCase().includes('realizada') && !(r[iofic] || '').toLowerCase().includes('não')).length;
+      const fa   = filtrado.filter(r => (r[ifa]   || '').toLowerCase().includes('realizado') && !(r[ifa]   || '').toLowerCase().includes('não')).length;
+      return {
+        oficinas: Math.round(ofic / filtrado.length * 1000) / 10,
+        falaAi:   Math.round(fa   / filtrado.length * 1000) / 10
+      };
     }
 
     try {
-      // Mesma abordagem do get_sheets_data — fetch simples com encodeURIComponent
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${ID}/values/${encodeURIComponent(ABA + '!A1:D110')}?key=${sheetsKey}`;
-      const r = await fetch(url);
-      const d = await r.json();
-
-      if (d.error) return res.status(200).json({ error: d.error.message || d.error });
-
-      const rows = d.values || [];
       const resultado = {};
 
-      for (const p of PRACAS) {
-        const rowOfic = rows[p.rowOfic] || [];
-        const rowFa   = rows[p.rowFa]   || [];
-        resultado[p.id] = {
-          oficinas: parseNum(rowOfic[1]),  // coluna B
-          falaAi:   parseNum(rowFa[2])     // coluna C
+      await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent('Dados!A1:Z2000')}?key=${sheetsKey}`;
+        const r   = await fetch(url);
+        const d   = await r.json();
+        const rows = d.values || [];
+
+        if (rows.length < 2) {
+          resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
+          return;
+        }
+
+        const headers = rows[0].map(h => (h || '').toLowerCase().trim());
+        const iturma  = headers.findIndex(h => h.includes('turma'));
+        const iofic   = headers.findIndex(h => h.includes('oficina'));
+        const ifa     = headers.findIndex(h => h.includes('fala'));
+
+        if (iturma === -1 || iofic === -1 || ifa === -1) {
+          resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null }, debug: headers };
+          return;
+        }
+
+        const data = rows.slice(1);
+        resultado[praca] = {
+          geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
+          em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
         };
-      }
+      }));
 
       return res.status(200).json({ pracas: resultado });
     } catch(err) {
