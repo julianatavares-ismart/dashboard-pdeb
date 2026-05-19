@@ -399,6 +399,7 @@ COMENTÁRIOS:
 
     try {
       const resultado = {};
+      const debugInfo = {};
 
       await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
         try {
@@ -453,8 +454,6 @@ COMENTÁRIOS:
         }
       }));
 
-      // Debug: inclui info das abas e headers encontrados
-      const debugInfo = {};
       return res.status(200).json({ pracas: resultado, _debug: debugInfo });
     } catch(err) {
       return res.status(500).json({ error: err.message });
