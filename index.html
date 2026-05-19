@@ -694,7 +694,7 @@ section { margin-bottom: 28px; }
   <!-- PRACAS -->
   <section>
     <div class="section-label">Performance por praça · Ciclo 2</div>
-    <div id="pracas-c2-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+    <div id="pracas-c2-grid"></div>
 
   </section>
 
@@ -1435,7 +1435,7 @@ async function carregarPracasC2() {
     const d = await res.json();
     if (d.error || !d.pracas) return;
 
-    const NOMES = { SP: 'SP · São Paulo', BH: 'BH · Belo Horizonte', RJ: 'RJ · Rio de Janeiro', SJC: 'SJC · São José dos Campos' };
+    const NOMES = { SP: 'SP · São Paulo', BH: 'BH · Belo Horizonte', RJ: 'RJ · Rio de Janeiro', SJC: 'SJC · S. J. Campos' };
     const grid = document.getElementById('pracas-c2-grid');
     if (!grid) return;
 
