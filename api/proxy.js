@@ -403,23 +403,8 @@ COMENTÁRIOS:
 
       await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
         try {
-          // Tenta buscar metadados para achar o nome real da aba
-          const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${id}?fields=sheets.properties&key=${sheetsKey}`;
-          const metaRes = await fetch(metaUrl);
-          const meta    = await metaRes.json();
-          const abas    = (meta.sheets || []).map(s => s.properties.title);
-
-          // Prioriza "Dados", depois qualquer aba que contenha "dado", senão pega a primeira
-          const aba = abas.find(a => a.toLowerCase() === 'dados')
-                   || abas.find(a => a.toLowerCase().includes('dado'))
-                   || abas[0];
-
-          if (!aba) {
-            debugInfo[praca] = { error: 'nenhuma aba encontrada', abas };
-            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
-            return;
-          }
-
+          // Nome da aba confirmado como "Dados" em todas as planilhas de presença
+          const aba = 'Dados';
           const url  = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(aba + '!A1:Z2000')}?key=${sheetsKey}`;
           const r    = await fetch(url);
           const d    = await r.json();
@@ -431,19 +416,30 @@ COMENTÁRIOS:
             return;
           }
 
-          const headers = rows[0].map(h => (h || '').toLowerCase().trim());
+          // Procura a linha de cabeçalho (pode não ser a linha 1)
+          let headerRow = -1;
+          let headers = [];
+          for (let i = 0; i < Math.min(10, rows.length); i++) {
+            const row = rows[i].map(h => (h || '').toLowerCase().trim());
+            if (row.some(h => h.includes('turma'))) {
+              headerRow = i;
+              headers = row;
+              break;
+            }
+          }
+
           const iturma  = headers.findIndex(h => h.includes('turma'));
           const iofic   = headers.findIndex(h => h.includes('oficina'));
           const ifa     = headers.findIndex(h => h.includes('fala'));
 
-          debugInfo[praca] = { aba, headers, iturma, iofic, ifa, totalRows: rows.length - 1 };
+          debugInfo[praca] = { aba, headerRow, headers, iturma, iofic, ifa, totalRows: rows.length - 1 };
 
-          if (iturma === -1 || iofic === -1 || ifa === -1) {
+          if (headerRow === -1 || iturma === -1 || iofic === -1 || ifa === -1) {
             resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
             return;
           }
 
-          const data = rows.slice(1);
+          const data = rows.slice(headerRow + 1);
           resultado[praca] = {
             geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
             em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
