@@ -1456,28 +1456,28 @@ async function carregarPracasC2() {
       const stFa   = statusPraca(dados.falaAi,   fimCiclo);
       const badge  = badgePrazo(fimCiclo);
       const fmtPct = (pct, st) => pct === null
-        ? '<span style="color:var(--soft);font-size:13px;">—</span>'
-        : '<span style="font-size:13px;font-weight:700;color:' + st.cor + ';">' + pct.toFixed(1).replace('.', ',') + '%</span>';
+        ? '<span style="color:var(--soft);font-size:11px;">—</span>'
+        : '<span style="font-size:11px;font-weight:600;color:' + st.cor + ';">' + pct.toFixed(1).replace('.', ',') + '%</span>';
       return ''
-        + '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;">'
-        +   '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">'
-        +     '<div style="font-size:15px;font-weight:700;color:var(--text);">' + NOMES[id] + '</div>'
-        +     '<span style="font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:' + badge.bg + ';color:' + badge.txt + ';white-space:nowrap;margin-left:12px;">' + badge.label + '</span>'
+        + '<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:12px 14px;">'
+        +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+        +     '<span style="font-size:11px;font-weight:500;color:var(--text);">' + NOMES[id] + '</span>'
+        +     '<span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;white-space:nowrap;background:' + badge.bg + ';color:' + badge.txt + ';">' + badge.label + '</span>'
         +   '</div>'
-        +   '<div style="margin-bottom:20px;">'
-        +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-        +       '<span style="font-size:13px;color:var(--muted);">Oficinas realizadas</span>' + fmtPct(dados.oficinas, stOfic)
+        +   '<div style="margin-bottom:8px;">'
+        +     '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'
+        +       '<span style="font-size:10px;color:var(--muted);">Oficinas</span>' + fmtPct(dados.oficinas, stOfic)
         +     '</div>'
-        +     '<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;">'
-        +       '<div style="height:100%;width:' + (dados.oficinas || 0) + '%;background:' + stOfic.barCor + ';border-radius:6px;transition:width .5s;"></div>'
+        +     '<div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">'
+        +       '<div style="height:100%;width:' + (dados.oficinas || 0) + '%;background:' + stOfic.barCor + ';border-radius:3px;transition:width .4s;"></div>'
         +     '</div>'
         +   '</div>'
         +   '<div>'
-        +     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-        +       '<span style="font-size:13px;color:var(--muted);">Fala Aí respondidos</span>' + fmtPct(dados.falaAi, stFa)
+        +     '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">'
+        +       '<span style="font-size:10px;color:var(--muted);">Fala Aí</span>' + fmtPct(dados.falaAi, stFa)
         +     '</div>'
-        +     '<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden;">'
-        +       '<div style="height:100%;width:' + (dados.falaAi || 0) + '%;background:' + stFa.barCor + ';border-radius:6px;transition:width .5s;"></div>'
+        +     '<div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;">'
+        +       '<div style="height:100%;width:' + (dados.falaAi || 0) + '%;background:' + stFa.barCor + ';border-radius:3px;transition:width .4s;"></div>'
         +     '</div>'
         +   '</div>'
         + '</div>';
@@ -1485,22 +1485,30 @@ async function carregarPracasC2() {
 
     const pracas = ['SP', 'BH', 'RJ', 'SJC'];
 
-    // Legenda antes dos grupos
-    const legenda = '<div style="display:flex;gap:20px;margin-bottom:20px;align-items:center;">'
-      + '<span style="font-size:12px;color:var(--muted);font-weight:600;">Legenda:</span>'
-      + '<span style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#16A34A;display:inline-block;"></span> No prazo</span>'
-      + '<span style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block;"></span> Última semana</span>'
-      + '<span style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Prazo encerrado sem 100%</span>'
+    const legenda = '<div style="display:flex;gap:16px;margin-bottom:16px;">'
+      + '<span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:7px;height:7px;border-radius:50%;background:#639922;display:inline-block;"></span>No prazo</span>'
+      + '<span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:7px;height:7px;border-radius:50%;background:#BA7517;display:inline-block;"></span>Última semana</span>'
+      + '<span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);"><span style="width:7px;height:7px;border-radius:50%;background:#E24B4A;display:inline-block;"></span>Prazo encerrado sem 100%</span>'
       + '</div>';
 
+    const groupHeader = (label, prazo) =>
+      '<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border);">'
+      + label + '<span style="float:right;font-weight:400;text-transform:none;">' + prazo + '</span></div>';
+
     grid.innerHTML = legenda
-      + '<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);">8ºEF · 9ºEF · 1ºEM · 2ºEM — prazo 31/05</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:36px;">'
-      +   pracas.map(id => cardPraca(id, C2_FIM_GERAL)).join('')
-      + '</div>'
-      + '<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);">3ºEM — prazo 30/06</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">'
-      +   pracas.map(id => cardPraca(id, C2_FIM_3EM)).join('')
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">'
+      +   '<div>'
+      +     groupHeader('8ºEF · 9ºEF · 1ºEM · 2ºEM', 'prazo 31/05')
+      +     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+      +       pracas.map(id => cardPraca(id, C2_FIM_GERAL)).join('')
+      +     '</div>'
+      +   '</div>'
+      +   '<div>'
+      +     groupHeader('3ºEM', 'prazo 30/06')
+      +     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+      +       pracas.map(id => cardPraca(id, C2_FIM_3EM)).join('')
+      +     '</div>'
+      +   '</div>'
       + '</div>';
   } catch(e) {
     console.warn('Praças C2 não disponível:', e.message);
