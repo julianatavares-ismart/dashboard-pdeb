@@ -401,32 +401,56 @@ COMENTÁRIOS:
       const resultado = {};
 
       await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent('Dados!A1:Z2000')}?key=${sheetsKey}`;
-        const r   = await fetch(url);
-        const d   = await r.json();
-        const rows = d.values || [];
+        try {
+          // Tenta buscar metadados para achar o nome real da aba
+          const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${id}?fields=sheets.properties&key=${sheetsKey}`;
+          const metaRes = await fetch(metaUrl);
+          const meta    = await metaRes.json();
+          const abas    = (meta.sheets || []).map(s => s.properties.title);
 
-        if (rows.length < 2) {
+          // Prioriza "Dados", depois qualquer aba que contenha "dado", senão pega a primeira
+          const aba = abas.find(a => a.toLowerCase() === 'dados')
+                   || abas.find(a => a.toLowerCase().includes('dado'))
+                   || abas[0];
+
+          if (!aba) {
+            debugInfo[praca] = { error: 'nenhuma aba encontrada', abas };
+            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
+            return;
+          }
+
+          const url  = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(aba + '!A1:Z2000')}?key=${sheetsKey}`;
+          const r    = await fetch(url);
+          const d    = await r.json();
+          const rows = d.values || [];
+
+          if (rows.length < 2) {
+            debugInfo[praca] = { aba, error: 'menos de 2 linhas', totalRows: rows.length };
+            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
+            return;
+          }
+
+          const headers = rows[0].map(h => (h || '').toLowerCase().trim());
+          const iturma  = headers.findIndex(h => h.includes('turma'));
+          const iofic   = headers.findIndex(h => h.includes('oficina'));
+          const ifa     = headers.findIndex(h => h.includes('fala'));
+
+          debugInfo[praca] = { aba, headers, iturma, iofic, ifa, totalRows: rows.length - 1 };
+
+          if (iturma === -1 || iofic === -1 || ifa === -1) {
+            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
+            return;
+          }
+
+          const data = rows.slice(1);
+          resultado[praca] = {
+            geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
+            em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
+          };
+        } catch(e) {
+          debugInfo[praca] = { error: e.message };
           resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
-          return;
         }
-
-        const headers = rows[0].map(h => (h || '').toLowerCase().trim());
-        const iturma  = headers.findIndex(h => h.includes('turma'));
-        const iofic   = headers.findIndex(h => h.includes('oficina'));
-        const ifa     = headers.findIndex(h => h.includes('fala'));
-
-        if (iturma === -1 || iofic === -1 || ifa === -1) {
-          resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null }, debug: headers };
-          return;
-        }
-
-        const data = rows.slice(1);
-        debugInfo[praca] = { headers, iturma, iofic, ifa, totalRows: data.length };
-        resultado[praca] = {
-          geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
-          em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
-        };
       }));
 
       // Debug: inclui info das abas e headers encontrados
