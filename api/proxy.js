@@ -422,13 +422,16 @@ COMENTÁRIOS:
         }
 
         const data = rows.slice(1);
+        debugInfo[praca] = { headers, iturma, iofic, ifa, totalRows: data.length };
         resultado[praca] = {
           geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
           em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
         };
       }));
 
-      return res.status(200).json({ pracas: resultado });
+      // Debug: inclui info das abas e headers encontrados
+      const debugInfo = {};
+      return res.status(200).json({ pracas: resultado, _debug: debugInfo });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
