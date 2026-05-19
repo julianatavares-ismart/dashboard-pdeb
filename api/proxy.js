@@ -378,12 +378,19 @@ COMENTÁRIOS:
       SJC: '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
     };
 
-    const SERIES_GERAL = ['8ºef','9ºef','1ºem','2ºem','8ef','9ef','1em','2em','8º','9º','1º','2º'];
-    const SERIES_3EM   = ['3ºem','3em','3º'];
+    const SERIES_GERAL = ['8ef','9ef','1em','2em'];
+    const SERIES_3EM   = ['3em'];
+
+    function normSerie(s) {
+      return (s || '').toLowerCase()
+        .replace(/[°º˚]/g, '')   // remove ordinal/degree
+        .replace(/\s+/g, '')     // remove espaços
+        .replace(/[^a-z0-9]/g, ''); // remove outros chars
+    }
 
     function matchSerie(turma, grupo) {
-      const t = (turma || '').toLowerCase().trim();
-      return grupo.some(s => t.includes(s));
+      const t = normSerie(turma);
+      return grupo.some(s => t.includes(normSerie(s)));
     }
 
     function calcPct(rows, iturma, iofic, ifa, grupo) {
