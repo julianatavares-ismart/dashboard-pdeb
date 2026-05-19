@@ -416,30 +416,42 @@ COMENTÁRIOS:
             return;
           }
 
-          // Procura a linha de cabeçalho (pode não ser a linha 1)
-          let headerRow = -1;
-          let headers = [];
-          for (let i = 0; i < Math.min(10, rows.length); i++) {
-            const row = rows[i].map(h => (h || '').toLowerCase().trim());
-            if (row.some(h => h.includes('turma'))) {
-              headerRow = i;
-              headers = row;
-              break;
+          // Estrutura de 2 linhas de cabeçalho:
+          // Linha 0: "Informações Gerais", ..., "Ciclo 1", "", "Ciclo 2", "", "Ciclo 3", ...
+          // Linha 1: "Aluno", "Turma", ..., "Oficina", "Fala Aí", "Oficina", "Fala Aí", ...
+
+          const row0 = rows[0].map(h => (h || '').toLowerCase().trim());
+          const row1 = rows[1] ? rows[1].map(h => (h || '').toLowerCase().trim()) : [];
+
+          // Encontra índice do Ciclo 2 na linha 0
+          const ciclo2Start = row0.findIndex(h => h.includes('ciclo 2') || h === 'ciclo2');
+
+          // Encontra coluna Turma — pode estar na linha 0 ou 1
+          let iturma = row0.findIndex(h => h.includes('turma'));
+          if (iturma === -1) iturma = row1.findIndex(h => h.includes('turma'));
+
+          // Dentro do bloco Ciclo 2: primeira coluna = Oficina, segunda = Fala Aí
+          let iofic = -1, ifa = -1;
+          if (ciclo2Start !== -1) {
+            // Confirma pela linha 1 quais são oficina e fala aí nesse bloco
+            for (let c = ciclo2Start; c < ciclo2Start + 3 && c < row1.length; c++) {
+              if (row1[c] && row1[c].includes('oficina') && iofic === -1) iofic = c;
+              if (row1[c] && (row1[c].includes('fala') || row1[c].includes('fa ')) && ifa === -1) ifa = c;
             }
+            // Fallback: Ciclo 2 ocupa colunas ciclo2Start e ciclo2Start+1
+            if (iofic === -1) iofic = ciclo2Start;
+            if (ifa   === -1) ifa   = ciclo2Start + 1;
           }
 
-          const iturma  = headers.findIndex(h => h.includes('turma'));
-          const iofic   = headers.findIndex(h => h.includes('oficina'));
-          const ifa     = headers.findIndex(h => h.includes('fala'));
+          debugInfo[praca] = { ciclo2Start, iturma, iofic, ifa, row0: row0.slice(0,10), row1: row1.slice(0,10) };
 
-          debugInfo[praca] = { aba, headerRow, headers, iturma, iofic, ifa, totalRows: rows.length - 1 };
-
-          if (headerRow === -1 || iturma === -1 || iofic === -1 || ifa === -1) {
+          if (iturma === -1 || ciclo2Start === -1) {
             resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
             return;
           }
 
-          const data = rows.slice(headerRow + 1);
+          // Dados começam na linha 2 (após os dois cabeçalhos)
+          const data = rows.slice(2);
           resultado[praca] = {
             geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
             em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
