@@ -1670,11 +1670,13 @@ async function curarVozes() {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const d = await res.json();
+    console.log('[vozes debug]', JSON.stringify(d._debug || {}));
     if (d.error) throw new Error(d.error);
 
     let vozes;
     try {
       const clean = (d.vozes || '').replace(/```json|```/g, '').trim();
+      console.log('[vozes raw]', clean.slice(0, 200));
       vozes = JSON.parse(clean);
     } catch(_) { return; }
 
