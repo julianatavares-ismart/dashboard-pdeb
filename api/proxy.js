@@ -271,42 +271,57 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!anthropicKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada.' });
 
-    let textos = '';
+    const sheetIds = [
+      { id: '1jxBS2ISCFYkLqM7Su0SBP7dJUbfi9N6plXwWWsHjEYk', serie: '1ºEM', ciclo: 'C1' },
+      { id: '10joUR_7AY2udwvSgrZLq7sYQTbl0Tj9s0jpTeot_soQ', serie: '1ºEM', ciclo: 'C2' },
+      { id: '1BH39N32YFrx_duEcunXRy6ktuOkyS0f2g5z0T5QIuNA', serie: '2ºEM', ciclo: 'C1' },
+      { id: '1eyJZziZL0GFnYreJqE5iy07Z087yIbPI6y-MNrjQ6zY', serie: '2ºEM', ciclo: 'C2' },
+      { id: '1v4cDuh06cTt36ShqpbJajY1I1wKfXGgOIqU9YIAr6ig', serie: '3ºEM', ciclo: 'C1' },
+      { id: '1DB0hSzQQqYqPRSzlGIPbhuXqQUFrOc8IRUZsuxeeA3A', serie: '3ºEM', ciclo: 'C2' }
+    ];
+
+    const linhas = [];
 
     if (sheetsKey) {
-      const sheetIds = [
-        { id: '1jxBS2ISCFYkLqM7Su0SBP7dJUbfi9N6plXwWWsHjEYk', praca: 'SP', serie: '1ºEM', ciclo: 'C1' },
-        { id: '10joUR_7AY2udwvSgrZLq7sYQTbl0Tj9s0jpTeot_soQ', praca: 'SP', serie: '1ºEM', ciclo: 'C2' },
-        { id: '1BH39N32YFrx_duEcunXRy6ktuOkyS0f2g5z0T5QIuNA', praca: 'BH', serie: '2ºEM', ciclo: 'C1' },
-        { id: '1eyJZziZL0GFnYreJqE5iy07Z087yIbPI6y-MNrjQ6zY', praca: 'BH', serie: '2ºEM', ciclo: 'C2' },
-        { id: '1v4cDuh06cTt36ShqpbJajY1I1wKfXGgOIqU9YIAr6ig', praca: 'RJ', serie: '3ºEM', ciclo: 'C1' },
-        { id: '1DB0hSzQQqYqPRSzlGIPbhuXqQUFrOc8IRUZsuxeeA3A', praca: 'RJ', serie: '3ºEM', ciclo: 'C2' }
-      ];
-
-      const linhas = [];
+      // Fetch sequencial para não estourar quota
       for (const s of sheetIds) {
         try {
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${s.id}/values/A1:Z500?key=${sheetsKey}`;
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${s.id}/values/A1:Z1000?key=${sheetsKey}`;
           const r = await fetch(url);
           const d = await r.json();
           const rows = d.values || [];
           if (rows.length < 2) continue;
-          const header = rows[0].map(h => h.toLowerCase());
-          // Procura coluna com "comentário", "espaço livre", "dúvidas" ou similar
-          const colIdx = header.findIndex(h => h.includes('coment') || h.includes('espaço') || h.includes('dúvida') || h.includes('livre'));
-          if (colIdx === -1) continue;
+
+          const header = rows[0].map(h => (h || '').toLowerCase());
+
+          // Coluna do comentário aberto
+          const iComent = header.findIndex(h =>
+            h.includes('espaço livre') || h.includes('comentário') || h.includes('dúvida') || h.includes('livre')
+          );
+          if (iComent === -1) continue;
+
+          // Coluna da praça (para identificar origem de cada resposta)
+          const iPraca = header.findIndex(h => h.includes('praça') || h.includes('praca'));
+
           for (const row of rows.slice(1)) {
-            const txt = (row[colIdx] || '').trim();
-            if (txt.length > 15) linhas.push(`[${s.praca} · ${s.serie} · ${s.ciclo}] ${txt}`);
+            const txt = (row[iComent] || '').trim();
+            if (txt.length < 15) continue;
+            const praca = iPraca !== -1 ? (row[iPraca] || '').trim() : '';
+            // Abrevia praça
+            const pracaAbrev = praca.toLowerCase().includes('são paulo') || praca.toLowerCase().includes('sp') ? 'SP'
+              : praca.toLowerCase().includes('belo') || praca.toLowerCase().includes('bh') ? 'BH'
+              : praca.toLowerCase().includes('rio') || praca.toLowerCase().includes('rj') ? 'RJ'
+              : praca.toLowerCase().includes('josé') || praca.toLowerCase().includes('sjc') ? 'SJC'
+              : praca || '?';
+            linhas.push(`[${pracaAbrev} · ${s.serie} · ${s.ciclo}] ${txt}`);
           }
         } catch(_) {}
       }
-      textos = linhas.join('\n');
     }
 
-    if (!textos) {
-      textos = '[dados das planilhas não disponíveis — use comentários fictícios representativos de alunos do Ensino Médio em programa de desenvolvimento pessoal]';
-    }
+    const textos = linhas.length > 0
+      ? linhas.join('\n')
+      : '[dados das planilhas não disponíveis — use comentários fictícios representativos de alunos do Ensino Médio em programa de desenvolvimento pessoal]';
 
     const prompt = `Você é analista de dados educacionais do Ismart.
 Analise TODOS os comentários abertos de alunos do Ensino Médio do programa PDEB 2026 listados abaixo.
@@ -319,18 +334,17 @@ Classifique CADA comentário válido (com mais de 10 caracteres) como exatamente
 
 PASSO 2 — Percentuais reais:
 Conte o total de comentários válidos classificados.
-Calcule a porcentagem exata de cada categoria (positivos / total * 100, arredondado).
-Os três percentuais devem somar 100.
+Calcule a porcentagem exata de cada categoria (arredondada). Os três devem somar 100.
 
 PASSO 3 — Seleção de 12:
-Selecione exatamente 4 comentários de cada categoria para exibição.
-- Corrija ortografia, pontuação e capitalização — nunca tudo em maiúsculas ou tudo em minúsculas
-- Mantenha o sentido original, apenas corrija a forma
+Selecione exatamente 4 comentários representativos de cada categoria.
+- Corrija ortografia, pontuação e capitalização
+- Mantenha o sentido original
 - Cada comentário entre 15 e 120 caracteres
 - Extraia praça e série da tag (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
-- Se faltar comentários reais em alguma categoria, complete com exemplos verossímeis
+- Se faltar comentários reais numa categoria, complete com exemplos verossímeis
 
-Responda APENAS com JSON válido, sem markdown:
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {
   "total_comentarios": 209,
   "percentuais": { "positivos": 62, "criticas": 18, "melhorias": 20 },
@@ -341,7 +355,7 @@ Responda APENAS com JSON válido, sem markdown:
 }
 
 COMENTÁRIOS:
-\${textos}`;
+${textos}`;
 
     try {
       const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
