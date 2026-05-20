@@ -367,14 +367,14 @@ ${textos}`;
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 1200,
+          max_tokens: 3000,
           temperature: 0,
           messages: [{ role: 'user', content: prompt }]
         })
       });
       const aiData = await aiRes.json();
       const text = (aiData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-      return res.status(200).json({ vozes: text, _debug: { total_linhas: linhas.length, exemplo: linhas.slice(0,3) } });
+      return res.status(200).json({ vozes: text, _debug: { total_linhas: linhas.length, exemplo: linhas.slice(0,3), stop_reason: aiData.stop_reason, usage: aiData.usage, ai_error: aiData.error } });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
