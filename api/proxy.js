@@ -374,7 +374,7 @@ ${textos}`;
       });
       const aiData = await aiRes.json();
       const text = (aiData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-      return res.status(200).json({ vozes: text });
+      return res.status(200).json({ vozes: text, _debug: { total_linhas: linhas.length, exemplo: linhas.slice(0,3) } });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
