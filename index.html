@@ -347,6 +347,27 @@ section { margin-bottom: 28px; }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 .tab-pane > main, .tab-inner { max-width: 1280px; margin: 0 auto; padding: 28px 32px; }
+
+/* ── PAINEL ESTRATÉGICO (Mari) ── */
+.pciclo-tabs { display:flex; gap:8px; margin-bottom:20px; align-items:center; }
+.pciclo-btn {
+  padding:6px 18px; border-radius:20px; font-size:12px; font-weight:600;
+  cursor:pointer; transition:all .15s; border:1px solid var(--border);
+  background:var(--surface); color:var(--muted); font-family:inherit;
+}
+.pciclo-btn.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+.painel-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
+.pcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
+.pcard-title { font-size:13px; font-weight:600; color:var(--navy); line-height:1.4; margin-bottom:5px; }
+.pcard-count { font-size:11px; color:var(--soft); }
+.pcard-divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+.psub { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid #F8FAFC; }
+.psub:last-child { border-bottom:none; }
+.pev-chip { display:inline-block; margin-top:3px; font-size:10px; background:#D4EEFC; color:#185FA5; padding:2px 8px; border-radius:4px; }
+.pev-link { display:inline-flex; align-items:center; gap:3px; margin-top:3px; font-size:10px; color:var(--blue); text-decoration:none; border-bottom:1px solid var(--blue); padding-bottom:1px; }
+.pev-pending { display:inline-block; margin-top:3px; font-size:10px; color:var(--soft); font-style:italic; }
+.pill-locked { background:#F3F0FF; color:#5B21B6; }
+
 </style>
 </head>
 <body>
@@ -392,6 +413,7 @@ section { margin-bottom: 28px; }
   <button class="tab-btn" onclick="showTab('performance', this)">Performance por Praça</button>
   <button class="tab-btn" onclick="showTab('orientadores', this)">Orientadores</button>
   <button class="tab-btn" onclick="showTab('marcos', this)">Marcos</button>
+  <button class="tab-btn" onclick="showTab('painel', this)">Painel estratégico</button>
 </nav>
 
 <div id="tab-visao-geral" class="tab-pane active">
@@ -1154,6 +1176,32 @@ section { margin-bottom: 28px; }
 </div>
 </div>
 
+
+<div id="tab-painel" class="tab-pane">
+<div class="tab-inner">
+  <section>
+    <div class="section-label">Metas e evidências · Visão estratégica</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Status via Monday.com · evidências por subelemento · atualiza ao clicar em Atualizar dados</div>
+    <div class="pciclo-tabs">
+      <button class="pciclo-btn active" onclick="painelMostrarCiclo(1,this)">Ciclo 1</button>
+      <button class="pciclo-btn" onclick="painelMostrarCiclo(2,this)">Ciclo 2</button>
+      <span id="painel-summary" style="font-size:12px;color:var(--soft);margin-left:6px;"></span>
+    </div>
+    <div id="painel-grid" class="painel-grid">
+      <div style="font-size:13px;color:var(--soft);padding:20px;grid-column:1/-1;">Clique em <strong>Atualizar dados</strong> para carregar as metas.</div>
+    </div>
+  </section>
+  <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);align-items:center;">
+    <span style="font-size:11px;font-weight:600;color:var(--soft);">Legenda:</span>
+    <span style="font-size:11px;color:#15803D;font-weight:500;">✓ Feito</span>
+    <span style="font-size:11px;color:#D97706;font-weight:500;">⏳ Em andamento</span>
+    <span style="font-size:11px;color:#185FA5;font-weight:500;">❄ Congelado</span>
+    <span style="font-size:11px;color:#5B21B6;font-weight:500;">🔒 Previsto 2º semestre</span>
+    <span style="font-size:11px;color:var(--soft);">○ Não iniciado · % calculado sobre ativos</span>
+  </div>
+</div>
+</div>
+
 <script>
 // ── API KEY ──
 function getKey() { return localStorage.getItem('pdeb_apikey') || ''; }
@@ -1346,7 +1394,9 @@ async function doRefreshAll() {
     if (d.error) throw new Error(d.error);
     if (d.updatedAt) document.getElementById('headerDate').textContent = d.updatedAt;
     if (d.ciclo1?.length) renderMarcos(d.ciclo1, 'marcos-ciclo1', 'c1');
+    if (d.ciclo1?.length) { _painelData[1] = d.ciclo1; }
     if (d.ciclo2?.length) {
+      _painelData[2] = d.ciclo2;
       document.getElementById('section-ciclo2').style.display = 'block';
       renderMarcos(d.ciclo2, 'marcos-ciclo2', 'c2');
     }
@@ -1374,6 +1424,7 @@ async function doRefreshAll() {
   // Sentimento e vozes — rodam sempre, erros são silenciosos
   try { await analisarEmocoes(); } catch(_) {}
   try { await curarVozes(); } catch(_) {}
+  renderPainelMariana(_painelData[_painelCiclo], _painelCiclo, _painelKpis);
 
   if (erros.length === 0) {
     bar.textContent = '✓ Dados atualizados em ' + new Date().toLocaleDateString('pt-BR');
@@ -1528,6 +1579,8 @@ async function carregarPracasC2() {
         + '</div>';
     }
 
+    _painelKpis = d.pracas;
+    renderPainelMariana(_painelData[_painelCiclo], _painelCiclo, _painelKpis);
     grid.innerHTML = legenda
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">'
       +   '<div>'
@@ -1784,6 +1837,133 @@ async function analisarEmocoes() {
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
 let _pendingTabBtn = null;
+
+// ── PAINEL ESTRATÉGICO ──────────────────────────────────────────────────────
+let _painelData  = { 1: null, 2: null };
+let _painelCiclo = 1;
+let _painelKpis  = null;
+
+const PAINEL_EV = {
+  'Realização das Oficinas':
+    { ciclo1:{t:'chip',v:'SP 100% · BH 100% · RJ 100% · SJC 100%'}, ciclo2:{t:'oficinas'} },
+  'Rubricas do Mão na Massa prontas e distribuidas para todo o time antes do uso':
+    {t:'link',label:'Rubricas MNM (Drive)',url:'https://drive.google.com/drive/folders/1-FlobwuQznlHpOOYWjk0zEIENbNhc6ga'},
+  'Calendário de ciclos definido e comunicado para todas as praças':
+    {t:'link',label:'Calendário dos Ciclos (Drive)',url:'https://drive.google.com/drive/folders/1S-KreLbtHi1ivyubHUtfsLKTQZi8E6iU'},
+  'Treinamento interno sobre os materiais disponibilizados para o PD (4 eixos, lógica dos ciclos, rubricas)':
+    { ciclo1:{t:'chip',v:'Realizado em 30/01/2026 com o time de orientadores'},
+      ciclo2:{t:'chip',v:'Realizado em 09/04/2026 com o time de orientadores'} },
+  'Plano de treinamento e avaliação de aptidão para novos orientadores 2026':
+    { ciclo1:null, ciclo2:{t:'link',label:'Plataforma PDEB',url:'https://pdeb-plataforma.vercel.app/index.html'} },
+  '80% do time com mudança positiva no questionário pré e pós-treinamento (critério de validação)': null,
+  '80% do time com mudança positiva no questionário pré e pós-treinamento (treinamentos externos)': null,
+  'Feedback para alunos':
+    { ciclo1:{t:'chip',v:'SP 99,5% · RJ 100% · BH 100% · SJC 100%'},
+      ciclo2:{t:'link',label:'Feedbacks MNM por praça (Sheets)',url:'https://docs.google.com/spreadsheets/d/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/edit?gid=376214331#gid=376214331'} },
+  'Devolutiva estruturada entregue após cada observação (ao orientador e I&D)':
+    {t:'link',label:'Acompanhamento de observações (Sheets)',url:'https://docs.google.com/spreadsheets/d/1nUd7IBmAjKmMekutEgB0g2Veb-0UE1GFgZwV2C2CmmM/edit?gid=0#gid=0'},
+  'Padrões das observações levados como pauta estruturada aos Comitês de Melhoria Contínua':
+    {t:'link',label:'Board do Comitê (Miro)',url:'https://miro.com/app/board/uXjVGMNBfsY=/'},
+  'X% das devolutivas acompanhadas': {t:'pending'},
+  'Ajustes implementados antes do ciclo seguinte e comunicados ao Presencial (se necessário)':
+    {t:'chip',v:'Roteiros diminuídos para melhor gestão de tempo'},
+  'Análise de distribuição de notas realizada após cada um dos 4 ciclos':
+    {t:'link',label:'Qualidade das Avaliações (Sheets)',url:'https://docs.google.com/spreadsheets/d/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/edit?gid=376214331#gid=376214331'},
+  'Registro dos ajustes realizados em cada rubrica e materiais atualizados antes do ciclo seguinte':
+    {t:'link',label:'Plataforma PDEB',url:'https://pdeb-plataforma.vercel.app/index.html'},
+  'Externa (LTF): Aplicação inicial':
+    {t:'chip_link',v:'321 map. · 81,7% (1ºAno) · 70,8% (2ºAno)',label:'Relatório LTF (Looker Studio)',url:'https://datastudio.google.com/u/0/reporting/442ffe75-83c0-4f3a-b974-6514dac12985/page/p4cVB'},
+  'Interna: Aplicação pré: início do 1º ciclo, antes da 1ª Oficina':
+    {t:'link',label:'Autoavaliações (Drive)',url:'https://drive.google.com/drive/folders/1uauMpyYEqPc2Ks2o4G5k6gtoiLlXsx27'},
+  'Interna: Aplicação pré: início do 2º ciclo, antes da 2ª Oficina':
+    {t:'link',label:'Autoavaliações (Drive)',url:'https://drive.google.com/drive/folders/1uauMpyYEqPc2Ks2o4G5k6gtoiLlXsx27'},
+  'Análise de calibragem após cada ciclo: consistência entre orientadores/praças, capacidade de diferenciação e aderência ao PDEB':
+    {t:'chip_link',v:'Prática não atingiu o mínimo de respostas',label:'Delta de progresso (Sheets)',url:'https://docs.google.com/spreadsheets/d/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/edit?gid=319519402#gid=319519402'},
+  'Atualização dos encaminhamentos da ferramenta interna': {t:'pending'},
+  'Frente 1: Síntese dos inputs do Presencial (3 momentos do ciclo), análise das entregas do Mão na Massa, padrões das observações, resultados do pulse check e decisão sobre instrumento de mensuração': null,
+  'Frente 2: Avaliação do treinamento e oportunidades de melhoria na capacitação do Presencial para o próximo ciclo': null,
+  'Apresentado e validado no Comitê de Melhoria Contínua': null,
+  'Apresentado e validado no Comitê de Melhoria Contínua (ao final do ciclo)': null,
+};
+
+function _pEv(nome, ciclo, kpis) {
+  let c = PAINEL_EV[nome];
+  if (c === undefined) return '<span class="pev-pending">evidência a definir</span>';
+  if (c === null) return '';
+  if ('ciclo1' in c || 'ciclo2' in c) c = ciclo===1 ? (c.ciclo1||null) : (c.ciclo2||null);
+  if (!c) return '';
+  if (c.t==='chip')      return `<span class="pev-chip">${c.v}</span>`;
+  if (c.t==='link')      return `<a class="pev-link" href="${c.url}" target="_blank">${c.label} ↗</a>`;
+  if (c.t==='pending')   return '<span class="pev-pending">evidência a definir</span>';
+  if (c.t==='chip_link') return `<span class="pev-chip">${c.v}</span><a class="pev-link" href="${c.url}" target="_blank" style="margin-left:4px;">${c.label} ↗</a>`;
+  if (c.t==='oficinas') {
+    if (!kpis) return '<span class="pev-pending">carregando...</span>';
+    const p = ['SP','BH','RJ','SJC'].map(k=>{const v=kpis[k]?.geral?.oficinas; return v!=null?`${k} ${v.toFixed(1).replace('.',',')}%`:null;}).filter(Boolean);
+    return p.length ? `<span class="pev-chip">${p.join(' · ')}</span>` : '<span class="pev-pending">em coleta</span>';
+  }
+  return '';
+}
+function _pIcon(s) {
+  if(s==='Feito')        return '<span style="color:#16A34A;font-weight:700;font-size:13px;">✓</span>';
+  if(s==='Em andamento') return '<span style="color:#F59E0B;font-size:13px;">⏳</span>';
+  if(s==='Congelado')    return '<span style="color:#94A3B8;font-size:13px;">❄</span>';
+  if(s==='trancado')     return '<span style="color:#5B21B6;font-size:13px;">🔒</span>';
+  return '<span style="color:#94A3B8;font-size:13px;">○</span>';
+}
+function _pRing(pct) {
+  const r=26, circ=2*Math.PI*r, dash=circ*pct/100, off=circ/4;
+  const cor=pct>=100?'#085041':pct>0?'#008ED3':'#E2E8F0';
+  const arc=pct>=100
+    ? `<circle cx="32" cy="32" r="${r}" fill="none" stroke="${cor}" stroke-width="5"/>`
+    : `<circle cx="32" cy="32" r="${r}" fill="none" stroke="${cor}" stroke-width="5" stroke-dasharray="${dash} ${circ}" stroke-dashoffset="${off}" stroke-linecap="round"/>`;
+  return `<svg width="60" height="60" viewBox="0 0 64 64"><circle cx="32" cy="32" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="5"/>${arc}<text x="32" y="37" text-anchor="middle" font-size="12" font-weight="500" fill="#002561">${pct}%</text></svg>`;
+}
+function _pPill(s) {
+  const m={'Feito':['pill-done','✓ Feito'],'Em andamento':['pill-wip','⏳ Em andamento'],'Congelado':['pill-frozen','❄ Congelado'],'Não iniciado':['pill-frozen','○ Não iniciado'],'Atrasado':['pill-wip','⏳ Em andamento'],'trancado':['pill-locked','🔒 2º semestre']};
+  const [cls,lbl]=m[s]||['pill-frozen','○'];
+  return `<span class="pill ${cls}">${lbl}</span>`;
+}
+
+function renderPainelMariana(items, ciclo, kpis) {
+  const grid = document.getElementById('painel-grid');
+  const summ = document.getElementById('painel-summary');
+  if (!grid) return;
+  if (!items || !items.length) {
+    grid.innerHTML = '<div style="font-size:13px;color:var(--soft);padding:20px;grid-column:1/-1;">Clique em <strong>Atualizar dados</strong> para carregar as metas.</div>';
+    return;
+  }
+  const metas = items.filter(m => /^M[1-5]$/.test(m.id));
+  let tAtivos=0, tFeitos=0;
+  grid.innerHTML = metas.map(m => {
+    const trancado = (ciclo===2 && m.id==='M5');
+    const mst = trancado ? 'trancado' : m.status;
+    const subs = (m.subitems||[]).map(s => {
+      const st = trancado ? 'trancado' : s.status;
+      const op = st==='Congelado'||st==='trancado';
+      const ev = op ? '' : _pEv(s.nome, ciclo, kpis);
+      return `<div class="psub"><div style="flex-shrink:0;margin-top:2px;">${_pIcon(st)}</div><div style="flex:1;"><div style="font-size:12px;line-height:1.45;color:${op?'var(--soft)':'var(--text)'};">${s.nome}</div>${ev}</div></div>`;
+    }).join('');
+    const ativ = (m.subitems||[]).filter(s=>!trancado && s.status!=='Congelado');
+    const feit = ativ.filter(s=>s.status==='Feito');
+    const pct  = ativ.length ? Math.round(feit.length/ativ.length*100) : 0;
+    tAtivos += ativ.length; tFeitos += feit.length;
+    const cong = (m.subitems||[]).filter(s=>s.status==='Congelado').length;
+    const cnt  = trancado
+      ? `${(m.subitems||[]).length} subelementos · previsto para o 2º semestre`
+      : `${feit.length}/${ativ.length} subelementos${cong?` · ${cong} congelado${cong>1?'s':''}`:''}`;
+    return `<div class="pcard"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;"><div style="flex-shrink:0;">${_pRing(trancado?0:pct)}</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="font-size:11px;font-weight:600;color:var(--blue);">${m.id}</span>${_pPill(mst)}</div><div class="pcard-title">${m.nome}</div><div class="pcard-count">${cnt}</div></div></div><hr class="pcard-divider">${subs}</div>`;
+  }).join('');
+  if(summ) summ.textContent = ciclo===1 ? `Encerrado · ${tFeitos} de ${tAtivos} subelementos entregues` : `Em andamento · ${tFeitos} de ${tAtivos} entregues`;
+}
+
+function painelMostrarCiclo(ciclo, btn) {
+  _painelCiclo = ciclo;
+  document.querySelectorAll('.pciclo-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPainelMariana(_painelData[ciclo], ciclo, _painelKpis);
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 
 function showTab(id, btn) {
   if (id === 'orientadores' && !orientadoresDesbloqueado) {
