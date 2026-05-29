@@ -574,6 +574,9 @@ ${textos}`;
       const rows = d.values || [];
       let total = 0, comFeedback = 0;
       for (const row of rows) {
+        // Col B = índice 1: orientador deve ser preenchido (igual ao Apps Script)
+        const orientador = String(row[1] || '').trim();
+        if (!orientador) continue;
         // Col H = índice 7: entregou MNM?
         const entregou = String(row[7] || '').toLowerCase().trim();
         if (entregou !== 'true' && entregou !== 'verdadeiro') continue;
