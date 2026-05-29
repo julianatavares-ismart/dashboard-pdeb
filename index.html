@@ -1432,6 +1432,7 @@ async function doRefreshAll() {
   // Sentimento e vozes — rodam sempre, erros são silenciosos
   try { await analisarEmocoes(); } catch(_) {}
   try { await curarVozes(); } catch(_) {}
+  try { await carregarFeedbackPracas(); } catch(_) {}
   renderPainelMariana(_painelData[_painelCiclo], _painelCiclo, _painelKpis);
 
   if (erros.length === 0) {
@@ -1726,6 +1727,26 @@ async function carregarObservacoes() {
   }
 }
 
+async function carregarFeedbackPracas() {
+  try {
+    const res = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_feedback_pracas' })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    if (d.error || !d.feedbacks) return;
+    _feedbackPracas = d.feedbacks; // { 1: {SP, BH, RJ, SJC}, 2: {...} }
+    // Re-renderiza o painel se já carregado
+    if (_painelData[_painelCiclo]) {
+      renderPainelMariana(_painelData[_painelCiclo], _painelCiclo, _painelKpis);
+    }
+  } catch(e) {
+    console.warn('Feedback praças não disponível:', e.message);
+  }
+}
+
 async function curarVozes() {
   const loading = document.getElementById('vozes-loading');
   const grid = document.getElementById('vozes-grid');
@@ -1864,6 +1885,7 @@ async function analisarEmocoes() {
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
 let _pilarStats = {};
+let _feedbackPracas = {}; // cache: { 1: {SP:x, RJ:x, BH:x, SJC:x}, 2: {...} }
 let _pendingTabBtn = null;
 
 // ── PAINEL ESTRATÉGICO ──────────────────────────────────────────────────────
@@ -1886,7 +1908,7 @@ const PAINEL_EV = {
   '80% do time com mudança positiva no questionário pré e pós-treinamento (critério de validação)': null,
   '80% do time com mudança positiva no questionário pré e pós-treinamento (treinamentos externos)': null,
   'Feedback para alunos':
-    { ciclo1:{t:'chip',v:'SP 99,5% · RJ 81,6% · BH 100% · SJC 100%'},
+    { ciclo1:{t:'feedbacks_sheet', ciclo: 1},
       ciclo2:{t:'link',label:'Feedbacks MNM por praça (Sheets)',url:'https://docs.google.com/spreadsheets/d/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/edit?gid=376214331#gid=376214331'} },
   'Devolutiva estruturada entregue após cada observação (ao orientador e I&D)':
     {t:'link',label:'Acompanhamento de observações (Sheets)',url:'https://docs.google.com/spreadsheets/d/1nUd7IBmAjKmMekutEgB0g2Veb-0UE1GFgZwV2C2CmmM/edit?gid=0#gid=0'},
@@ -1924,6 +1946,16 @@ function _pEv(nome, ciclo, kpis) {
   if (c.t==='link')      return `<a class="pev-link" href="${c.url}" target="_blank">${c.label} ↗</a>`;
   if (c.t==='pending')   return '<span class="pev-pending">evidência a definir</span>';
   if (c.t==='chip_link') return `<span class="pev-chip">${c.v}</span><a class="pev-link" href="${c.url}" target="_blank" style="margin-left:4px;">${c.label} ↗</a>`;
+  if (c.t==='feedbacks_sheet') {
+    const dados = _feedbackPracas[ciclo] || {};
+    const partes = ['SP','BH','RJ','SJC'].map(p => {
+      const v = dados[p];
+      return v != null ? p + ' ' + v.toFixed(1).replace('.',',') + '%' : null;
+    }).filter(Boolean);
+    return partes.length
+      ? '<span class="pev-chip">' + partes.join(' · ') + '</span>'
+      : '<span class="pev-pending">carregando...</span>';
+  }
   if (c.t==='oficinas') {
     if (!kpis) return '<span class="pev-pending">carregando...</span>';
     const p = ['SP','BH','RJ','SJC'].map(k=>{const v=kpis[k]?.geral?.oficinas; return v!=null?`${k} ${v.toFixed(1).replace('.',',')}%`:null;}).filter(Boolean);
