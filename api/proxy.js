@@ -568,42 +568,41 @@ ${textos}`;
     }
 
     // Extrai % Feedbacks MNM dados por praça de uma aba de detalhes
-    // A aba tem seções por praça com uma linha de KPIs: [label, valor, label, valor...]
+    // Estrutura gerada pelo Apps Script:
+    //   Linha N:   labels  → "% Oficinas Realizadas" | "% Fala Aí" | "% Entregas" | "% Feedbacks MNM dados"
+    //   Linha N+1: valores → "100,00%"               | "76,50%"    | "28,30%"     | "81,60%"
     function extrairFeedbacks(rows) {
       const resultado = {};
       let pracaAtual = null;
 
-      for (const row of rows) {
+      for (let i = 0; i < rows.length; i++) {
+        const row   = rows[i];
         const textos = row.map(c => String(c || '').trim());
         const linha  = textos.join(' ').toLowerCase();
 
         // Detecta cabeçalho de praça
-        if (linha.includes('são paulo') || linha.includes('sp)'))     pracaAtual = 'SP';
-        else if (linha.includes('rio de janeiro') || linha.includes('rj)')) pracaAtual = 'RJ';
-        else if (linha.includes('belo horizonte') || linha.includes('bh)')) pracaAtual = 'BH';
-        else if (linha.includes('josé dos campos') || linha.includes('sjc)')) pracaAtual = 'SJC';
+        if      (linha.includes('são paulo'))           pracaAtual = 'SP';
+        else if (linha.includes('rio de janeiro'))      pracaAtual = 'RJ';
+        else if (linha.includes('belo horizonte'))      pracaAtual = 'BH';
+        else if (linha.includes('josé dos campos'))     pracaAtual = 'SJC';
 
         if (!pracaAtual) continue;
 
-        // Detecta linha de KPI com "% Feedbacks"
-        const feedIdx = textos.findIndex(t => t.toLowerCase().includes('feedback'));
-        if (feedIdx === -1) continue;
+        // Detecta linha de LABELS com "feedbacks"
+        const feedColIdx = textos.findIndex(t => t.toLowerCase().includes('feedback'));
+        if (feedColIdx === -1) continue;
 
-        // O valor está na mesma linha — próxima célula não vazia com %
-        for (let i = feedIdx + 1; i < textos.length; i++) {
-          const v = textos[i];
-          if (!v) continue;
-          // Aceita "82,30%" ou "82.30%" ou "0.823"
-          const m = v.match(/(\d+[,.]?\d*)\s*%?/);
-          if (m) {
-            let num = parseFloat(m[1].replace(',', '.'));
-            if (num > 1 && num <= 100) { // já em %
-              resultado[pracaAtual] = num;
-            } else if (num > 0 && num <= 1) { // decimal
-              resultado[pracaAtual] = num * 100;
-            }
-            break;
-          }
+        // O VALOR está na linha imediatamente abaixo, mesma coluna
+        const nextRow = (rows[i + 1] || []).map(c => String(c || '').trim());
+        const val = nextRow[feedColIdx] || '';
+
+        // Aceita "81,60%", "81.60%", "0,816", "82"
+        const m = val.match(/(\d+)[,.](\d+)/) || val.match(/(\d+)/);
+        if (m) {
+          const num = m[2]
+            ? parseFloat(m[1] + '.' + m[2])
+            : parseFloat(m[1]);
+          resultado[pracaAtual] = (num > 1) ? num : num * 100;
         }
       }
       return resultado;
