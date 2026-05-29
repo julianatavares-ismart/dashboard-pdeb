@@ -1965,7 +1965,12 @@ function renderPainelMariana(items, ciclo, kpis) {
   grid.innerHTML = metas.map(m => {
     const trancado = (m.id==='M5');
     const mst = trancado ? 'trancado' : m.status;
-    const subs = (m.subitems||[]).map(s => {
+    const subsSorted = (m.subitems||[]).slice().sort((a, b) => {
+      if (trancado) return 0;
+      const order = { 'Feito': 0, 'Em andamento': 1, 'Não iniciado': 2, 'Atrasado': 1, 'Congelado': 3 };
+      return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+    });
+    const subs = subsSorted.map(s => {
       const st = trancado ? 'trancado' : s.status;
       const op = st==='Congelado'||st==='trancado';
       const ev = op ? '' : _pEv(s.nome, ciclo, kpis);
