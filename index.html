@@ -1707,12 +1707,13 @@ async function carregarObservacoes() {
       elVal.style.color = dados.soAutoav ? '#94A3B8' : cor;
       if (elBar) { elBar.style.width = (avg / 4 * 100) + '%'; elBar.style.background = barCor; }
       if (elNomes) {
-      var stats = _pilarStats[(id).toUpperCase()];
-      var texto = dados.nomes.join(' + ');
-      if (dados.soAutoav) texto += ' · apenas autoavaliação';
-      if (stats && stats.worstAutoav) texto += ' · orientadores ↓ ' + stats.worstAutoav;
-      if (stats && stats.worstObs)    texto += ' · observadores ↓ ' + stats.worstObs;
-      elNomes.textContent = texto;
+        var stats = _pilarStats[(id).toUpperCase()];
+        var texto = dados.nomes.join(' + ');
+        if (dados.soAutoav) texto += ' · apenas autoavaliação';
+        if (stats && stats.worstAutoav) texto += ' · orientadores ↓ ' + stats.worstAutoav;
+        if (stats && stats.worstObs)    texto += ' · observadores ↓ ' + stats.worstObs;
+        elNomes.textContent = texto;
+      }
     }
 
     atualizaPraca('rj', pracas['RJ']);
