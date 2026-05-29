@@ -50,14 +50,46 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     const ID_AUTOAV = '113U9ZakL5fciaRXOd8JrxTbZzDmYdDRFHmana4xN3Ns';
     const ID_OBS    = '1s9vVGtBesBhQFD3WS5K3m12f-QYPpPYjx8OZpy-aAes';
 
-    // Mapeamento escola → praça (adicione novas escolas aqui conforme necessário)
+    // ── CORREÇÃO: mapeamento completo escola → praça ──────────────
     const ESCOLA_PRACA = {
+      // RJ
       'são bento': 'RJ', 'sao bento': 'RJ',
+      'eleva': 'RJ',
+      'liceu franco': 'RJ',
+      'ort': 'RJ',
+      'pensi': 'RJ',
+      'ph botafogo': 'RJ',
+      'ph freguesia': 'RJ',
+      'ph tijuca': 'RJ',
+
+      // BH
       'magnum': 'BH',
+      'bernoulli': 'BH',
       'santo antônio': 'BH', 'santo antonio': 'BH',
-      'rio branco granja viana': 'SP', 'rio branco': 'SP',
+
+      // SJC — específicos antes dos genéricos
+      'embraer': 'SJC',
+      'poliedro são josé': 'SJC', 'poliedro sao jose': 'SJC',
+      'poliedro sjc': 'SJC',
+      'anglo sjc': 'SJC', 'anglo são josé': 'SJC', 'anglo sao jose': 'SJC',
+      'anglo - sjc': 'SJC',
+
+      // SP
+      'andover': 'SP',
+      'avenues': 'SP',
+      'bandeirantes': 'SP',
+      'beacon': 'SP',
+      'dante': 'SP',
+      'lourenço castanho': 'SP', 'lourenco castanho': 'SP',
+      'magno': 'SP',
       'móbile': 'SP', 'mobile': 'SP',
-      'poliedro': 'SJC', 'objetivo': 'SJC'
+      'poliedro são paulo': 'SP', 'poliedro sao paulo': 'SP', 'poliedro sp': 'SP',
+      'rio branco': 'SP',
+      'saint paul': 'SP',
+      'stockler': 'SP',
+      'uirapuru': 'SP',
+      'anglo sp': 'SP', 'anglo são paulo': 'SP', 'anglo sao paulo': 'SP',
+      'anglo - sp': 'SP',
     };
 
     function getPraca(escola) {
@@ -68,14 +100,12 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       return '—';
     }
 
-    // Extrai número do início de "4 – Avançado: ..." ou "3 – Proficiente: ..."
     function parseScore(txt) {
       if (!txt) return null;
       const m = /^(\d+)/.exec(txt.trim());
       return m ? parseInt(m[1]) : null;
     }
 
-    // Identifica colunas de pilares pelo header (contém ponto, ex: "1.1", "2.3")
     function getPilarIndexes(headers) {
       return headers.reduce((acc, h, i) => {
         if (/\d+\.\d+/.test(h)) acc.push(i);
@@ -115,21 +145,18 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       const headAutoav = rawAutoav[0].map(h => h.trim());
       const headObs    = rawObs[0].map(h => h.trim());
 
-      // Colunas chave — autoavaliação
-      const iNomeAutoav = findCol(headAutoav, ['insira seu nome', 'nome', 'orientador']);
+      const iNomeAutoav   = findCol(headAutoav, ['insira seu nome', 'nome', 'orientador']);
       const iEscolaAutoav = findCol(headAutoav, ['escola']);
       const iSerieAutoav  = findCol(headAutoav, ['série', 'serie']);
       const iCicloAutoav  = findCol(headAutoav, ['ciclo']);
       const pilaresAutoav = getPilarIndexes(headAutoav);
 
-      // Colunas chave — observador
-      const iNomeObs    = findCol(headObs, ['orientador observado', 'orientador', 'nome']);
-      const iEscolaObs  = findCol(headObs, ['escola']);
-      const iSerieObs   = findCol(headObs, ['série', 'serie']);
-      const iCicloObs   = findCol(headObs, ['ciclo']);
-      const pilaresObs  = getPilarIndexes(headObs);
+      const iNomeObs   = findCol(headObs, ['orientador observado', 'orientador', 'nome']);
+      const iEscolaObs = findCol(headObs, ['escola']);
+      const iSerieObs  = findCol(headObs, ['série', 'serie']);
+      const iCicloObs  = findCol(headObs, ['ciclo']);
+      const pilaresObs = getPilarIndexes(headObs);
 
-      // Monta mapa de autoavaliações por chave
       const autoavMap = {};
       for (const row of rawAutoav.slice(1)) {
         const nome  = (row[iNomeAutoav] || '').trim();
@@ -139,13 +166,11 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         if (!nome) continue;
         const chave = `${nome}|${esc}|${serie}|${ciclo}`.toLowerCase();
         const media = calcMedia(row, pilaresAutoav);
-        // Guarda a entrada mais recente
         if (!autoavMap[chave] || media !== null) {
           autoavMap[chave] = { nome, escola: esc, serie, ciclo, autoav: media };
         }
       }
 
-      // Monta mapa de observações por chave (média de múltiplas observações)
       const obsMap = {};
       for (const row of rawObs.slice(1)) {
         const nome  = (row[iNomeObs] || '').trim();
@@ -161,7 +186,6 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         }
       }
 
-      // Cruza os dois mapas
       const resultado = Object.entries(autoavMap).map(([chave, a]) => {
         const obsScores = obsMap[chave] || [];
         const obsMedia = obsScores.length > 0
@@ -183,9 +207,7 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         };
       });
 
-      // Ordena por média decrescente
       resultado.sort((a, b) => (b.media || 0) - (a.media || 0));
-
       return res.status(200).json({ orientadores: resultado });
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -214,7 +236,6 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
 
     function parseRating(txt) {
       if (!txt) return null;
-      // Aceita formatos: "4", "4 - ...", "4 estrelas", número puro
       const m = /^(\d+)/.exec(txt.trim());
       const n = m ? parseInt(m[1]) : null;
       return (n >= 1 && n <= 5) ? n : null;
@@ -228,13 +249,11 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
           if (rows.length < 2) return { ...s, respostas: 0, media: null };
 
           const headers = rows[0].map(h => (h || '').toLowerCase());
-          // Procura coluna de nota: "nota", "avalia", "estrela", "satisfa", "como foi"
           let ratingIdx = headers.findIndex(h =>
             h.includes('nota') || h.includes('avalia') || h.includes('estrela') ||
             h.includes('satisfa') || h.includes('como foi') || h.includes('como você')
           );
 
-          // Fallback: coluna com mais valores numéricos entre 1-5
           if (ratingIdx === -1) {
             let bestCol = -1, bestCount = 0;
             for (let ci = 1; ci < (rows[0] || []).length; ci++) {
@@ -283,7 +302,6 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     const linhas = [];
 
     if (sheetsKey) {
-      // Fetch sequencial para não estourar quota
       for (const s of sheetIds) {
         try {
           const url = `https://sheets.googleapis.com/v4/spreadsheets/${s.id}/values/A1:Z1000?key=${sheetsKey}`;
@@ -293,21 +311,17 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
           if (rows.length < 2) continue;
 
           const header = rows[0].map(h => (h || '').toLowerCase());
-
-          // Coluna do comentário aberto
           const iComent = header.findIndex(h =>
             h.includes('espaço livre') || h.includes('comentário') || h.includes('dúvida') || h.includes('livre')
           );
           if (iComent === -1) continue;
 
-          // Coluna da praça (para identificar origem de cada resposta)
           const iPraca = header.findIndex(h => h.includes('praça') || h.includes('praca'));
 
           for (const row of rows.slice(1)) {
             const txt = (row[iComent] || '').trim();
             if (txt.length < 15) continue;
             const praca = iPraca !== -1 ? (row[iPraca] || '').trim() : '';
-            // Abrevia praça
             const pracaAbrev = praca.toLowerCase().includes('são paulo') || praca.toLowerCase().includes('sp') ? 'SP'
               : praca.toLowerCase().includes('belo') || praca.toLowerCase().includes('bh') ? 'BH'
               : praca.toLowerCase().includes('rio') || praca.toLowerCase().includes('rj') ? 'RJ'
@@ -397,9 +411,9 @@ ${textos}`;
 
     function normSerie(s) {
       return (s || '').toLowerCase()
-        .replace(/[°º˚]/g, '')   // remove ordinal/degree
-        .replace(/\s+/g, '')     // remove espaços
-        .replace(/[^a-z0-9]/g, ''); // remove outros chars
+        .replace(/[°º˚]/g, '')
+        .replace(/\s+/g, '')
+        .replace(/[^a-z0-9]/g, '');
     }
 
     function matchSerie(turma, grupo) {
@@ -424,7 +438,6 @@ ${textos}`;
 
       await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
         try {
-          // Nome da aba confirmado como "Dados" em todas as planilhas de presença
           const aba = 'Dados';
           const url  = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(aba + '!A1:Z2000')}?key=${sheetsKey}`;
           const r    = await fetch(url);
@@ -437,29 +450,20 @@ ${textos}`;
             return;
           }
 
-          // Estrutura de 2 linhas de cabeçalho:
-          // Linha 0: "Informações Gerais", ..., "Ciclo 1", "", "Ciclo 2", "", "Ciclo 3", ...
-          // Linha 1: "Aluno", "Turma", ..., "Oficina", "Fala Aí", "Oficina", "Fala Aí", ...
-
           const row0 = rows[0].map(h => (h || '').toLowerCase().trim());
           const row1 = rows[1] ? rows[1].map(h => (h || '').toLowerCase().trim()) : [];
 
-          // Encontra índice do Ciclo 2 na linha 0
           const ciclo2Start = row0.findIndex(h => h.includes('ciclo 2') || h === 'ciclo2');
 
-          // Encontra coluna Turma — pode estar na linha 0 ou 1
           let iturma = row0.findIndex(h => h.includes('turma'));
           if (iturma === -1) iturma = row1.findIndex(h => h.includes('turma'));
 
-          // Dentro do bloco Ciclo 2: primeira coluna = Oficina, segunda = Fala Aí
           let iofic = -1, ifa = -1;
           if (ciclo2Start !== -1) {
-            // Confirma pela linha 1 quais são oficina e fala aí nesse bloco
             for (let c = ciclo2Start; c < ciclo2Start + 3 && c < row1.length; c++) {
               if (row1[c] && row1[c].includes('oficina') && iofic === -1) iofic = c;
               if (row1[c] && (row1[c].includes('fala') || row1[c].includes('fa ')) && ifa === -1) ifa = c;
             }
-            // Fallback: Ciclo 2 ocupa colunas ciclo2Start e ciclo2Start+1
             if (iofic === -1) iofic = ciclo2Start;
             if (ifa   === -1) ifa   = ciclo2Start + 1;
           }
@@ -471,7 +475,6 @@ ${textos}`;
             return;
           }
 
-          // Dados começam na linha 2 (após os dois cabeçalhos)
           const data = rows.slice(2);
           resultado[praca] = {
             geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
@@ -494,7 +497,7 @@ ${textos}`;
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) {
       return res.status(500).json({
-        error: 'GOOGLE_SHEETS_API_KEY não configurada. Acesse Vercel → Settings → Environment Variables e adicione a chave da API do Google.'
+        error: 'GOOGLE_SHEETS_API_KEY não configurada.'
       });
     }
 
@@ -513,7 +516,6 @@ ${textos}`;
     }
 
     try {
-      // Puxa aba Dashboard da planilha principal
       const dashboard = await fetchSheet(sheetIds.dados_semanais, 'Dashboard!A1:Z50');
       const ciclo1Det = await fetchSheet(sheetIds.dados_semanais, 'Ciclo 1 - Detalhes!A1:Z100');
       const ciclo2Det = await fetchSheet(sheetIds.dados_semanais, 'Ciclo 2 - Detalhes!A1:Z100');
