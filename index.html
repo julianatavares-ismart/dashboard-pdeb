@@ -1935,7 +1935,7 @@ function renderPainelMariana(items, ciclo, kpis) {
   const metas = items.filter(m => /^M[1-5]$/.test(m.id));
   let tAtivos=0, tFeitos=0;
   grid.innerHTML = metas.map(m => {
-    const trancado = (ciclo===2 && m.id==='M5');
+    const trancado = (m.id==='M5');
     const mst = trancado ? 'trancado' : m.status;
     const subs = (m.subitems||[]).map(s => {
       const st = trancado ? 'trancado' : s.status;
