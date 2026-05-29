@@ -575,21 +575,24 @@ section { margin-bottom: 28px; }
     <div class="card">
       <div style="margin-bottom:16px;">
         <div class="card-title" style="margin-bottom:4px;">O que os alunos estão dizendo</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">12 comentários selecionados e revisados automaticamente · 4 por categoria · formulários Ciclo 1 e Ciclo 2</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Comentários selecionados e revisados automaticamente · 4 por categoria · formulários Ciclo 1 e Ciclo 2 · <span id="vozes-total" style="font-weight:600;color:var(--text);">—</span> comentários analisados</div>
         <div id="vozes-percentuais" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
           <div style="flex:1;min-width:120px;padding:12px 16px;background:#DCFCE7;border-radius:10px;border:1px solid #BBF7D0;">
             <div style="font-size:10px;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Positivos</div>
             <div id="pct-positivo" style="font-size:22px;font-weight:700;color:#15803D;">—</div>
+            <div id="cnt-positivo" style="font-size:13px;font-weight:500;color:#15803D;margin-top:1px;">— comentários</div>
             <div style="font-size:10px;color:#16A34A;margin-top:2px;">dos comentários</div>
           </div>
           <div style="flex:1;min-width:120px;padding:12px 16px;background:#FEF3C7;border-radius:10px;border:1px solid #FDE68A;">
             <div style="font-size:10px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Críticas</div>
             <div id="pct-critica" style="font-size:22px;font-weight:700;color:#D97706;">—</div>
+            <div id="cnt-critica" style="font-size:13px;font-weight:500;color:#D97706;margin-top:1px;">— comentários</div>
             <div style="font-size:10px;color:#92400E;margin-top:2px;">dos comentários</div>
           </div>
           <div style="flex:1;min-width:120px;padding:12px 16px;background:#EFF6FF;border-radius:10px;border:1px solid #BFDBFE;">
             <div style="font-size:10px;font-weight:700;color:#1D4ED8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sugestões de melhoria</div>
             <div id="pct-melhoria" style="font-size:22px;font-weight:700;color:#2563EB;">—</div>
+            <div id="cnt-melhoria" style="font-size:13px;font-weight:500;color:#2563EB;margin-top:1px;">— comentários</div>
             <div style="font-size:10px;color:#1D4ED8;margin-top:2px;">dos comentários</div>
           </div>
         </div>
@@ -928,6 +931,11 @@ section { margin-bottom: 28px; }
           <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">SP — São Paulo</span><span id="praca-sp-val" style="font-size:13px;font-weight:600;color:#94A3B8;">3,6*</span></div>
           <div class="bar-bg"><div class="bar-fill" id="praca-sp-bar" style="width:90%;background:#94A3B8"></div></div>
           <div id="praca-sp-nomes" style="font-size:10px;color:var(--soft);margin-top:2px;">Lucas Aprile · apenas autoavaliação · obs. externas pendentes</div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:500;">SJC — S. José dos Campos</span><span id="praca-sjc-val" style="font-size:13px;font-weight:600;color:#94A3B8;">—</span></div>
+          <div class="bar-bg"><div class="bar-fill" id="praca-sjc-bar" style="width:0%;background:#94A3B8"></div></div>
+          <div id="praca-sjc-nomes" style="font-size:10px;color:var(--soft);margin-top:2px;">Carregando...</div>
         </div>
 
 
@@ -1460,6 +1468,7 @@ const C2_FIM_3EM   = new Date('2026-06-30'); // 3ºEM
 
 function statusPraca(pct, fimCiclo) {
   if (pct === null) return { cor: '#94A3B8', barCor: '#94A3B8' };
+  if (pct >= 100)   return { cor: '#16A34A', barCor: 'var(--green)' };
   const hoje = new Date();
   const diasRestantes = Math.ceil((fimCiclo - hoje) / 86400000);
   const totalDias = Math.ceil((fimCiclo - C2_INICIO) / 86400000);
@@ -1702,6 +1711,7 @@ async function carregarObservacoes() {
     atualizaPraca('rj', pracas['RJ']);
     atualizaPraca('bh', pracas['BH']);
     atualizaPraca('sp', pracas['SP']);
+    atualizaPraca('sjc', pracas['SJC']);
 
   } catch(e) {
     console.warn('Observações não disponível:', e.message);
@@ -1772,9 +1782,18 @@ async function curarVozes() {
       const pos = p.positivos ?? p.positivo ?? p.positive ?? 0;
       const cri = p.criticas  ?? p.critica  ?? p.negativo ?? p.negative ?? 0;
       const mel = p.melhorias ?? p.melhoria ?? p.improvement ?? 0;
+      // Total de comentários analisados (do array inteiro, não só os 12 exibidos)
+      const totalComentarios = vozes.total_analisados ?? vozes.comentarios.length;
+      const cntPos = Math.round(pos / 100 * totalComentarios);
+      const cntCri = Math.round(cri / 100 * totalComentarios);
+      const cntMel = Math.round(mel / 100 * totalComentarios);
+      if (el('vozes-total'))   el('vozes-total').textContent   = totalComentarios;
       if (el('pct-positivo'))  el('pct-positivo').textContent  = pos + '%';
+      if (el('cnt-positivo'))  el('cnt-positivo').textContent  = cntPos + ' comentários';
       if (el('pct-critica'))   el('pct-critica').textContent   = cri + '%';
+      if (el('cnt-critica'))   el('cnt-critica').textContent   = cntCri + ' comentários';
       if (el('pct-melhoria'))  el('pct-melhoria').textContent  = mel + '%';
+      if (el('cnt-melhoria'))  el('cnt-melhoria').textContent  = cntMel + ' comentários';
     } else {
       console.warn('[vozes] percentuais ausentes. Estrutura recebida:', JSON.stringify(vozes).slice(0, 300));
     }
