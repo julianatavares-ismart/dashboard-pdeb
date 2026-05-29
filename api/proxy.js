@@ -552,74 +552,51 @@ ${textos}`;
     }
   }
 
-  // ── FEEDBACK MNM POR PRAÇA (Ciclo 1 e 2 - Detalhes) ──────────
+  // ── FEEDBACK MNM POR PRAÇA ─────────────────────────────────────
+  // Calcula % feedbacks diretamente das planilhas de cada praça
+  // usando a lógica correta: H=TRUE e qualquer col I-M preenchida
   if (action === 'get_feedback_pracas') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
-    const SHEET_ID = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
-    const PRACAS = ['SP', 'BH', 'RJ', 'SJC'];
+    const PRACA_SHEETS = {
+      SP:  '1anki0VweR8LweziQkN-KDTJbklAp9asfdxtU5JhkMhk',
+      BH:  '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
+      RJ:  '1TsCj4_MqfIWCZF8j30E_hnpw8z3nDz8Ph5lMIXZEAuc',
+      SJC: '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
+    };
 
-    async function fetchTab(tab) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab + '!A1:Z200')}?key=${sheetsKey}`;
+    async function calcFeedbackPct(sheetId, aba) {
+      const range = encodeURIComponent(aba + '!A2:M2000');
+      const url   = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${sheetsKey}`;
       const r = await fetch(url);
       const d = await r.json();
-      return d.values || [];
-    }
-
-    // Extrai % Feedbacks MNM dados por praça de uma aba de detalhes
-    // Estrutura gerada pelo Apps Script:
-    //   Linha N:   labels  → "% Oficinas Realizadas" | "% Fala Aí" | "% Entregas" | "% Feedbacks MNM dados"
-    //   Linha N+1: valores → "100,00%"               | "76,50%"    | "28,30%"     | "81,60%"
-    function extrairFeedbacks(rows) {
-      const resultado = {};
-      let pracaAtual = null;
-
-      for (let i = 0; i < rows.length; i++) {
-        const row   = rows[i];
-        const textos = row.map(c => String(c || '').trim());
-        const linha  = textos.join(' ').toLowerCase();
-
-        // Detecta cabeçalho de praça
-        if      (linha.includes('são paulo'))           pracaAtual = 'SP';
-        else if (linha.includes('rio de janeiro'))      pracaAtual = 'RJ';
-        else if (linha.includes('belo horizonte'))      pracaAtual = 'BH';
-        else if (linha.includes('josé dos campos'))     pracaAtual = 'SJC';
-
-        if (!pracaAtual) continue;
-
-        // Detecta linha de LABELS com "feedbacks"
-        const feedColIdx = textos.findIndex(t => t.toLowerCase().includes('feedback'));
-        if (feedColIdx === -1) continue;
-
-        // O VALOR está na linha imediatamente abaixo, mesma coluna
-        const nextRow = (rows[i + 1] || []).map(c => String(c || '').trim());
-        const val = nextRow[feedColIdx] || '';
-
-        // Aceita "81,60%", "81.60%", "0,816", "82"
-        const m = val.match(/(\d+)[,.](\d+)/) || val.match(/(\d+)/);
-        if (m) {
-          const num = m[2]
-            ? parseFloat(m[1] + '.' + m[2])
-            : parseFloat(m[1]);
-          resultado[pracaAtual] = (num > 1) ? num : num * 100;
-        }
+      const rows = d.values || [];
+      let total = 0, comFeedback = 0;
+      for (const row of rows) {
+        // Col H = índice 7: entregou MNM?
+        const entregou = String(row[7] || '').toLowerCase().trim();
+        if (entregou !== 'true' && entregou !== 'verdadeiro') continue;
+        total++;
+        // Cols I-M = índices 8-12: qualquer valor = feedback dado
+        const temRubrica = [8, 9, 10, 11, 12].some(i => row[i] && String(row[i]).trim() !== '');
+        if (temRubrica) comFeedback++;
       }
-      return resultado;
+      return total > 0 ? Math.round(comFeedback / total * 1000) / 10 : null;
     }
 
     try {
-      const [rows1, rows2] = await Promise.all([
-        fetchTab('Ciclo 1 - Detalhes'),
-        fetchTab('Ciclo 2 - Detalhes'),
-      ]);
-
-      return res.status(200).json({
-        feedbacks: {
-          1: extrairFeedbacks(rows1),
-          2: extrairFeedbacks(rows2),
-        }
-      });
+      const feedbacks = {};
+      for (const [num, abaName] of [[1, 'Ciclo 1'], [2, 'Ciclo 2']]) {
+        feedbacks[num] = {};
+        await Promise.all(
+          Object.entries(PRACA_SHEETS).map(async ([praca, id]) => {
+            try { feedbacks[num][praca] = await calcFeedbackPct(id, abaName); }
+            catch(_) { feedbacks[num][praca] = null; }
+          })
+        );
+      }
+      return res.status(200).json({ feedbacks });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
