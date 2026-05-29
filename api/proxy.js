@@ -552,6 +552,80 @@ ${textos}`;
     }
   }
 
+  // ── FEEDBACK MNM POR PRAÇA (Ciclo 1 e 2 - Detalhes) ──────────
+  if (action === 'get_feedback_pracas') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    const SHEET_ID = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
+    const PRACAS = ['SP', 'BH', 'RJ', 'SJC'];
+
+    async function fetchTab(tab) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab + '!A1:Z200')}?key=${sheetsKey}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      return d.values || [];
+    }
+
+    // Extrai % Feedbacks MNM dados por praça de uma aba de detalhes
+    // A aba tem seções por praça com uma linha de KPIs: [label, valor, label, valor...]
+    function extrairFeedbacks(rows) {
+      const resultado = {};
+      let pracaAtual = null;
+
+      for (const row of rows) {
+        const textos = row.map(c => String(c || '').trim());
+        const linha  = textos.join(' ').toLowerCase();
+
+        // Detecta cabeçalho de praça
+        if (linha.includes('são paulo') || linha.includes('sp)'))     pracaAtual = 'SP';
+        else if (linha.includes('rio de janeiro') || linha.includes('rj)')) pracaAtual = 'RJ';
+        else if (linha.includes('belo horizonte') || linha.includes('bh)')) pracaAtual = 'BH';
+        else if (linha.includes('josé dos campos') || linha.includes('sjc)')) pracaAtual = 'SJC';
+
+        if (!pracaAtual) continue;
+
+        // Detecta linha de KPI com "% Feedbacks"
+        const feedIdx = textos.findIndex(t => t.toLowerCase().includes('feedback'));
+        if (feedIdx === -1) continue;
+
+        // O valor está na mesma linha — próxima célula não vazia com %
+        for (let i = feedIdx + 1; i < textos.length; i++) {
+          const v = textos[i];
+          if (!v) continue;
+          // Aceita "82,30%" ou "82.30%" ou "0.823"
+          const m = v.match(/(\d+[,.]?\d*)\s*%?/);
+          if (m) {
+            let num = parseFloat(m[1].replace(',', '.'));
+            if (num > 1 && num <= 100) { // já em %
+              resultado[pracaAtual] = num;
+            } else if (num > 0 && num <= 1) { // decimal
+              resultado[pracaAtual] = num * 100;
+            }
+            break;
+          }
+        }
+      }
+      return resultado;
+    }
+
+    try {
+      const [rows1, rows2] = await Promise.all([
+        fetchTab('Ciclo 1 - Detalhes'),
+        fetchTab('Ciclo 2 - Detalhes'),
+      ]);
+
+      return res.status(200).json({
+        feedbacks: {
+          1: extrairFeedbacks(rows1),
+          2: extrairFeedbacks(rows2),
+        }
+      });
+    } catch(err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   // ── DADOS DO GOOGLE SHEETS ──────────────────────────────────────
   if (action === 'get_sheets_data') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
