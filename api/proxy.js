@@ -119,6 +119,23 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
     }
 
+    // Extrai nome curto do pilar a partir do cabeçalho
+    function getPilarName(header) {
+      const linha = (header || '').split('\n')[0].trim();
+      const m = linha.match(/^\d+\.\d+\s*[-–]?\s*(.+)/);
+      return m ? m[1].trim() : linha;
+    }
+
+    // Retorna scores individuais por pilar de uma linha
+    function getPilarScores(row, pilarIdxs, headers) {
+      const scores = {};
+      pilarIdxs.forEach(idx => {
+        const s = parseScore(row[idx]);
+        if (s !== null) scores[getPilarName(headers[idx])] = s;
+      });
+      return scores;
+    }
+
     function findCol(headers, keywords) {
       return headers.findIndex(h =>
         keywords.some(kw => h.toLowerCase().includes(kw.toLowerCase()))
@@ -166,12 +183,14 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         if (!nome) continue;
         const chave = `${nome}|${esc}|${serie}|${ciclo}`.toLowerCase();
         const media = calcMedia(row, pilaresAutoav);
+        const pilarScoresAutoav = getPilarScores(row, pilaresAutoav, headAutoav);
         if (!autoavMap[chave] || media !== null) {
-          autoavMap[chave] = { nome, escola: esc, serie, ciclo, autoav: media };
+          autoavMap[chave] = { nome, escola: esc, serie, ciclo, autoav: media, pilarScores: pilarScoresAutoav };
         }
       }
 
       const obsMap = {};
+      const obsMapPilar = {};
       for (const row of rawObs.slice(1)) {
         const nome  = (row[iNomeObs] || '').trim();
         const esc   = (row[iEscolaObs] || '').trim();
@@ -184,6 +203,12 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
           if (!obsMap[chave]) obsMap[chave] = [];
           obsMap[chave].push(score);
         }
+        // Pilar-level scores para cada observação
+        const pilarScoresObs = getPilarScores(row, pilaresObs, headObs);
+        if (Object.keys(pilarScoresObs).length > 0) {
+          if (!obsMapPilar[chave]) obsMapPilar[chave] = [];
+          obsMapPilar[chave].push(pilarScoresObs);
+        }
       }
 
       const resultado = Object.entries(autoavMap).map(([chave, a]) => {
@@ -194,21 +219,56 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         const mediaFinal = obsMedia !== null
           ? Math.round(((a.autoav || 0) + obsMedia) / 2 * 10) / 10
           : a.autoav;
+        // Agrega scores por pilar das múltiplas observações
+        const obsPilarRaw = obsMapPilar[chave] || [];
+        const obsPilarAgg = {};
+        obsPilarRaw.forEach(ps => {
+          Object.entries(ps).forEach(([pilar, score]) => {
+            if (!obsPilarAgg[pilar]) obsPilarAgg[pilar] = [];
+            obsPilarAgg[pilar].push(score);
+          });
+        });
+        const pilarObs = {};
+        Object.entries(obsPilarAgg).forEach(([pilar, ss]) => {
+          pilarObs[pilar] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length * 10) / 10;
+        });
         return {
-          nome: a.nome,
-          escola: a.escola,
-          praca: getPraca(a.escola),
-          serie: a.serie,
-          ciclo: a.ciclo,
-          autoav: a.autoav,
-          obs: obsMedia,
-          media: mediaFinal,
-          apenasAutoav: obsMedia === null
+          nome: a.nome, escola: a.escola, praca: getPraca(a.escola),
+          serie: a.serie, ciclo: a.ciclo, autoav: a.autoav, obs: obsMedia,
+          media: mediaFinal, apenasAutoav: obsMedia === null,
+          pilarAutoav: a.pilarScores || {}, pilarObs
         };
       });
 
+      // Computa pior pilar por praça (autoav e obs separados)
+      function findWorst(pilarAvgs) {
+        const entries = Object.entries(pilarAvgs);
+        if (!entries.length) return null;
+        return entries.sort((a,b) => a[1]-b[1])[0][0];
+      }
+      const pilarByPraca = {};
+      for (const r of resultado) {
+        if (r.praca === '—') continue;
+        if (!pilarByPraca[r.praca]) pilarByPraca[r.praca] = { autoav: {}, obs: {} };
+        Object.entries(r.pilarAutoav).forEach(([pilar, score]) => {
+          if (!pilarByPraca[r.praca].autoav[pilar]) pilarByPraca[r.praca].autoav[pilar] = [];
+          pilarByPraca[r.praca].autoav[pilar].push(score);
+        });
+        Object.entries(r.pilarObs).forEach(([pilar, score]) => {
+          if (!pilarByPraca[r.praca].obs[pilar]) pilarByPraca[r.praca].obs[pilar] = [];
+          pilarByPraca[r.praca].obs[pilar].push(score);
+        });
+      }
+      const pilarStats = {};
+      for (const [praca, data] of Object.entries(pilarByPraca)) {
+        const avgAutoav = {}, avgObs = {};
+        Object.entries(data.autoav).forEach(([p, ss]) => { avgAutoav[p] = ss.reduce((a,b)=>a+b,0)/ss.length; });
+        Object.entries(data.obs).forEach(([p, ss]) => { avgObs[p] = ss.reduce((a,b)=>a+b,0)/ss.length; });
+        pilarStats[praca] = { worstAutoav: findWorst(avgAutoav), worstObs: findWorst(avgObs) };
+      }
+
       resultado.sort((a, b) => (b.media || 0) - (a.media || 0));
-      return res.status(200).json({ orientadores: resultado });
+      return res.status(200).json({ orientadores: resultado, pilarStats });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
