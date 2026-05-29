@@ -1684,6 +1684,7 @@ async function carregarObservacoes() {
     if (nota) nota.style.display = temParcial ? 'block' : 'none';
 
     // Recalcula médias por praça
+    _pilarStats = d.pilarStats || {};
     const pracas = {};
     for (const o of d.orientadores) {
       if (!o.praca || o.praca === '—' || o.media === null) continue;
@@ -1705,7 +1706,13 @@ async function carregarObservacoes() {
       elVal.textContent = avg.toFixed(1) + sufixo;
       elVal.style.color = dados.soAutoav ? '#94A3B8' : cor;
       if (elBar) { elBar.style.width = (avg / 4 * 100) + '%'; elBar.style.background = barCor; }
-      if (elNomes) elNomes.textContent = dados.nomes.join(' + ') + (dados.soAutoav ? ' · apenas autoavaliação' : '');
+      if (elNomes) {
+      var stats = _pilarStats[(id).toUpperCase()];
+      var texto = dados.nomes.join(' + ');
+      if (dados.soAutoav) texto += ' · apenas autoavaliação';
+      if (stats && stats.worstAutoav) texto += ' · orientadores ↓ ' + stats.worstAutoav;
+      if (stats && stats.worstObs)    texto += ' · observadores ↓ ' + stats.worstObs;
+      elNomes.textContent = texto;
     }
 
     atualizaPraca('rj', pracas['RJ']);
@@ -1855,6 +1862,7 @@ async function analisarEmocoes() {
 // ── SENHA ORIENTADORES ──
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
+let _pilarStats = {};
 let _pendingTabBtn = null;
 
 // ── PAINEL ESTRATÉGICO ──────────────────────────────────────────────────────
@@ -1877,7 +1885,7 @@ const PAINEL_EV = {
   '80% do time com mudança positiva no questionário pré e pós-treinamento (critério de validação)': null,
   '80% do time com mudança positiva no questionário pré e pós-treinamento (treinamentos externos)': null,
   'Feedback para alunos':
-    { ciclo1:{t:'chip',v:'SP 99,5% · RJ 100% · BH 100% · SJC 100%'},
+    { ciclo1:{t:'chip',v:'SP 99,5% · RJ 81,6% · BH 100% · SJC 100%'},
       ciclo2:{t:'link',label:'Feedbacks MNM por praça (Sheets)',url:'https://docs.google.com/spreadsheets/d/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/edit?gid=376214331#gid=376214331'} },
   'Devolutiva estruturada entregue após cada observação (ao orientador e I&D)':
     {t:'link',label:'Acompanhamento de observações (Sheets)',url:'https://docs.google.com/spreadsheets/d/1nUd7IBmAjKmMekutEgB0g2Veb-0UE1GFgZwV2C2CmmM/edit?gid=0#gid=0'},
