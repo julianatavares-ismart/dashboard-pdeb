@@ -50,46 +50,19 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     const ID_AUTOAV = '113U9ZakL5fciaRXOd8JrxTbZzDmYdDRFHmana4xN3Ns';
     const ID_OBS    = '1s9vVGtBesBhQFD3WS5K3m12f-QYPpPYjx8OZpy-aAes';
 
-    // ── CORREÇÃO: mapeamento completo escola → praça ──────────────
     const ESCOLA_PRACA = {
-      // RJ
-      'são bento': 'RJ', 'sao bento': 'RJ',
-      'eleva': 'RJ',
-      'liceu franco': 'RJ',
-      'ort': 'RJ',
-      'pensi': 'RJ',
-      'ph botafogo': 'RJ',
-      'ph freguesia': 'RJ',
-      'ph tijuca': 'RJ',
-
-      // BH
-      'magnum': 'BH',
-      'bernoulli': 'BH',
-      'santo antônio': 'BH', 'santo antonio': 'BH',
-
-      // SJC — específicos antes dos genéricos
-      'embraer': 'SJC',
-      'poliedro são josé': 'SJC', 'poliedro sao jose': 'SJC',
-      'poliedro sjc': 'SJC',
-      'anglo sjc': 'SJC', 'anglo são josé': 'SJC', 'anglo sao jose': 'SJC',
-      'anglo - sjc': 'SJC',
-
-      // SP
-      'andover': 'SP',
-      'avenues': 'SP',
-      'bandeirantes': 'SP',
-      'beacon': 'SP',
-      'dante': 'SP',
-      'lourenço castanho': 'SP', 'lourenco castanho': 'SP',
-      'magno': 'SP',
-      'móbile': 'SP', 'mobile': 'SP',
+      'são bento': 'RJ', 'sao bento': 'RJ', 'eleva': 'RJ', 'liceu franco': 'RJ',
+      'ort': 'RJ', 'pensi': 'RJ', 'ph botafogo': 'RJ', 'ph freguesia': 'RJ', 'ph tijuca': 'RJ',
+      'magnum': 'BH', 'bernoulli': 'BH', 'santo antônio': 'BH', 'santo antonio': 'BH',
+      'embraer': 'SJC', 'poliedro são josé': 'SJC', 'poliedro sao jose': 'SJC',
+      'poliedro sjc': 'SJC', 'anglo sjc': 'SJC', 'anglo são josé': 'SJC',
+      'anglo sao jose': 'SJC', 'anglo - sjc': 'SJC',
+      'andover': 'SP', 'avenues': 'SP', 'bandeirantes': 'SP', 'beacon': 'SP',
+      'dante': 'SP', 'lourenço castanho': 'SP', 'lourenco castanho': 'SP',
+      'magno': 'SP', 'móbile': 'SP', 'mobile': 'SP',
       'poliedro são paulo': 'SP', 'poliedro sao paulo': 'SP', 'poliedro sp': 'SP',
-      'rio branco': 'SP',
-      'saint paul': 'SP',
-      'stockler': 'SP',
-      'uirapuru': 'SP',
-      'anglo sp': 'SP', 'anglo são paulo': 'SP', 'anglo sao paulo': 'SP',
-      'anglo - sp': 'SP',
+      'rio branco': 'SP', 'saint paul': 'SP', 'stockler': 'SP', 'uirapuru': 'SP',
+      'anglo sp': 'SP', 'anglo são paulo': 'SP', 'anglo sao paulo': 'SP', 'anglo - sp': 'SP',
     };
 
     function getPraca(escola) {
@@ -119,14 +92,12 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
     }
 
-    // Extrai nome curto do pilar a partir do cabeçalho
     function getPilarName(header) {
       const linha = (header || '').split('\n')[0].trim();
       const m = linha.match(/^\d+\.\d+\s*[-–]?\s*(.+)/);
       return m ? m[1].trim() : linha;
     }
 
-    // Retorna scores individuais por pilar de uma linha
     function getPilarScores(row, pilarIdxs, headers) {
       const scores = {};
       pilarIdxs.forEach(idx => {
@@ -150,14 +121,8 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     }
 
     try {
-      const [rawAutoav, rawObs] = await Promise.all([
-        fetchSheet(ID_AUTOAV),
-        fetchSheet(ID_OBS)
-      ]);
-
-      if (rawAutoav.length < 2 || rawObs.length < 2) {
-        return res.status(200).json({ orientadores: [] });
-      }
+      const [rawAutoav, rawObs] = await Promise.all([fetchSheet(ID_AUTOAV), fetchSheet(ID_OBS)]);
+      if (rawAutoav.length < 2 || rawObs.length < 2) return res.status(200).json({ orientadores: [] });
 
       const headAutoav = rawAutoav[0].map(h => h.trim());
       const headObs    = rawObs[0].map(h => h.trim());
@@ -189,8 +154,7 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         }
       }
 
-      const obsMap = {};
-      const obsMapPilar = {};
+      const obsMap = {}, obsMapPilar = {};
       for (const row of rawObs.slice(1)) {
         const nome  = (row[iNomeObs] || '').trim();
         const esc   = (row[iEscolaObs] || '').trim();
@@ -199,11 +163,7 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
         if (!nome) continue;
         const chave = `${nome}|${esc}|${serie}|${ciclo}`.toLowerCase();
         const score = calcMedia(row, pilaresObs);
-        if (score !== null) {
-          if (!obsMap[chave]) obsMap[chave] = [];
-          obsMap[chave].push(score);
-        }
-        // Pilar-level scores para cada observação
+        if (score !== null) { if (!obsMap[chave]) obsMap[chave] = []; obsMap[chave].push(score); }
         const pilarScoresObs = getPilarScores(row, pilaresObs, headObs);
         if (Object.keys(pilarScoresObs).length > 0) {
           if (!obsMapPilar[chave]) obsMapPilar[chave] = [];
@@ -213,34 +173,16 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
 
       const resultado = Object.entries(autoavMap).map(([chave, a]) => {
         const obsScores = obsMap[chave] || [];
-        const obsMedia = obsScores.length > 0
-          ? Math.round((obsScores.reduce((x, y) => x + y, 0) / obsScores.length) * 10) / 10
-          : null;
-        const mediaFinal = obsMedia !== null
-          ? Math.round(((a.autoav || 0) + obsMedia) / 2 * 10) / 10
-          : a.autoav;
-        // Agrega scores por pilar das múltiplas observações
+        const obsMedia = obsScores.length > 0 ? Math.round((obsScores.reduce((x, y) => x + y, 0) / obsScores.length) * 10) / 10 : null;
+        const mediaFinal = obsMedia !== null ? Math.round(((a.autoav || 0) + obsMedia) / 2 * 10) / 10 : a.autoav;
         const obsPilarRaw = obsMapPilar[chave] || [];
         const obsPilarAgg = {};
-        obsPilarRaw.forEach(ps => {
-          Object.entries(ps).forEach(([pilar, score]) => {
-            if (!obsPilarAgg[pilar]) obsPilarAgg[pilar] = [];
-            obsPilarAgg[pilar].push(score);
-          });
-        });
+        obsPilarRaw.forEach(ps => { Object.entries(ps).forEach(([pilar, score]) => { if (!obsPilarAgg[pilar]) obsPilarAgg[pilar] = []; obsPilarAgg[pilar].push(score); }); });
         const pilarObs = {};
-        Object.entries(obsPilarAgg).forEach(([pilar, ss]) => {
-          pilarObs[pilar] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length * 10) / 10;
-        });
-        return {
-          nome: a.nome, escola: a.escola, praca: getPraca(a.escola),
-          serie: a.serie, ciclo: a.ciclo, autoav: a.autoav, obs: obsMedia,
-          media: mediaFinal, apenasAutoav: obsMedia === null,
-          pilarAutoav: a.pilarScores || {}, pilarObs
-        };
+        Object.entries(obsPilarAgg).forEach(([pilar, ss]) => { pilarObs[pilar] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length * 10) / 10; });
+        return { nome: a.nome, escola: a.escola, praca: getPraca(a.escola), serie: a.serie, ciclo: a.ciclo, autoav: a.autoav, obs: obsMedia, media: mediaFinal, apenasAutoav: obsMedia === null, pilarAutoav: a.pilarScores || {}, pilarObs };
       });
 
-      // Computa pior pilar por praça (autoav e obs separados)
       function findWorst(pilarAvgs) {
         const entries = Object.entries(pilarAvgs);
         if (!entries.length) return null;
@@ -250,14 +192,8 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       for (const r of resultado) {
         if (r.praca === '—') continue;
         if (!pilarByPraca[r.praca]) pilarByPraca[r.praca] = { autoav: {}, obs: {} };
-        Object.entries(r.pilarAutoav).forEach(([pilar, score]) => {
-          if (!pilarByPraca[r.praca].autoav[pilar]) pilarByPraca[r.praca].autoav[pilar] = [];
-          pilarByPraca[r.praca].autoav[pilar].push(score);
-        });
-        Object.entries(r.pilarObs).forEach(([pilar, score]) => {
-          if (!pilarByPraca[r.praca].obs[pilar]) pilarByPraca[r.praca].obs[pilar] = [];
-          pilarByPraca[r.praca].obs[pilar].push(score);
-        });
+        Object.entries(r.pilarAutoav).forEach(([pilar, score]) => { if (!pilarByPraca[r.praca].autoav[pilar]) pilarByPraca[r.praca].autoav[pilar] = []; pilarByPraca[r.praca].autoav[pilar].push(score); });
+        Object.entries(r.pilarObs).forEach(([pilar, score]) => { if (!pilarByPraca[r.praca].obs[pilar]) pilarByPraca[r.praca].obs[pilar] = []; pilarByPraca[r.praca].obs[pilar].push(score); });
       }
       const pilarStats = {};
       for (const [praca, data] of Object.entries(pilarByPraca)) {
@@ -274,7 +210,7 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     }
   }
 
-  // ── FEEDBACK ALUNOS (por série/ciclo) ───────────────────────────
+  // ── FEEDBACK ALUNOS ─────────────────────────────────────────────
   if (action === 'get_feedback_alunos') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
@@ -307,13 +243,11 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
           const d = await fetchSheet(s.id);
           const rows = d.values || [];
           if (rows.length < 2) return { ...s, respostas: 0, media: null };
-
           const headers = rows[0].map(h => (h || '').toLowerCase());
           let ratingIdx = headers.findIndex(h =>
             h.includes('nota') || h.includes('avalia') || h.includes('estrela') ||
             h.includes('satisfa') || h.includes('como foi') || h.includes('como você')
           );
-
           if (ratingIdx === -1) {
             let bestCol = -1, bestCount = 0;
             for (let ci = 1; ci < (rows[0] || []).length; ci++) {
@@ -322,22 +256,13 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
             }
             if (bestCount > rows.length * 0.3) ratingIdx = bestCol;
           }
-
           if (ratingIdx === -1) return { ...s, respostas: 0, media: null };
-
-          const scores = rows.slice(1)
-            .map(r => parseRating(r[ratingIdx]))
-            .filter(n => n !== null);
-
+          const scores = rows.slice(1).map(r => parseRating(r[ratingIdx])).filter(n => n !== null);
           if (scores.length === 0) return { ...s, respostas: 0, media: null };
-
           const media = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10;
           return { ...s, respostas: scores.length, media };
-        } catch(_) {
-          return { ...s, respostas: 0, media: null };
-        }
+        } catch(_) { return { ...s, respostas: 0, media: null }; }
       }));
-
       return res.status(200).json({ feedback: results });
     } catch(err) {
       return res.status(500).json({ error: err.message });
@@ -360,7 +285,6 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
     ];
 
     const linhas = [];
-
     if (sheetsKey) {
       for (const s of sheetIds) {
         try {
@@ -369,15 +293,10 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
           const d = await r.json();
           const rows = d.values || [];
           if (rows.length < 2) continue;
-
           const header = rows[0].map(h => (h || '').toLowerCase());
-          const iComent = header.findIndex(h =>
-            h.includes('espaço livre') || h.includes('comentário') || h.includes('dúvida') || h.includes('livre')
-          );
+          const iComent = header.findIndex(h => h.includes('espaço livre') || h.includes('comentário') || h.includes('dúvida') || h.includes('livre'));
           if (iComent === -1) continue;
-
           const iPraca = header.findIndex(h => h.includes('praça') || h.includes('praca'));
-
           for (const row of rows.slice(1)) {
             const txt = (row[iComent] || '').trim();
             if (txt.length < 15) continue;
@@ -412,21 +331,12 @@ Calcule a porcentagem exata de cada categoria (arredondada). Os três devem soma
 
 PASSO 3 — Seleção de 12:
 Selecione exatamente 4 comentários representativos de cada categoria.
-- Corrija ortografia, pontuação e capitalização
-- Mantenha o sentido original
-- Cada comentário entre 15 e 120 caracteres
-- Extraia praça e série da tag (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM")
-- Se faltar comentários reais numa categoria, complete com exemplos verossímeis
+Corrija ortografia, pontuação e capitalização. Mantenha o sentido original.
+Cada comentário entre 15 e 120 caracteres.
+Extraia praça e série da tag (ex: [SP · 1ºEM · C1] → praca: "SP", serie: "1ºEM").
 
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{
-  "total_comentarios": 209,
-  "percentuais": { "positivos": 62, "criticas": 18, "melhorias": 20 },
-  "comentarios": [
-    {"texto": "...", "praca": "SP", "serie": "1ºEM", "categoria": "positivo"},
-    {"texto": "...", "praca": "BH", "serie": "2ºEM", "categoria": "critica"}
-  ]
-}
+{"total_comentarios":209,"percentuais":{"positivos":62,"criticas":18,"melhorias":20},"comentarios":[{"texto":"...","praca":"SP","serie":"1ºEM","categoria":"positivo"}]}
 
 COMENTÁRIOS:
 ${textos}`;
@@ -434,17 +344,8 @@ ${textos}`;
     try {
       const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 3000,
-          temperature: 0,
-          messages: [{ role: 'user', content: prompt }]
-        })
+        headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 3000, temperature: 0, messages: [{ role: 'user', content: prompt }] })
       });
       const aiData = await aiRes.json();
       const text = (aiData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
@@ -454,7 +355,7 @@ ${textos}`;
     }
   }
 
-  // ── PRAÇAS CICLO 2 (oficinas + fala aí) ─────────────────────────
+  // ── PRAÇAS CICLO 2 ──────────────────────────────────────────────
   if (action === 'get_pracas_c2') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
@@ -469,55 +370,30 @@ ${textos}`;
     const SERIES_GERAL = ['8ef','9ef','1em','2em'];
     const SERIES_3EM   = ['3em'];
 
-    function normSerie(s) {
-      return (s || '').toLowerCase()
-        .replace(/[°º˚]/g, '')
-        .replace(/\s+/g, '')
-        .replace(/[^a-z0-9]/g, '');
-    }
-
-    function matchSerie(turma, grupo) {
-      const t = normSerie(turma);
-      return grupo.some(s => t.includes(normSerie(s)));
-    }
-
+    function normSerie(s) { return (s || '').toLowerCase().replace(/[°º˚]/g,'').replace(/\s+/g,'').replace(/[^a-z0-9]/g,''); }
+    function matchSerie(turma, grupo) { const t = normSerie(turma); return grupo.some(s => t.includes(normSerie(s))); }
     function calcPct(rows, iturma, iofic, ifa, grupo) {
       const filtrado = rows.filter(r => matchSerie(r[iturma], grupo));
-      if (filtrado.length === 0) return { oficinas: null, falaAi: null };
-      const ofic = filtrado.filter(r => (r[iofic] || '').toLowerCase().includes('realizada') && !(r[iofic] || '').toLowerCase().includes('não')).length;
-      const fa   = filtrado.filter(r => (r[ifa]   || '').toLowerCase().includes('realizado') && !(r[ifa]   || '').toLowerCase().includes('não')).length;
-      return {
-        oficinas: Math.round(ofic / filtrado.length * 1000) / 10,
-        falaAi:   Math.round(fa   / filtrado.length * 1000) / 10
-      };
+      if (!filtrado.length) return { oficinas: null, falaAi: null };
+      const ofic = filtrado.filter(r => (r[iofic]||'').toLowerCase().includes('realizada') && !(r[iofic]||'').toLowerCase().includes('não')).length;
+      const fa   = filtrado.filter(r => (r[ifa]  ||'').toLowerCase().includes('realizado') && !(r[ifa]  ||'').toLowerCase().includes('não')).length;
+      return { oficinas: Math.round(ofic/filtrado.length*1000)/10, falaAi: Math.round(fa/filtrado.length*1000)/10 };
     }
 
     try {
-      const resultado = {};
-      const debugInfo = {};
-
+      const resultado = {}, debugInfo = {};
       await Promise.all(Object.entries(SHEETS).map(async ([praca, id]) => {
         try {
-          const aba = 'Dados';
-          const url  = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(aba + '!A1:Z2000')}?key=${sheetsKey}`;
+          const url  = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent('Dados!A1:Z2000')}?key=${sheetsKey}`;
           const r    = await fetch(url);
           const d    = await r.json();
           const rows = d.values || [];
-
-          if (rows.length < 2) {
-            debugInfo[praca] = { aba, error: 'menos de 2 linhas', totalRows: rows.length };
-            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
-            return;
-          }
-
-          const row0 = rows[0].map(h => (h || '').toLowerCase().trim());
-          const row1 = rows[1] ? rows[1].map(h => (h || '').toLowerCase().trim()) : [];
-
+          if (rows.length < 2) { resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } }; return; }
+          const row0 = rows[0].map(h => (h||'').toLowerCase().trim());
+          const row1 = rows[1] ? rows[1].map(h => (h||'').toLowerCase().trim()) : [];
           const ciclo2Start = row0.findIndex(h => h.includes('ciclo 2') || h === 'ciclo2');
-
           let iturma = row0.findIndex(h => h.includes('turma'));
           if (iturma === -1) iturma = row1.findIndex(h => h.includes('turma'));
-
           let iofic = -1, ifa = -1;
           if (ciclo2Start !== -1) {
             for (let c = ciclo2Start; c < ciclo2Start + 3 && c < row1.length; c++) {
@@ -527,34 +403,22 @@ ${textos}`;
             if (iofic === -1) iofic = ciclo2Start;
             if (ifa   === -1) ifa   = ciclo2Start + 1;
           }
-
-          debugInfo[praca] = { ciclo2Start, iturma, iofic, ifa, row0: row0.slice(0,10), row1: row1.slice(0,10) };
-
-          if (iturma === -1 || ciclo2Start === -1) {
-            resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
-            return;
-          }
-
+          debugInfo[praca] = { ciclo2Start, iturma, iofic, ifa };
+          if (iturma === -1 || ciclo2Start === -1) { resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } }; return; }
           const data = rows.slice(2);
-          resultado[praca] = {
-            geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL),
-            em3:   calcPct(data, iturma, iofic, ifa, SERIES_3EM)
-          };
+          resultado[praca] = { geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL), em3: calcPct(data, iturma, iofic, ifa, SERIES_3EM) };
         } catch(e) {
           debugInfo[praca] = { error: e.message };
           resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
         }
       }));
-
       return res.status(200).json({ pracas: resultado, _debug: debugInfo });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
   }
 
-  // ── FEEDBACK MNM POR PRAÇA ─────────────────────────────────────
-  // Calcula % feedbacks diretamente das planilhas de cada praça
-  // usando a lógica correta: H=TRUE e qualquer col I-M preenchida
+  // ── FEEDBACK MNM POR PRAÇA ──────────────────────────────────────
   if (action === 'get_feedback_pracas') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
@@ -574,14 +438,11 @@ ${textos}`;
       const rows = d.values || [];
       let total = 0, comFeedback = 0;
       for (const row of rows) {
-        // Col B = índice 1: orientador deve ser preenchido (igual ao Apps Script)
         const orientador = String(row[1] || '').trim();
         if (!orientador) continue;
-        // Col H = índice 7: entregou MNM?
         const entregou = String(row[7] || '').toLowerCase().trim();
         if (entregou !== 'true' && entregou !== 'verdadeiro') continue;
         total++;
-        // Cols I-M = índices 8-12: qualquer valor = feedback dado
         const temRubrica = [8, 9, 10, 11, 12].some(i => row[i] && String(row[i]).trim() !== '');
         if (temRubrica) comFeedback++;
       }
@@ -592,12 +453,10 @@ ${textos}`;
       const feedbacks = {};
       for (const [num, abaName] of [[1, 'Ciclo 1'], [2, 'Ciclo 2']]) {
         feedbacks[num] = {};
-        await Promise.all(
-          Object.entries(PRACA_SHEETS).map(async ([praca, id]) => {
-            try { feedbacks[num][praca] = await calcFeedbackPct(id, abaName); }
-            catch(_) { feedbacks[num][praca] = null; }
-          })
-        );
+        await Promise.all(Object.entries(PRACA_SHEETS).map(async ([praca, id]) => {
+          try { feedbacks[num][praca] = await calcFeedbackPct(id, abaName); }
+          catch(_) { feedbacks[num][praca] = null; }
+        }));
       }
       return res.status(200).json({ feedbacks });
     } catch(err) {
@@ -608,16 +467,12 @@ ${textos}`;
   // ── DADOS DO GOOGLE SHEETS ──────────────────────────────────────
   if (action === 'get_sheets_data') {
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
-    if (!sheetsKey) {
-      return res.status(500).json({
-        error: 'GOOGLE_SHEETS_API_KEY não configurada.'
-      });
-    }
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
     const sheetIds = {
       dados_semanais: '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc',
-      presenca_bh:    '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
       presenca_sp:    '1anki0VweR8LweziQkN-KDTJbklAp9asfdxtU5JhkMhk',
+      presenca_bh:    '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
       presenca_rj:    '1TsCj4_MqfIWCZF8j30E_hnpw8z3nDz8Ph5lMIXZEAuc',
       presenca_sjc:   '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
     };
@@ -632,7 +487,6 @@ ${textos}`;
       const dashboard = await fetchSheet(sheetIds.dados_semanais, 'Dashboard!A1:Z50');
       const ciclo1Det = await fetchSheet(sheetIds.dados_semanais, 'Ciclo 1 - Detalhes!A1:Z100');
       const ciclo2Det = await fetchSheet(sheetIds.dados_semanais, 'Ciclo 2 - Detalhes!A1:Z100');
-
       return res.status(200).json({
         updatedAt: new Date().toLocaleDateString('pt-BR'),
         dashboard: dashboard.values || [],
@@ -644,11 +498,9 @@ ${textos}`;
     }
   }
 
-  // ── DADOS DO MONDAY ─────────────────────────────────────────────
+  // ── DADOS DO MONDAY (get_milestones) ────────────────────────────
   const mondayToken = process.env.MONDAY_API_TOKEN;
-  if (!mondayToken) {
-    return res.status(500).json({ error: 'MONDAY_API_TOKEN não configurado.' });
-  }
+  if (!mondayToken) return res.status(500).json({ error: 'MONDAY_API_TOKEN não configurado.' });
 
   try {
     const mondayRes = await fetch('https://api.monday.com/v2', {
@@ -682,48 +534,87 @@ ${textos}`;
     if (data.errors) return res.status(400).json({ error: data.errors[0].message });
 
     const items = data?.data?.boards?.[0]?.items_page?.items || [];
+
+    // Filtra só os itens M1-M5 (um único por marco, estrutura nova do board)
     const marcoItems = items.filter(i => /^M[1-5]\s/i.test(i.name));
 
-    const grouped = {};
-    for (const item of marcoItems) {
-      const key = item.name.substring(0, 2).toUpperCase();
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(item);
+    const STATUS_VALUES = ['Feito', 'Em andamento', 'Congelado', 'Não iniciado', 'Atrasado', 'Planejado'];
+
+    function findColText(column_values, id) {
+      return (column_values.find(c => c.id === id) || {}).text || '';
     }
 
-    const STATUS_VALUES = ['Feito', 'Em andamento', 'Congelado', 'Não iniciado'];
     function findStatus(column_values) {
+      // Tenta pelo ID específico primeiro
       const byId = column_values.find(c => c.id === 'color_mm1jjjjy' || c.id === 'status');
       if (byId?.text && STATUS_VALUES.includes(byId.text)) return byId.text;
-      const byValue = column_values.find(c => STATUS_VALUES.includes(c.text));
-      return byValue?.text || 'Não iniciado';
+      // Fallback: qualquer coluna com valor de status
+      const byVal = column_values.find(c => STATUS_VALUES.includes(c.text));
+      return byVal?.text || 'Não iniciado';
     }
 
     function parseMarco(item) {
       const status = findStatus(item.column_values);
+
       const subitems = (item.subitems || []).map(sub => {
-        return { nome: sub.name, status: findStatus(sub.column_values) };
+        const subStatus = findStatus(sub.column_values);
+
+        // Coluna Time: color_mm3xvc4a
+        const time = findColText(sub.column_values, 'color_mm3xvc4a') || null;
+
+        // Coluna Ciclo: color_mm3xrbwm
+        const ciclo = findColText(sub.column_values, 'color_mm3xrbwm') || null;
+
+        // Coluna Evidência: link_mm3yfn4w — retorna texto/URL
+        const evidenciaRaw = findColText(sub.column_values, 'link_mm3yfn4w') || '';
+        // O tipo link no Monday retorna "texto - url" ou só o texto/url
+        let evidenciaUrl   = null;
+        let evidenciaLabel = null;
+        if (evidenciaRaw) {
+          // formato Monday: "Label - https://..." ou só a URL
+          const linkMatch = evidenciaRaw.match(/^(.*?)\s*-\s*(https?:\/\/.+)$/);
+          if (linkMatch) {
+            evidenciaLabel = linkMatch[1].trim() || null;
+            evidenciaUrl   = linkMatch[2].trim();
+          } else if (evidenciaRaw.startsWith('http')) {
+            evidenciaUrl = evidenciaRaw.trim();
+          } else {
+            evidenciaLabel = evidenciaRaw.trim();
+          }
+        }
+
+        return {
+          nome:   sub.name,
+          status: subStatus,
+          time,
+          ciclo,
+          evidenciaUrl,
+          evidenciaLabel
+        };
       });
-      const done = subitems.filter(s => s.status === 'Feito').length;
-      const total = subitems.length || 1;
+
+      const ativos = subitems.filter(s => s.status !== 'Congelado');
+      const done   = ativos.filter(s => s.status === 'Feito').length;
+
       return {
-        id: item.name.substring(0, 2).toUpperCase(),
-        nome: item.name.replace(/^M[1-5]\s[-–]\s?/i, ''),
+        id:     item.name.substring(0, 2).toUpperCase(),
+        nome:   item.name.replace(/^M[1-5]\s[-–]\s?/i, ''),
         status,
-        acomp: Math.round((done / total) * 100),
+        acomp:  ativos.length > 0 ? Math.round((done / ativos.length) * 100) : 0,
         done,
-        total,
+        total:  subitems.length,
         subitems
       };
     }
 
-    const ciclo1 = ['M1','M2','M3','M4','M5'].filter(k => grouped[k]?.[0]).map(k => parseMarco(grouped[k][0]));
-    const ciclo2 = ['M1','M2','M3','M4','M5'].filter(k => grouped[k]?.[1]).map(k => parseMarco(grouped[k][1]));
+    // Um único array de marcos (estrutura nova: M1-M5 sem duplicata por ciclo)
+    const milestones = marcoItems.map(parseMarco);
 
     return res.status(200).json({
       updatedAt: new Date().toLocaleDateString('pt-BR'),
-      ciclo1,
-      ciclo2
+      milestones,
+      // Mantém ciclo1 por compatibilidade com eventuais referências antigas no index
+      ciclo1: milestones
     });
 
   } catch (err) {
