@@ -16,7 +16,7 @@
   --border: #E2E8F0; --text: #0F172A; --muted: #64748B; --soft: #94A3B8;
 }
 body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
- 
+
 /* SETUP */
 #setup { position:fixed; inset:0; z-index:100; background:rgba(2,6,23,.6); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
 .setup-card { background:var(--surface); border-radius:16px; padding:32px; max-width:440px; width:90%; box-shadow:0 24px 48px rgba(0,0,0,.2); }
@@ -30,7 +30,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .setup-btn { width:100%; padding:11px; background:var(--navy); color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
 .setup-btn:hover { background:#001d4d; }
 .setup-skip { display:block; text-align:center; margin-top:12px; font-size:12px; color:var(--soft); cursor:pointer; background:none; border:none; width:100%; font-family:'Inter',sans-serif; }
- 
+
 /* HEADER */
 header { background:var(--navy); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
 .logo { display:flex; align-items:center; gap:12px; }
@@ -47,10 +47,10 @@ header { background:var(--navy); padding:16px 32px; display:flex; align-items:ce
 #refreshBtn:hover { background:#0098DE; }
 #refreshBtn:disabled { opacity:.5; cursor:wait; }
 #settingsBtn { background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:8px 12px; font-size:13px; cursor:pointer; font-family:'Inter',sans-serif; }
- 
+
 /* STATUS BAR */
 #statusBar { display:none; padding:10px 32px; font-size:13px; }
- 
+
 /* TABS */
 .tab-nav { display:flex; gap:4px; padding:0 32px; background:var(--navy); border-bottom:2px solid rgba(255,255,255,.08); overflow-x:auto; scrollbar-width:none; }
 .tab-nav::-webkit-scrollbar { display:none; }
@@ -60,13 +60,13 @@ header { background:var(--navy); padding:16px 32px; display:flex; align-items:ce
 .tab-pane { display:none; }
 .tab-pane.active { display:block; }
 .tab-inner { max-width:1280px; margin:0 auto; padding:28px 32px; }
- 
+
 /* MAIN */
 main { max-width:1280px; margin:0 auto; padding:28px 28px 56px; }
 .section-label { font-size:11px; font-weight:600; color:var(--soft); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 section { margin-bottom:28px; }
- 
+
 /* KPI */
 .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
 .kpi { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; border-top:3px solid var(--border); }
@@ -76,14 +76,14 @@ section { margin-bottom:28px; }
 .kpi-sub { font-size:12px; color:var(--soft); margin-top:5px; }
 .kpi-trend { font-size:12px; font-weight:600; margin-top:8px; }
 .up { color:#16A34A; } .ok { color:var(--blue); }
- 
+
 /* CARDS */
 .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
 .card-title { font-size:11px; font-weight:600; color:var(--soft); text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; }
 .pracas-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .bar-bg { background:var(--surface2); border-radius:4px; height:5px; overflow:hidden; }
 .bar-fill { height:100%; border-radius:4px; }
- 
+
 /* MARCO */
 .marco { background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; overflow:hidden; }
 .marco-row { padding:16px 20px; display:flex; align-items:center; gap:16px; }
@@ -99,7 +99,7 @@ section { margin-bottom:28px; }
 .expand-btn:hover { background:var(--surface2); }
 .marco-subs { display:none; padding:12px 20px 16px; background:#FAFBFC; border-top:1px solid var(--border); display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 .sub-item { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--muted); }
- 
+
 /* PAINEL ESTRATÉGICO */
 .painel-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:16px; }
 .pcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; }
@@ -127,7 +127,7 @@ section { margin-bottom:28px; }
 </style>
 </head>
 <body>
- 
+
 <!-- SETUP -->
 <div id="setup">
   <div class="setup-card">
@@ -140,7 +140,7 @@ section { margin-bottom:28px; }
     <button class="setup-skip" onclick="skipSetup()">Entrar sem configurar</button>
   </div>
 </div>
- 
+
 <!-- HEADER -->
 <header>
   <div class="logo">
@@ -160,7 +160,7 @@ section { margin-bottom:28px; }
     <button id="refreshBtn" onclick="doRefreshAll()">↻ Atualizar dados</button>
   </div>
 </header>
- 
+
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('visao-geral',this)">Visão Geral</button>
   <button class="tab-btn" onclick="showTab('performance',this)">Performance por Praça</button>
@@ -168,7 +168,7 @@ section { margin-bottom:28px; }
   <button class="tab-btn" onclick="showTab('marcos',this)">Marcos</button>
   <button class="tab-btn" onclick="showTab('painel',this)">Painel estratégico</button>
 </nav>
- 
+
 <!-- ── ABA VISÃO GERAL ── -->
 <div id="tab-visao-geral" class="tab-pane active">
   <div id="statusBar"></div>
@@ -273,7 +273,7 @@ section { margin-bottom:28px; }
     </section>
   </main>
 </div>
- 
+
 <!-- ── ABA PERFORMANCE ── -->
 <div id="tab-performance" class="tab-pane">
 <div class="tab-inner">
@@ -316,7 +316,7 @@ section { margin-bottom:28px; }
   </section>
 </div>
 </div>
- 
+
 <!-- ── ABA ORIENTADORES ── -->
 <div id="tab-orientadores" class="tab-pane">
 <div class="tab-inner">
@@ -356,7 +356,7 @@ section { margin-bottom:28px; }
   </section>
 </div>
 </div>
- 
+
 <!-- ── ABA MARCOS ── -->
 <div id="tab-marcos" class="tab-pane">
 <div class="tab-inner">
@@ -372,14 +372,14 @@ section { margin-bottom:28px; }
   </section>
 </div>
 </div>
- 
+
 <!-- ── ABA PAINEL ESTRATÉGICO ── -->
 <div id="tab-painel" class="tab-pane">
 <div class="tab-inner">
   <section>
     <div class="section-label">Metas e entregas · Visão estratégica</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Status via Monday.com · tags de time e ciclo por entrega · atualiza ao clicar em Atualizar dados</div>
- 
+
     <!-- resumo -->
     <div id="painel-resumo" class="painel-resumo" style="display:none;">
       <div class="pr-item"><span class="pr-num" id="pr-feito">—</span><span>entregues</span></div>
@@ -395,12 +395,12 @@ section { margin-bottom:28px; }
         <span id="pr-ritmo-txt" style="font-size:11px;color:var(--muted);margin-left:4px;"></span>
       </div>
     </div>
- 
+
     <div id="painel-grid" class="painel-grid">
       <div style="font-size:13px;color:var(--soft);padding:20px;grid-column:1/-1;">Clique em <strong>Atualizar dados</strong> para carregar as metas.</div>
     </div>
   </section>
- 
+
   <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);align-items:center;">
     <span style="font-size:11px;font-weight:600;color:var(--soft);">Status:</span>
     <span style="font-size:11px;color:#15803D;font-weight:500;">✓ Feito</span>
@@ -422,7 +422,7 @@ section { margin-bottom:28px; }
   </div>
 </div>
 </div>
- 
+
 <script>
 // ── SETUP ──
 function saveKey() {
@@ -432,12 +432,12 @@ function saveKey() {
 }
 function skipSetup() { document.getElementById('setup').style.display = 'none'; }
 function openSetup() { document.getElementById('setup').style.display = 'flex'; }
- 
+
 // ── ABAS ──
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
 let _pendingTabBtn = null;
- 
+
 function showTab(id, btn) {
   if (id === 'orientadores' && !orientadoresDesbloqueado) {
     _pendingTabBtn = btn;
@@ -450,7 +450,7 @@ function showTab(id, btn) {
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
 }
- 
+
 function confirmarSenha() {
   if (document.getElementById('senha-input').value === SENHA_ADMIN) {
     orientadoresDesbloqueado = true;
@@ -472,7 +472,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') fecharModalSenha();
   }
 });
- 
+
 // ── HELPERS ──
 function pillClass(s) {
   if (s === 'Feito') return 'pill pill-done';
@@ -530,7 +530,7 @@ function pPill(s) {
   const [cls, lbl] = m[s] || ['pill-frozen','○'];
   return `<span class="pill ${cls}">${lbl}</span>`;
 }
- 
+
 // ── RENDERIZA MARCOS ──
 function renderMarcos(milestones) {
   const container = document.getElementById('marcos-container');
@@ -560,14 +560,14 @@ function renderMarcos(milestones) {
       </div>`;
   }).join('');
 }
- 
+
 function expandir(id, btn) {
   const el = document.getElementById(id);
   const open = el.style.display === 'none' || el.style.display === '';
   el.style.display = open ? 'grid' : 'none';
   btn.textContent = open ? 'recolher' : 'ver mais';
 }
- 
+
 // ── RENDERIZA PAINEL ESTRATÉGICO ──
 function renderPainel(milestones) {
   const grid = document.getElementById('painel-grid');
@@ -576,15 +576,15 @@ function renderPainel(milestones) {
     grid.innerHTML = '<div style="font-size:13px;color:var(--soft);padding:20px;grid-column:1/-1;">Clique em <strong>Atualizar dados</strong> para carregar as metas.</div>';
     return;
   }
- 
+
   let tf = 0, ta = 0, tn = 0, tot = 0;
- 
+
   const cards = milestones.map((m, idx) => {
     const subs = m.subitems || [];
     const ativos = subs.filter(s => s.status !== 'Congelado');
     const feitos = ativos.filter(s => s.status === 'Feito');
     const pct = ativos.length > 0 ? Math.round(feitos.length/ativos.length*100) : 0;
- 
+
     subs.forEach(s => {
       if (s.status === 'Congelado') return;
       tot++;
@@ -592,11 +592,11 @@ function renderPainel(milestones) {
       else if (s.status === 'Em andamento' || s.status === 'Atrasado') ta++;
       else tn++;
     });
- 
+
     const cong = subs.filter(s => s.status === 'Congelado').length;
     const cnt = `${feitos.length}/${ativos.length} entregas${cong ? ` · ${cong} congelada${cong>1?'s':''}` : ''}`;
     const tlHtml = m.timeline ? `<div class="marco-timeline">📅 ${m.timeline}</div>` : '';
- 
+
     const subsHtml = subs.map(s => {
       const ev = chipEv(s.evidenciaUrl, s.evidenciaLabel);
       return `
@@ -612,7 +612,7 @@ function renderPainel(milestones) {
           </div>
         </div>`;
     }).join('');
- 
+
     return `
       <div class="pcard">
         <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;">
@@ -631,9 +631,9 @@ function renderPainel(milestones) {
         ${subsHtml}
       </div>`;
   }).join('');
- 
+
   grid.innerHTML = cards;
- 
+
   // ── Indicador de ritmo ──
   // Calcula quanto do ano já passou (base: jan/2026 a dez/2026)
   const hoje = new Date();
@@ -644,7 +644,7 @@ function renderPainel(milestones) {
   ));
   const pctFeito = tot > 0 ? Math.round(tf / tot * 100) : 0;
   const diff = pctFeito - pctAno;
- 
+
   let ritmoChip, ritmoTxt;
   if (diff >= 5) {
     ritmoChip = '<span class="ritmo-ok">✓ Adiantados</span>';
@@ -656,7 +656,7 @@ function renderPainel(milestones) {
     ritmoChip = '<span class="ritmo-bad">⚠ Abaixo do ritmo</span>';
     ritmoTxt  = `${pctFeito}% entregue vs ${pctAno}% do ano decorrido`;
   }
- 
+
   const resumo = document.getElementById('painel-resumo');
   if (resumo) {
     resumo.style.display = 'flex';
@@ -672,7 +672,7 @@ function renderPainel(milestones) {
     }
   }
 }
- 
+
 // ── CHART ──
 new Chart(document.getElementById('evoChart'), {
   type: 'line',
@@ -693,12 +693,12 @@ new Chart(document.getElementById('evoChart'), {
     }
   }
 });
- 
+
 // ── PRAÇAS C2 ──
 const C2_INICIO    = new Date('2026-04-01');
 const C2_FIM_GERAL = new Date('2026-05-31');
 const C2_FIM_3EM   = new Date('2026-06-30');
- 
+
 function statusPraca(pct, fimCiclo) {
   if (pct === null) return { cor:'#94A3B8', barCor:'#94A3B8' };
   if (pct >= 100)   return { cor:'#16A34A', barCor:'var(--green)' };
@@ -708,7 +708,7 @@ function statusPraca(pct, fimCiclo) {
   if (dias <= 30 && pct < 50) return { cor:'#D97706', barCor:'#F59E0B' };
   return { cor:'#16A34A', barCor:'var(--green)' };
 }
- 
+
 async function carregarPracasC2() {
   try {
     const res = await fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_pracas_c2' }) });
@@ -746,7 +746,7 @@ async function carregarPracasC2() {
     </div>`;
   } catch(e) { console.warn('Praças C2:',e.message); }
 }
- 
+
 async function carregarObservacoes() {
   try {
     const res = await fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_observacoes' }) });
@@ -783,7 +783,7 @@ async function carregarObservacoes() {
     ['rj','bh','sp','sjc'].forEach(p => atualizaPraca(p, pracas[p.toUpperCase()]));
   } catch(e) { console.warn('Observações:',e.message); }
 }
- 
+
 async function carregarFeedbackAlunos() {
   try {
     const res = await fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_feedback_alunos' }) });
@@ -802,7 +802,7 @@ async function carregarFeedbackAlunos() {
     }
   } catch(e) { console.warn('Feedback alunos:',e.message); }
 }
- 
+
 async function analisarEmocoes() {
   const loading = document.getElementById('emocao-loading');
   if (loading) loading.style.display = 'block';
@@ -824,7 +824,7 @@ async function analisarEmocoes() {
   } catch(e) { console.warn('Emoções:',e.message); }
   finally { if (loading) loading.style.display='none'; }
 }
- 
+
 async function curarVozes() {
   const loading = document.getElementById('vozes-loading');
   const grid = document.getElementById('vozes-grid');
@@ -870,7 +870,7 @@ async function curarVozes() {
   } catch(e) { console.warn('Vozes:',e.message); }
   finally { if (loading) loading.style.display='none'; }
 }
- 
+
 // ── REFRESH ALL ──
 async function doRefreshAll() {
   const btn = document.getElementById('refreshBtn');
@@ -879,7 +879,7 @@ async function doRefreshAll() {
   btn.textContent = '↻ Buscando...';
   bar.style.display = 'none';
   const erros = [];
- 
+
   try {
     const res = await fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_milestones' }) });
     const d = await res.json();
@@ -889,13 +889,13 @@ async function doRefreshAll() {
     renderMarcos(ms);
     renderPainel(ms);
   } catch(e) { erros.push('Monday: '+e.message); }
- 
+
   try { await carregarPracasC2(); }       catch(_) {}
   try { await carregarObservacoes(); }     catch(_) {}
   try { await carregarFeedbackAlunos(); }  catch(_) {}
   try { await analisarEmocoes(); }         catch(_) {}
   try { await curarVozes(); }             catch(_) {}
- 
+
   if (erros.length === 0) {
     bar.textContent = '✓ Dados atualizados em ' + new Date().toLocaleDateString('pt-BR');
     bar.style.cssText = 'display:block;padding:10px 32px;font-size:13px;background:#F0FDF4;border-bottom:1px solid #BBF7D0;color:#15803D;';
@@ -906,14 +906,14 @@ async function doRefreshAll() {
   btn.disabled = false;
   btn.textContent = '↻ Atualizar dados';
 }
- 
+
 // ── INIT ──
 (function() {
   document.getElementById('setup').style.display = 'none';
   doRefreshAll();
 })();
 </script>
- 
+
 <!-- MODAL SENHA -->
 <div id="senha-overlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
   <div style="position:absolute;inset:0;backdrop-filter:blur(8px);background:rgba(0,36,97,.45);"></div>
@@ -929,4 +929,3 @@ async function doRefreshAll() {
 </div>
 </body>
 </html>
- 
