@@ -517,11 +517,11 @@ ${textos}`;
               items {
                 id
                 name
-                column_values { id text }
+                column_values { id text value }
                 subitems {
                   id
                   name
-                  column_values { id text }
+                  column_values { id text value }
                 }
               }
             }
@@ -541,7 +541,16 @@ ${textos}`;
     const STATUS_VALUES = ['Feito', 'Em andamento', 'Congelado', 'Não iniciado', 'Atrasado', 'Planejado'];
 
     function findColText(column_values, id) {
-      return (column_values.find(c => c.id === id) || {}).text || '';
+      const col = column_values.find(c => c.id === id) || {};
+      // Para coluna timeline, text pode vir vazio — tenta extrair de value (JSON)
+      if (col.text) return col.text;
+      if (col.value) {
+        try {
+          const v = JSON.parse(col.value);
+          if (v.from && v.to) return v.from + ' - ' + v.to;
+        } catch(_) {}
+      }
+      return '';
     }
 
     function findStatus(column_values) {
