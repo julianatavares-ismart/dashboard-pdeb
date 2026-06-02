@@ -553,8 +553,24 @@ ${textos}`;
       return byVal?.text || 'Não iniciado';
     }
 
+    function formatTimeline(raw) {
+      if (!raw) return null;
+      const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+      const partes = raw.split(' - ');
+      if (partes.length !== 2) return null;
+      function fmt(d) {
+        const dt = new Date(d.trim());
+        if (isNaN(dt)) return null;
+        return meses[dt.getUTCMonth()] + '/' + dt.getUTCFullYear();
+      }
+      const ini = fmt(partes[0]);
+      const fim = fmt(partes[1]);
+      return (ini && fim) ? ini + ' — ' + fim : null;
+    }
+
     function parseMarco(item) {
       const status = findStatus(item.column_values);
+      const timeline = formatTimeline(findColText(item.column_values, 'timerange_mm1jm5x0') || '');
 
       const subitems = (item.subitems || []).map(sub => {
         const subStatus = findStatus(sub.column_values);
@@ -600,6 +616,7 @@ ${textos}`;
         id:     item.name.substring(0, 2).toUpperCase(),
         nome:   item.name.replace(/^M[1-5]\s[-–]\s?/i, ''),
         status,
+        timeline,
         acomp:  ativos.length > 0 ? Math.round((done / ativos.length) * 100) : 0,
         done,
         total:  subitems.length,
