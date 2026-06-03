@@ -118,9 +118,7 @@ section { margin-bottom:28px; }
 .pr-num { font-size:20px; font-weight:600; color:var(--text); }
 .pr-sep { width:1px; background:var(--border); height:28px; }
 .marco-timeline { font-size:10px; color:var(--soft); margin-top:2px; }
-.ritmo-ok  { background:#DCFCE7; color:#15803D; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-.ritmo-warn{ background:#FEF3C7; color:#92400E; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-.ritmo-bad { background:#FEE2E2; color:#DC2626; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+
 /* cards e subitems com mais respiro */
 .pcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
 .painel-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:20px; }
@@ -392,11 +390,7 @@ section { margin-bottom:28px; }
       <div class="pr-item"><span class="pr-num" id="pr-andamento">—</span><span>em andamento</span></div>
       <div class="pr-sep"></div>
       <div class="pr-item"><span class="pr-num" id="pr-nao">—</span><span>não iniciados</span></div>
-      <div class="pr-sep"></div>
-      <div class="pr-item" id="pr-ritmo-wrap" style="display:none;">
-        <span id="pr-ritmo-chip">—</span>
-        <span id="pr-ritmo-txt" style="font-size:11px;color:var(--muted);margin-left:4px;"></span>
-      </div>
+
     </div>
 
     <div id="painel-grid" class="painel-grid">
@@ -637,29 +631,6 @@ function renderPainel(milestones) {
 
   grid.innerHTML = cards;
 
-  // ── Indicador de ritmo ──
-  // Calcula quanto do ano já passou (base: jan/2026 a dez/2026)
-  const hoje = new Date();
-  const anoInicio = new Date('2026-01-01');
-  const anoFim    = new Date('2026-12-31');
-  const pctAno = Math.min(100, Math.max(0,
-    Math.round((hoje - anoInicio) / (anoFim - anoInicio) * 100)
-  ));
-  const pctFeito = tot > 0 ? Math.round(tf / tot * 100) : 0;
-  const diff = pctFeito - pctAno;
-
-  let ritmoChip, ritmoTxt;
-  if (diff >= 5) {
-    ritmoChip = '<span class="ritmo-ok">✓ Adiantados</span>';
-    ritmoTxt  = `${pctFeito}% entregue vs ${pctAno}% do ano decorrido`;
-  } else if (diff >= -10) {
-    ritmoChip = '<span class="ritmo-warn">⚡ No ritmo</span>';
-    ritmoTxt  = `${pctFeito}% entregue vs ${pctAno}% do ano decorrido`;
-  } else {
-    ritmoChip = '<span class="ritmo-bad">⚠ Abaixo do ritmo</span>';
-    ritmoTxt  = `${pctFeito}% entregue vs ${pctAno}% do ano decorrido`;
-  }
-
   const resumo = document.getElementById('painel-resumo');
   if (resumo) {
     resumo.style.display = 'flex';
@@ -668,12 +639,6 @@ function renderPainel(milestones) {
     document.getElementById('pr-legenda').textContent   = tf + ' de ' + tot + ' entregas';
     document.getElementById('pr-andamento').textContent = ta;
     document.getElementById('pr-nao').textContent       = tn;
-    const ritmoWrap = document.getElementById('pr-ritmo-wrap');
-    if (ritmoWrap) {
-      ritmoWrap.style.display = 'flex';
-      document.getElementById('pr-ritmo-chip').innerHTML = ritmoChip;
-      document.getElementById('pr-ritmo-txt').textContent = ritmoTxt;
-    }
   }
 }
 
