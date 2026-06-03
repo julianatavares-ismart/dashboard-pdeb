@@ -107,10 +107,12 @@ section { margin-bottom:28px; }
 .pcard-divider { border:none; border-top:1px solid var(--border); margin:14px 0; }
 .psub-meta { display:flex; gap:5px; margin-top:5px; flex-wrap:wrap; align-items:center; }
 /* chips */
-.chip-id   { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; background:#DBEAFE; color:#1D4ED8; }
-.chip-ip   { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; background:#FCE7F3; color:#9D174D; }
-.chip-both { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; background:#EDE9FE; color:#5B21B6; }
-.chip-ciclo { display:inline-block; font-size:10px; font-weight:500; padding:2px 8px; border-radius:4px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+.chip-id   { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#D4EEFC; color:#185FA5; }
+.chip-ip   { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#FCE7F3; color:#9D174D; }
+.chip-both { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#EDE9FE; color:#5B21B6; }
+.chip-ciclo { display:inline-block; font-size:10px; font-weight:400; padding:1px 6px; border-radius:3px; line-height:1.6; background:var(--surface2); color:var(--soft); border:0.5px solid var(--border); }
+.chip-status-feito    { display:inline-block; font-size:10px; font-weight:400; padding:1px 6px; border-radius:3px; line-height:1.6; background:#EAF4EB; color:#2E7D32; }
+.chip-status-andamento{ display:inline-block; font-size:10px; font-weight:400; padding:1px 6px; border-radius:3px; line-height:1.6; background:#FFF3E0; color:#854F0B; }
 .chip-ev { display:inline-flex; align-items:center; gap:3px; font-size:10px; color:var(--blue); text-decoration:none; border-bottom:1px solid var(--blue); padding-bottom:1px; }
 /* resumo */
 .painel-resumo { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
@@ -400,9 +402,9 @@ section { margin-bottom:28px; }
 
   <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);align-items:center;">
     <span style="font-size:11px;font-weight:600;color:var(--soft);">Status:</span>
-    <span style="font-size:11px;color:#15803D;font-weight:500;">✓ Feito</span>
-    <span style="font-size:11px;color:#D97706;font-weight:500;">⏳ Em andamento</span>
-    <span style="font-size:11px;color:var(--soft);">○ Não iniciado</span>
+    <span class="chip-status-feito">Feito</span>
+    <span class="chip-status-andamento">Em andamento</span>
+    <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--surface2);color:var(--soft);border:0.5px solid var(--border);">Não iniciado</span>
     <div class="pr-sep"></div>
     <span style="font-size:11px;font-weight:600;color:var(--soft);">Time:</span>
     <span class="chip-id">I&amp;D</span>
@@ -504,15 +506,23 @@ function chipCiclo(c) {
   if (!c) return '';
   return `<span class="chip-ciclo">${c}</span>`;
 }
+function chipStatus(s) {
+  if (s === 'Feito') return '<span class="chip-status-feito">Feito</span>';
+  if (s === 'Em andamento' || s === 'Atrasado') return '<span class="chip-status-andamento">Em andamento</span>';
+  return '';
+}
 function chipEv(url, label) {
   if (!url) return '';
   return `<a class="chip-ev" href="${url}" target="_blank">${label || 'Evidência'} ↗</a>`;
 }
 function pIcon(s) {
-  if (s === 'Feito') return '<span style="color:#16A34A;font-weight:700;font-size:13px;flex-shrink:0;">✓</span>';
-  if (s === 'Em andamento' || s === 'Atrasado') return '<span style="color:#F59E0B;font-size:13px;flex-shrink:0;">⏳</span>';
-  if (s === 'Congelado') return '<span style="color:#94A3B8;font-size:13px;flex-shrink:0;">❄</span>';
-  return '<span style="color:#94A3B8;font-size:13px;flex-shrink:0;">○</span>';
+  if (s === 'Feito')
+    return '<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0;margin-top:3px;"><circle cx="7" cy="7" r="6" fill="#1D9E75"/><polyline points="4,7 6,9 10,5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+  if (s === 'Em andamento' || s === 'Atrasado')
+    return '<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0;margin-top:3px;"><circle cx="7" cy="7" r="6" fill="none" stroke="#BA7517" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" fill="#BA7517"/></svg>';
+  if (s === 'Congelado')
+    return '<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0;margin-top:3px;"><circle cx="7" cy="7" r="6" fill="none" stroke="#94A3B8" stroke-width="1.5"/><line x1="4" y1="7" x2="10" y2="7" stroke="#94A3B8" stroke-width="1.5"/></svg>';
+  return '<svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0;margin-top:3px;"><circle cx="7" cy="7" r="6" fill="none" stroke="#CBD5E1" stroke-width="1.5"/></svg>';
 }
 function pRing(pct) {
   const r = 26, circ = 2*Math.PI*r, dash = circ*pct/100, off = circ/4;
@@ -596,14 +606,16 @@ function renderPainel(milestones) {
 
     const subsHtml = subs.map(s => {
       const ev = chipEv(s.evidenciaUrl, s.evidenciaLabel);
+      const isInativo = s.status === 'Congelado' || s.status === 'Não iniciado';
       return `
         <div class="psub">
-          <div style="margin-top:2px;">${pIcon(s.status)}</div>
+          <div>${pIcon(s.status)}</div>
           <div style="flex:1;">
-            <div style="font-size:12px;line-height:1.45;color:${s.status==='Congelado'?'var(--soft)':'var(--text)'};">${s.nome}</div>
+            <div style="font-size:12px;line-height:1.45;color:${isInativo?'var(--soft)':'var(--text)'};">${s.nome}</div>
             <div class="psub-meta">
               ${chipTime(s.time)}
               ${chipCiclo(s.ciclo)}
+              ${chipStatus(s.status)}
               ${ev}
             </div>
           </div>
