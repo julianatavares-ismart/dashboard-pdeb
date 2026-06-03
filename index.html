@@ -124,6 +124,11 @@ section { margin-bottom:28px; }
 .ritmo-ok  { background:#DCFCE7; color:#15803D; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
 .ritmo-warn{ background:#FEF3C7; color:#92400E; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
 .ritmo-bad { background:#FEE2E2; color:#DC2626; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+/* cards e subitems com mais respiro */
+.pcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; }
+.painel-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:20px; }
+.psub { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #F1F5F9; }
+.psub:last-child { border-bottom:none; }
 </style>
 </head>
 <body>
@@ -382,13 +387,14 @@ section { margin-bottom:28px; }
 
     <!-- resumo -->
     <div id="painel-resumo" class="painel-resumo" style="display:none;">
-      <div class="pr-item"><span class="pr-num" id="pr-feito">—</span><span>entregues</span></div>
+      <div class="pr-item" style="flex-direction:column;align-items:flex-start;gap:2px;">
+        <span class="pr-num" id="pr-pct">—</span>
+        <span style="font-size:11px;color:var(--soft);" id="pr-legenda">— de — entregas</span>
+      </div>
       <div class="pr-sep"></div>
       <div class="pr-item"><span class="pr-num" id="pr-andamento">—</span><span>em andamento</span></div>
       <div class="pr-sep"></div>
       <div class="pr-item"><span class="pr-num" id="pr-nao">—</span><span>não iniciados</span></div>
-      <div class="pr-sep"></div>
-      <div class="pr-item"><span class="pr-num" id="pr-total">—</span><span>no total</span></div>
       <div class="pr-sep"></div>
       <div class="pr-item" id="pr-ritmo-wrap" style="display:none;">
         <span id="pr-ritmo-chip">—</span>
@@ -660,10 +666,11 @@ function renderPainel(milestones) {
   const resumo = document.getElementById('painel-resumo');
   if (resumo) {
     resumo.style.display = 'flex';
-    document.getElementById('pr-feito').textContent     = tf;
+    const pctGeral = tot > 0 ? Math.round(tf/tot*100) : 0;
+    document.getElementById('pr-pct').textContent       = pctGeral + '% entregue';
+    document.getElementById('pr-legenda').textContent   = tf + ' de ' + tot + ' entregas';
     document.getElementById('pr-andamento').textContent = ta;
     document.getElementById('pr-nao').textContent       = tn;
-    document.getElementById('pr-total').textContent     = tot;
     const ritmoWrap = document.getElementById('pr-ritmo-wrap');
     if (ritmoWrap) {
       ritmoWrap.style.display = 'flex';
