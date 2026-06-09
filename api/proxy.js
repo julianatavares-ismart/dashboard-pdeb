@@ -498,6 +498,67 @@ ${textos}`;
     }
   }
 
+  // ── PROGRESSO POR CICLO (board 18417049088) ────────────────────
+  if (action === 'get_ciclo_progress') {
+    const mondayToken = process.env.MONDAY_API_TOKEN;
+    if (!mondayToken) return res.status(500).json({ error: 'MONDAY_API_TOKEN não configurado.' });
+
+    const allItems = [];
+    let cursor = null;
+
+    // Pagina até buscar todos os itens
+    do {
+      const cursorArg = cursor ? `, cursor: "${cursor}"` : '';
+      const query = `{
+        boards(ids: [18417049088]) {
+          items_page(limit: 100${cursorArg}) {
+            cursor
+            items {
+              name
+              column_values(ids: ["color_mm45ytfp"]) { id text }
+            }
+          }
+        }
+      }`;
+
+      const r = await fetch('https://api.monday.com/v2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': mondayToken, 'API-Version': '2024-01' },
+        body: JSON.stringify({ query })
+      });
+      const d = await r.json();
+      if (d.errors) return res.status(400).json({ error: d.errors[0].message });
+
+      const page = d?.data?.boards?.[0]?.items_page;
+      (page?.items || []).forEach(item => allItems.push(item));
+      cursor = page?.cursor || null;
+    } while (cursor);
+
+    // Agrega por nome: conta total e feitos
+    const map = {};
+    for (const item of allItems) {
+      const nome = item.name.trim();
+      const status = (item.column_values?.[0]?.text || '').trim();
+      if (!map[nome]) map[nome] = { total: 0, feitos: 0 };
+      map[nome].total++;
+      if (status === 'Feito') map[nome].feitos++;
+    }
+
+    // Calcula porcentagem — omite itens únicos (total === 1)
+    const progress = {};
+    for (const [nome, val] of Object.entries(map)) {
+      if (val.total > 1) {
+        progress[nome] = {
+          total: val.total,
+          feitos: val.feitos,
+          pct: Math.round(val.feitos / val.total * 100)
+        };
+      }
+    }
+
+    return res.status(200).json({ progress });
+  }
+
   // ── DADOS DO MONDAY (get_milestones) ────────────────────────────
   const mondayToken = process.env.MONDAY_API_TOKEN;
   if (!mondayToken) return res.status(500).json({ error: 'MONDAY_API_TOKEN não configurado.' });
