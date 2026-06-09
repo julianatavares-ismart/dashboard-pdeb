@@ -116,6 +116,7 @@ section { margin-bottom:28px; }
 .chip-ev { display:inline-flex; align-items:center; gap:3px; font-size:10px; color:var(--blue); text-decoration:none; border-bottom:1px solid var(--blue); padding-bottom:1px; }
 .chip-pct { display:inline-block; font-size:10px; font-weight:500; padding:2px 7px; border-radius:3px; line-height:1.6; background:#EDE9FE; color:#5B21B6; white-space:nowrap; flex-shrink:0; margin-top:2px; }
 .chip-pct-0 { display:inline-block; font-size:10px; font-weight:500; padding:2px 7px; border-radius:3px; line-height:1.6; background:#F1F5F9; color:#94A3B8; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+.chip-previsto { display:inline-block; font-size:10px; font-weight:500; padding:2px 7px; border-radius:3px; line-height:1.6; background:#FEF3C7; color:#92400E; border:0.5px solid #FDE68A; white-space:nowrap; flex-shrink:0; margin-top:2px; }
 /* resumo */
 .painel-resumo { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
 .pr-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
@@ -573,11 +574,22 @@ function renderMarcos(milestones) {
 // ── Mapa de progresso por ciclo ──
 let _progressMap = {};
 
-function chipPct(nome) {
+const CICLO_PERIODO = {
+  'Ciclo 1': 'fev–mar', 'Ciclo 2': 'abr–jun',
+  'Ciclo 3': 'ago–set', 'Ciclo 4': 'out–nov',
+  'Anual': 'jan–dez', 'Recorrente': null
+};
+
+function chipPct(nome, ciclo) {
   const p = _progressMap[nome];
-  if (!p) return '';
-  const cls = p.pct === 0 ? 'chip-pct-0' : 'chip-pct';
-  return `<span class="${cls}">${p.feitos}/${p.total} · ${p.pct}%</span>`;
+  if (p) {
+    const cls = p.pct === 0 ? 'chip-pct-0' : 'chip-pct';
+    return `<span class="${cls}">${p.feitos}/${p.total} · ${p.pct}%</span>`;
+  }
+  // item único — mostra período do ciclo
+  const periodo = ciclo ? CICLO_PERIODO[ciclo] : null;
+  if (periodo) return `<span class="chip-previsto">🗓 ${periodo}</span>`;
+  return '';
 }
 
 function expandir(id, btn) {
@@ -631,7 +643,7 @@ function renderPainel(milestones) {
               ${ev}
             </div>
           </div>
-          ${chipPct(s.nome) ? `<div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome)}</div>` : ''}
+          ${chipPct(s.nome, s.ciclo) ? `<div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome, s.ciclo)}</div>` : ''}
         </div>`;
     }).join('');
 
