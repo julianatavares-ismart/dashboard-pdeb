@@ -57,6 +57,10 @@ header { background:var(--navy); padding:16px 32px; display:flex; align-items:ce
 .tab-btn { padding:12px 20px; font-size:12px; font-weight:600; color:rgba(255,255,255,.55); background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color .15s, border-color .15s; margin-bottom:-2px; }
 .tab-btn:hover { color:rgba(255,255,255,.85); }
 .tab-btn.active { color:#fff; border-bottom-color:var(--blue); }
+.tab-sep { flex:1; }
+.tab-present { color:rgba(255,255,255,.55) !important; font-size:11px; border:0.5px solid rgba(255,255,255,.15); border-radius:6px; margin:auto 0; padding:5px 12px; }
+.tab-present:hover { color:#fff !important; background:rgba(255,255,255,.08); }
+.tab-present.on { color:#FDA4AF !important; border-color:rgba(237,45,103,.4); background:rgba(237,45,103,.12); }
 .tab-pane { display:none; }
 .tab-pane.active { display:block; }
 .tab-inner { max-width:1280px; margin:0 auto; padding:28px 32px; }
@@ -167,15 +171,17 @@ section { margin-bottom:28px; }
 </header>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('visao-geral',this)">Visão Geral</button>
+  <button class="tab-btn active" onclick="showTab('painel',this)">Painel estratégico</button>
   <button class="tab-btn" onclick="showTab('performance',this)">Performance por Praça</button>
   <button class="tab-btn" onclick="showTab('orientadores',this)">Orientadores</button>
   <button class="tab-btn" onclick="showTab('marcos',this)">Marcos</button>
-  <button class="tab-btn" onclick="showTab('painel',this)">Painel estratégico</button>
+  <button class="tab-btn" onclick="showTab('visao-geral',this)">Visão Geral</button>
+  <div class="tab-sep"></div>
+  <button class="tab-btn tab-present" id="btnPresent" onclick="togglePresent()">&#9654; Modo apresentação</button>
 </nav>
 
 <!-- ── ABA VISÃO GERAL ── -->
-<div id="tab-visao-geral" class="tab-pane active">
+<div id="tab-visao-geral" class="tab-pane">
   <div id="statusBar"></div>
   <div style="background:linear-gradient(135deg,#001845 0%,#002561 100%);padding:20px 32px;border-bottom:1px solid rgba(0,142,211,.2);">
     <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:24px;align-items:start;">
@@ -379,7 +385,7 @@ section { margin-bottom:28px; }
 </div>
 
 <!-- ── ABA PAINEL ESTRATÉGICO ── -->
-<div id="tab-painel" class="tab-pane">
+<div id="tab-painel" class="tab-pane active">
 <div class="tab-inner">
   <section>
     <div class="section-label">Metas e entregas · Visão estratégica</div>
@@ -439,6 +445,28 @@ function openSetup() { document.getElementById('setup').style.display = 'flex'; 
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
 let _pendingTabBtn = null;
+
+let _presentMode = false;
+function togglePresent() {
+  _presentMode = !_presentMode;
+  const btn = document.getElementById('btnPresent');
+  const abas = ['performance','orientadores','marcos','visao-geral'];
+  abas.forEach(id => {
+    const b = document.querySelector(`button[onclick="showTab('${id}',this)"]`);
+    if (b) b.style.display = _presentMode ? 'none' : '';
+  });
+  if (btn) {
+    btn.textContent = _presentMode ? '■ Sair da apresentação' : '► Modo apresentação';
+    btn.classList.toggle('on', _presentMode);
+  }
+  // garante que o painel está ativo
+  if (_presentMode) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-painel').classList.add('active');
+    document.querySelector('button[onclick="showTab('painel',this)"]').classList.add('active');
+  }
+}
 
 function showTab(id, btn) {
   if (id === 'orientadores' && !orientadoresDesbloqueado) {
