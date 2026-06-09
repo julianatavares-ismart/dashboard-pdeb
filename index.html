@@ -575,20 +575,19 @@ function renderMarcos(milestones) {
 let _progressMap = {};
 
 const CICLO_PERIODO = {
-  'Ciclo 1': 'fev–mar', 'Ciclo 2': 'abr–jun',
-  'Ciclo 3': 'ago–set', 'Ciclo 4': 'out–nov',
-  'Anual': 'jan–dez', 'Recorrente': null
+  'Ciclo 1': 'fev-mar', 'Ciclo 2': 'abr-jun',
+  'Ciclo 3': 'ago-set', 'Ciclo 4': 'out-nov',
+  'Anual': 'jan-dez', 'Recorrente': null
 };
 
 function chipPct(nome, ciclo) {
   const p = _progressMap[nome];
   if (p) {
     const cls = p.pct === 0 ? 'chip-pct-0' : 'chip-pct';
-    return `<span class="${cls}">${p.feitos}/${p.total} · ${p.pct}%</span>`;
+    return '<span class="' + cls + '">' + p.feitos + '/' + p.total + ' - ' + p.pct + '%</span>';
   }
-  // item único — mostra período do ciclo
   const periodo = ciclo ? CICLO_PERIODO[ciclo] : null;
-  if (periodo) return `<span class="chip-previsto">🗓 ${periodo}</span>`;
+  if (periodo) return '<span class="chip-previsto">prev. ' + periodo + '</span>';
   return '';
 }
 
