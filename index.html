@@ -642,7 +642,7 @@ function renderPainel(milestones) {
               ${ev}
             </div>
           </div>
-          ${chipPct(s.nome, s.ciclo) ? `<div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome, s.ciclo)}</div>` : ''}
+          <div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome, s.ciclo)}</div>
         </div>`;
     }).join('');
 
