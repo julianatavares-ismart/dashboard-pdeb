@@ -646,6 +646,7 @@ function renderPainel(milestones) {
               ${pPill(m.status)}
             </div>
             <div class="pcard-title">${m.nome}</div>
+            ${m.id === 'M5' ? '<div style="font-size:11px;color:var(--muted);margin-top:2px;">🤝 Entrega de parceira externa: Florens</div>' : ''}
             <div class="pcard-count">${cnt}</div>
             ${tlHtml}
           </div>
