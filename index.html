@@ -115,8 +115,8 @@ section { margin-bottom:28px; }
 .chip-status-andamento{ display:inline-block; font-size:10px; font-weight:400; padding:1px 6px; border-radius:3px; line-height:1.6; background:#FFF3E0; color:#854F0B; }
 .chip-ev { display:inline-flex; align-items:center; gap:3px; font-size:10px; color:var(--blue); text-decoration:none; border-bottom:1px solid var(--blue); padding-bottom:1px; }
 .chip-pct-0   { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#F1F5F9; color:#64748B; }
-.chip-pct-mid { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#FFF3E0; color:#854F0B; }
-.chip-pct-done{ display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#EAF4EB; color:#2E7D32; }
+.chip-pct-mid { display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#EDE9FE; color:#5B21B6; }
+.chip-pct-done{ display:inline-block; font-size:10px; font-weight:500; padding:1px 6px; border-radius:3px; line-height:1.6; background:#EDE9FE; color:#5B21B6; }
 /* resumo */
 .painel-resumo { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:20px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
 .pr-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
@@ -565,7 +565,7 @@ function renderMarcos(milestones) {
           </div>
         </div>
         <div class="marco-subs" id="ms-${idx}" style="display:none">
-          ${subs.map(s => `<div class="sub-item">${subIcon(s.status)}<span>${s.nome}</span>${chipPct(s.nome) ? ' ' + chipPct(s.nome) : ''}</div>`).join('')}
+          ${subs.map(s => `<div class="sub-item">${subIcon(s.status)}<span>${s.nome}</span></div>`).join('')}
         </div>
       </div>`;
   }).join('');
