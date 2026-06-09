@@ -586,7 +586,10 @@ function chipPct(nome, ciclo) {
     const cls = p.pct === 0 ? 'chip-pct-0' : 'chip-pct';
     return '<span class="' + cls + '">' + p.feitos + '/' + p.total + ' - ' + p.pct + '%</span>';
   }
-  const periodo = ciclo ? CICLO_PERIODO[ciclo] : null;
+  // item unico: usa ciclo pra mostrar periodo
+  const cicloKey = (ciclo || '').trim();
+  const periodo = CICLO_PERIODO[cicloKey] || null;
+  console.log('[chipPct] nome=', nome.slice(0,30), '| ciclo=', JSON.stringify(cicloKey), '| periodo=', periodo);
   if (periodo) return '<span class="chip-previsto">prev. ' + periodo + '</span>';
   return '';
 }
