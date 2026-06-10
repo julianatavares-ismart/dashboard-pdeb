@@ -608,17 +608,33 @@ const CICLO_PERIODO = {
   'Anual': 'jan-dez', 'Recorrente': null
 };
 
-function chipPct(nome, ciclo) {
+// Datas de inicio de cada ciclo
+const CICLO_INICIO = {
+  'Ciclo 1': new Date('2026-02-01'),
+  'Ciclo 2': new Date('2026-04-01'),
+  'Ciclo 3': new Date('2026-08-01'),
+  'Ciclo 4': new Date('2026-10-01'),
+  'Anual':   new Date('2026-01-01')
+};
+
+function chipPct(nome, ciclo, status) {
   const p = _progressMap[nome];
   if (p) {
     const cls = p.pct === 0 ? 'chip-pct-0' : 'chip-pct';
     return '<span class="' + cls + '">' + p.feitos + '/' + p.total + ' - ' + p.pct + '%</span>';
   }
-  // item unico: usa ciclo pra mostrar periodo
+  // item unico
   const cicloKey = (ciclo || '').trim();
-  const periodo = CICLO_PERIODO[cicloKey] || null;
-  console.log('[chipPct] nome=', nome.slice(0,30), '| ciclo=', JSON.stringify(cicloKey), '| periodo=', periodo);
-  if (periodo) return '<span class="chip-previsto">prev. ' + periodo + '</span>';
+  const inicio = CICLO_INICIO[cicloKey];
+  const hoje = new Date();
+  // se ainda nao chegou o ciclo, mostra previsao
+  if (inicio && hoje < inicio) {
+    const periodo = CICLO_PERIODO[cicloKey];
+    if (periodo) return '<span class="chip-previsto">prev. ' + periodo + '</span>';
+  }
+  // ciclo ja comecu: mostra 100% se feito, 0% se nao
+  if (status === 'Feito') return '<span class="chip-pct">1/1 - 100%</span>';
+  if (cicloKey && cicloKey !== 'Recorrente') return '<span class="chip-pct-0">0/1 - 0%</span>';
   return '';
 }
 
@@ -673,7 +689,7 @@ function renderPainel(milestones) {
               ${ev}
             </div>
           </div>
-          <div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome, s.ciclo)}</div>
+          <div style="align-self:flex-start;margin-top:2px;">${chipPct(s.nome, s.ciclo, s.status)}</div>
         </div>`;
     }).join('');
 
