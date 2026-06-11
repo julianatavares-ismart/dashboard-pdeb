@@ -864,7 +864,7 @@ new Chart(document.getElementById('evoChart'), {
 
 // ── PRAÇAS C2 ──
 const C2_INICIO    = new Date('2026-04-01');
-const C2_FIM_GERAL = new Date('2026-05-31');
+const C2_FIM_GERAL = new Date('2026-06-30');
 const C2_FIM_3EM   = new Date('2026-06-30');
 
 function statusPraca(pct, fimCiclo) {
@@ -909,7 +909,7 @@ async function carregarPracasC2() {
     const pracas = ['SP','BH','RJ','SJC'];
     const gh = (label,prazo) => `<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--border);">${label}<span style="float:right;font-weight:400;text-transform:none;">${prazo}</span></div>`;
     grid.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div>${gh('8ºEF · 9ºEF · 1ºEM · 2ºEM','prazo 31/05')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${pracas.map(id=>card(id,C2_FIM_GERAL,(d.pracas[id]||{}).geral||{oficinas:null,falaAi:null})).join('')}</div></div>
+      <div>${gh('8ºEF · 9ºEF · 1ºEM · 2ºEM','prazo 30/06')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${pracas.map(id=>card(id,C2_FIM_GERAL,(d.pracas[id]||{}).geral||{oficinas:null,falaAi:null})).join('')}</div></div>
       <div>${gh('3ºEM','prazo 30/06')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${pracas.map(id=>card(id,C2_FIM_3EM,(d.pracas[id]||{}).em3||{oficinas:null,falaAi:null})).join('')}</div></div>
     </div>`;
   } catch(e) { console.warn('Praças C2:',e.message); }
