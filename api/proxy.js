@@ -139,49 +139,55 @@ Responda APENAS com um JSON válido, sem explicações, sem markdown, nesse form
       const iCicloObs  = findCol(headObs, ['ciclo']);
       const pilaresObs = getPilarIndexes(headObs);
 
-      const autoavMap = {};
+      // Agrupa autoavaliações por NOME
+      const autoavByNome = {};
       for (const row of rawAutoav.slice(1)) {
-        const nome  = (row[iNomeAutoav] || '').trim();
-        const esc   = (row[iEscolaAutoav] || '').trim();
-        const serie = (row[iSerieAutoav] || '').trim();
-        const ciclo = (row[iCicloAutoav] || '').trim();
+        const nome = (row[iNomeAutoav] || '').trim();
+        const esc  = (row[iEscolaAutoav] || '').trim();
         if (!nome) continue;
-        const chave = `${nome}|${esc}|${serie}|${ciclo}`.toLowerCase();
         const media = calcMedia(row, pilaresAutoav);
-        const pilarScoresAutoav = getPilarScores(row, pilaresAutoav, headAutoav);
-        if (!autoavMap[chave] || media !== null) {
-          autoavMap[chave] = { nome, escola: esc, serie, ciclo, autoav: media, pilarScores: pilarScoresAutoav };
-        }
+        const pilarScores = getPilarScores(row, pilaresAutoav, headAutoav);
+        if (!autoavByNome[nome]) autoavByNome[nome] = { scores: [], pilarScores: {}, escola: esc };
+        if (media !== null) autoavByNome[nome].scores.push(media);
+        Object.entries(pilarScores).forEach(([p, v]) => {
+          if (!autoavByNome[nome].pilarScores[p]) autoavByNome[nome].pilarScores[p] = [];
+          autoavByNome[nome].pilarScores[p].push(v);
+        });
       }
 
-      const obsMap = {}, obsMapPilar = {};
+      // Agrupa observações por NOME + conta forms
+      const obsByNome = {}, obsPilarByNome = {}, formsCount = {};
       for (const row of rawObs.slice(1)) {
-        const nome  = (row[iNomeObs] || '').trim();
-        const esc   = (row[iEscolaObs] || '').trim();
-        const serie = (row[iSerieObs] || '').trim();
-        const ciclo = (row[iCicloObs] || '').trim();
+        const nome = (row[iNomeObs] || '').trim();
         if (!nome) continue;
-        const chave = `${nome}|${esc}|${serie}|${ciclo}`.toLowerCase();
+        formsCount[nome] = (formsCount[nome] || 0) + 1;
         const score = calcMedia(row, pilaresObs);
-        if (score !== null) { if (!obsMap[chave]) obsMap[chave] = []; obsMap[chave].push(score); }
+        if (score !== null) { if (!obsByNome[nome]) obsByNome[nome] = []; obsByNome[nome].push(score); }
         const pilarScoresObs = getPilarScores(row, pilaresObs, headObs);
         if (Object.keys(pilarScoresObs).length > 0) {
-          if (!obsMapPilar[chave]) obsMapPilar[chave] = [];
-          obsMapPilar[chave].push(pilarScoresObs);
+          if (!obsPilarByNome[nome]) obsPilarByNome[nome] = [];
+          obsPilarByNome[nome].push(pilarScoresObs);
         }
       }
 
-      const resultado = Object.entries(autoavMap).map(([chave, a]) => {
-        const obsScores = obsMap[chave] || [];
-        const obsMedia = obsScores.length > 0 ? Math.round((obsScores.reduce((x, y) => x + y, 0) / obsScores.length) * 10) / 10 : null;
-        const mediaFinal = obsMedia !== null ? Math.round(((a.autoav || 0) + obsMedia) / 2 * 10) / 10 : a.autoav;
-        const obsPilarRaw = obsMapPilar[chave] || [];
+      // Um item por orientador
+      const nomes = new Set([...Object.keys(autoavByNome), ...Object.keys(obsByNome)]);
+      const resultado = [...nomes].map(nome => {
+        const av = autoavByNome[nome] || { scores: [], pilarScores: {}, escola: '' };
+        const autoavMedia = av.scores.length > 0 ? Math.round(av.scores.reduce((a,b)=>a+b,0)/av.scores.length*10)/10 : null;
+        const pilarAutoav = {};
+        Object.entries(av.pilarScores).forEach(([p, ss]) => { pilarAutoav[p] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length*10)/10; });
+        const obsScores = obsByNome[nome] || [];
+        const obsMedia = obsScores.length > 0 ? Math.round(obsScores.reduce((a,b)=>a+b,0)/obsScores.length*10)/10 : null;
+        const mediaFinal = obsMedia !== null ? Math.round(((autoavMedia||0)+obsMedia)/2*10)/10 : autoavMedia;
+        const obsPilarRaw = obsPilarByNome[nome] || [];
         const obsPilarAgg = {};
         obsPilarRaw.forEach(ps => { Object.entries(ps).forEach(([pilar, score]) => { if (!obsPilarAgg[pilar]) obsPilarAgg[pilar] = []; obsPilarAgg[pilar].push(score); }); });
         const pilarObs = {};
-        Object.entries(obsPilarAgg).forEach(([pilar, ss]) => { pilarObs[pilar] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length * 10) / 10; });
-        return { nome: a.nome, escola: a.escola, praca: getPraca(a.escola), serie: a.serie, ciclo: a.ciclo, autoav: a.autoav, obs: obsMedia, media: mediaFinal, apenasAutoav: obsMedia === null, pilarAutoav: a.pilarScores || {}, pilarObs };
+        Object.entries(obsPilarAgg).forEach(([pilar, ss]) => { pilarObs[pilar] = Math.round(ss.reduce((a,b)=>a+b,0)/ss.length*10)/10; });
+        return { nome, escola: av.escola, praca: getPraca(av.escola), autoav: autoavMedia, obs: obsMedia, media: mediaFinal, forms: formsCount[nome]||0, apenasAutoav: obsMedia===null, pilarAutoav, pilarObs };
       });
+
 
       function findWorst(pilarAvgs) {
         const entries = Object.entries(pilarAvgs);
