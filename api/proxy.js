@@ -504,6 +504,90 @@ ${textos}`;
     }
   }
 
+  // ── ANÁLISE DE RUBRICAS ──────────────────────────────────────────
+  if (action === 'get_rubricas') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    async function fetchAba(aba) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/values/${encodeURIComponent(aba + '!A1:Z200')}?key=${sheetsKey}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      return d.values || [];
+    }
+
+    function parseRubricas(rows) {
+      // Localiza blocos pelos títulos nas células
+      let pilares = [], pracas = [], orientadores = [];
+      let mode = null;
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cell0 = (row[0] || '').trim();
+        const cell1 = (row[1] || '').trim();
+
+        // detecta início dos blocos
+        if (cell1.includes('Pilares da rubrica') || cell0.includes('Pilares da rubrica')) { mode = 'pilares'; continue; }
+        if (cell1.includes('Média por praça') || cell0.includes('Média por praça')) { mode = 'pracas'; continue; }
+        if (cell1.includes('Padrão de avaliação') || cell0.includes('Padrão de avaliação')) { mode = 'orientadores'; continue; }
+
+        // linha de cabeçalho — pula
+        const textoLinha = row.join('').toLowerCase();
+        if (textoLinha.includes('pos.') || textoLinha.includes('pilar da rubrica')) continue;
+        if (textoLinha.includes('pilar') && textoLinha.includes('sp') && textoLinha.includes('bh')) continue;
+        if (textoLinha.includes('orientador') && textoLinha.includes('média geral') && textoLinha.includes('alunos')) continue;
+
+        if (mode === 'pilares') {
+          // colunas: pos | pilar | média | avaliações
+          const pos  = (row[1] || row[0] || '').trim();
+          const nome = (row[2] || row[1] || '').trim();
+          const med  = (row[3] || row[2] || '').trim();
+          const aval = (row[4] || row[3] || '').trim();
+          if (nome && med && !isNaN(parseFloat(med.replace(',', '.')))) {
+            pilares.push({ pos, nome, media: parseFloat(med.replace(',', '.')), avaliacoes: aval });
+          }
+          if (pilares.length >= 5) mode = null;
+        }
+
+        if (mode === 'pracas') {
+          const nome = (row[0] || row[1] || '').trim();
+          const sp   = parseFloat((row[1] || row[2] || '').replace(',', '.')) || null;
+          const bh   = parseFloat((row[2] || row[3] || '').replace(',', '.')) || null;
+          const rj   = parseFloat((row[3] || row[4] || '').replace(',', '.')) || null;
+          const sjc  = parseFloat((row[4] || row[5] || '').replace(',', '.')) || null;
+          if (nome && (sp || bh || rj || sjc)) {
+            pracas.push({ nome, sp, bh, rj, sjc });
+          }
+        }
+
+        if (mode === 'orientadores') {
+          const nome   = (row[1] || row[0] || '').trim();
+          const media  = parseFloat((row[2] || row[1] || '').replace(',', '.')) || null;
+          const alunos = (row[3] || row[2] || '').trim();
+          const padrao = (row[4] || row[3] || '').trim();
+          if (nome && media) {
+            orientadores.push({ nome, media, alunos, padrao });
+          }
+        }
+      }
+
+      return { pilares, pracas, orientadores };
+    }
+
+    try {
+      const [rows1, rows2] = await Promise.all([
+        fetchAba('Ciclo 1 - Detalhes'),
+        fetchAba('Ciclo 2 - Detalhes')
+      ]);
+      return res.status(200).json({
+        ciclo1: parseRubricas(rows1),
+        ciclo2: parseRubricas(rows2)
+      });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   // ── PROGRESSO POR CICLO (board 18417049088) ────────────────────
   if (action === 'get_ciclo_progress') {
     const mondayToken = process.env.MONDAY_API_TOKEN;
