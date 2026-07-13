@@ -517,55 +517,60 @@ ${textos}`;
     }
 
     function parseRubricas(rows) {
-      // Localiza blocos pelos títulos nas células
       let pilares = [], pracas = [], orientadores = [];
       let mode = null;
 
+      const txt = r => (r || []).map(c => (c||'').toString().trim());
+
       for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const cell0 = (row[0] || '').trim();
-        const cell1 = (row[1] || '').trim();
+        const r = txt(rows[i]);
+        const linha = r.join(' ');
 
-        // detecta início dos blocos
-        if (cell1.includes('Pilares da rubrica') || cell0.includes('Pilares da rubrica')) { mode = 'pilares'; continue; }
-        if (cell1.includes('Média por praça') || cell0.includes('Média por praça')) { mode = 'pracas'; continue; }
-        if (cell1.includes('Padrão de avaliação') || cell0.includes('Padrão de avaliação')) { mode = 'orientadores'; continue; }
+        // Para ao encontrar blocos pós-rubricas (devolutivas, qualidade, por praça)
+        if (linha.includes('DEVOLUTIVAS') || linha.includes('QUALIDADE DAS AVALIA') ||
+            linha.includes('São Paulo') || linha.includes('Rio de Janeiro') ||
+            linha.includes('Belo Horizonte') || linha.includes('São José')) break;
 
-        // linha de cabeçalho — pula
-        const textoLinha = row.join('').toLowerCase();
-        if (textoLinha.includes('pos.') || textoLinha.includes('pilar da rubrica')) continue;
-        if (textoLinha.includes('pilar') && textoLinha.includes('sp') && textoLinha.includes('bh')) continue;
-        if (textoLinha.includes('orientador') && textoLinha.includes('média geral') && textoLinha.includes('alunos')) continue;
+        // Detecta início dos blocos de rubricas
+        if (linha.includes('Pilares da rubrica')) { mode = 'pilares'; continue; }
+        if (linha.includes('Média por praça')) { mode = 'pracas'; continue; }
+        if (linha.includes('Padrão de avaliação')) { mode = 'orientadores'; continue; }
+
+        // Pula cabeçalhos
+        if (linha.includes('Pos.') || linha.includes('Pilar da Rubrica')) continue;
+        if (r[0]==='Pilar' && r.includes('SP') && r.includes('BH')) continue;
+        if (r[0]==='Orientador' && linha.includes('Média Geral')) continue;
 
         if (mode === 'pilares') {
-          // colunas: pos | pilar | média | avaliações
-          const pos  = (row[1] || row[0] || '').trim();
-          const nome = (row[2] || row[1] || '').trim();
-          const med  = (row[3] || row[2] || '').trim();
-          const aval = (row[4] || row[3] || '').trim();
-          if (nome && med && !isNaN(parseFloat(med.replace(',', '.')))) {
-            pilares.push({ pos, nome, media: parseFloat(med.replace(',', '.')), avaliacoes: aval });
+          // Colunas: col0=pos, col1=nome pilar, col2=média, col3=avaliações
+          const pos  = r[0];
+          const nome = r[1];
+          const med  = parseFloat((r[2]||'').replace(',','.'));
+          const aval = r[3] || '';
+          if (nome && !isNaN(med) && med > 0 && med <= 4) {
+            pilares.push({ pos, nome, media: med, avaliacoes: aval });
           }
           if (pilares.length >= 5) mode = null;
         }
 
-        if (mode === 'pracas') {
-          const nome = (row[0] || row[1] || '').trim();
-          const sp   = parseFloat((row[1] || row[2] || '').replace(',', '.')) || null;
-          const bh   = parseFloat((row[2] || row[3] || '').replace(',', '.')) || null;
-          const rj   = parseFloat((row[3] || row[4] || '').replace(',', '.')) || null;
-          const sjc  = parseFloat((row[4] || row[5] || '').replace(',', '.')) || null;
-          if (nome && (sp || bh || rj || sjc)) {
-            pracas.push({ nome, sp, bh, rj, sjc });
+        else if (mode === 'pracas') {
+          const nome = r[0];
+          const sp  = parseFloat((r[1]||'').replace(',','.'));
+          const bh  = parseFloat((r[2]||'').replace(',','.'));
+          const rj  = parseFloat((r[3]||'').replace(',','.'));
+          const sjc = parseFloat((r[4]||'').replace(',','.'));
+          if (nome && !isNaN(sp)) {
+            pracas.push({ nome, sp: sp||null, bh: bh||null, rj: rj||null, sjc: sjc||null });
           }
+          if (pracas.length >= 5) mode = null;
         }
 
-        if (mode === 'orientadores') {
-          const nome   = (row[1] || row[0] || '').trim();
-          const media  = parseFloat((row[2] || row[1] || '').replace(',', '.')) || null;
-          const alunos = (row[3] || row[2] || '').trim();
-          const padrao = (row[4] || row[3] || '').trim();
-          if (nome && media) {
+        else if (mode === 'orientadores') {
+          const nome   = r[0];
+          const media  = parseFloat((r[1]||'').replace(',','.'));
+          const alunos = r[2] || '';
+          const padrao = r[3] || '';
+          if (nome && !isNaN(media) && media > 0 && media <= 4) {
             orientadores.push({ nome, media, alunos, padrao });
           }
         }
