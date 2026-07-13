@@ -517,6 +517,7 @@ ${textos}`;
     }
 
     function parseRubricas(rows) {
+      // A planilha tem col A vazia — dados começam em col B (índice 1 na Sheets API)
       let pilares = [], pracas = [], orientadores = [];
       let mode = null;
 
@@ -526,27 +527,27 @@ ${textos}`;
         const r = txt(rows[i]);
         const linha = r.join(' ');
 
-        // Para ao encontrar blocos pós-rubricas (devolutivas, qualidade, por praça)
+        // Para ao encontrar blocos pós-rubricas
         if (linha.includes('DEVOLUTIVAS') || linha.includes('QUALIDADE DAS AVALIA') ||
-            linha.includes('São Paulo') || linha.includes('Rio de Janeiro') ||
-            linha.includes('Belo Horizonte') || linha.includes('São José')) break;
+            (mode === 'orientadores' && (linha.includes('São Paulo') || linha.includes('Rio de Janeiro') ||
+            linha.includes('Belo Horizonte') || linha.includes('São José')))) break;
 
-        // Detecta início dos blocos de rubricas
+        // Detecta início dos blocos (dados em r[1] por causa da col A vazia)
         if (linha.includes('Pilares da rubrica')) { mode = 'pilares'; continue; }
-        if (linha.includes('Média por praça')) { mode = 'pracas'; continue; }
-        if (linha.includes('Padrão de avaliação')) { mode = 'orientadores'; continue; }
+        if (linha.includes('Média por praça'))    { mode = 'pracas';  continue; }
+        if (linha.includes('Padrão de avaliação')){ mode = 'orientadores'; continue; }
 
         // Pula cabeçalhos
-        if (linha.includes('Pos.') || linha.includes('Pilar da Rubrica')) continue;
-        if (r[0]==='Pilar' && r.includes('SP') && r.includes('BH')) continue;
-        if (r[0]==='Orientador' && linha.includes('Média Geral')) continue;
+        if (linha.includes('Pilar da Rubrica') || (r[1]==='Pos.' && r[2]==='Pilar da Rubrica')) continue;
+        if (r[1]==='Pilar' && r.includes('SP') && r.includes('BH')) continue;
+        if (r[1]==='Orientador' && linha.includes('Média Geral')) continue;
 
         if (mode === 'pilares') {
-          // Colunas: col0=pos, col1=nome pilar, col2=média, col3=avaliações
-          const pos  = r[0];
-          const nome = r[1];
-          const med  = parseFloat((r[2]||'').replace(',','.'));
-          const aval = r[3] || '';
+          // col1=pos, col2=nome, col3=média, col4=avaliações
+          const pos  = r[1] || '';
+          const nome = r[2] || '';
+          const med  = parseFloat((r[3]||'').replace(',','.'));
+          const aval = r[4] || '';
           if (nome && !isNaN(med) && med > 0 && med <= 4) {
             pilares.push({ pos, nome, media: med, avaliacoes: aval });
           }
@@ -554,22 +555,24 @@ ${textos}`;
         }
 
         else if (mode === 'pracas') {
-          const nome = r[0];
-          const sp  = parseFloat((r[1]||'').replace(',','.'));
-          const bh  = parseFloat((r[2]||'').replace(',','.'));
-          const rj  = parseFloat((r[3]||'').replace(',','.'));
-          const sjc = parseFloat((r[4]||'').replace(',','.'));
-          if (nome && !isNaN(sp)) {
+          // col1=nome pilar, col2=SP, col3=BH, col4=RJ, col5=SJC
+          const nome = r[1] || '';
+          const sp  = parseFloat((r[2]||'').replace(',','.'));
+          const bh  = parseFloat((r[3]||'').replace(',','.'));
+          const rj  = parseFloat((r[4]||'').replace(',','.'));
+          const sjc = parseFloat((r[5]||'').replace(',','.'));
+          if (nome && !isNaN(sp) && sp > 0) {
             pracas.push({ nome, sp: sp||null, bh: bh||null, rj: rj||null, sjc: sjc||null });
           }
           if (pracas.length >= 5) mode = null;
         }
 
         else if (mode === 'orientadores') {
-          const nome   = r[0];
-          const media  = parseFloat((r[1]||'').replace(',','.'));
-          const alunos = r[2] || '';
-          const padrao = r[3] || '';
+          // col1=nome, col2=média, col3=alunos, col4=padrão
+          const nome   = r[1] || '';
+          const media  = parseFloat((r[2]||'').replace(',','.'));
+          const alunos = r[3] || '';
+          const padrao = r[4] || '';
           if (nome && !isNaN(media) && media > 0 && media <= 4) {
             orientadores.push({ nome, media, alunos, padrao });
           }
