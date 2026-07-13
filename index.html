@@ -244,6 +244,24 @@ section { margin-bottom: 32px; }
 
 /* Legenda */
 .painel-legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 10px 14px; background: var(--surface); border: 1px solid var(--divider); border-radius: 9px; align-items: center; margin-top: 14px; }
+/* Rubricas */
+.rub-section { margin-bottom: 28px; }
+.rub-title { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--divider); }
+.rub-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rub-table th { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .06em; padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--divider); }
+.rub-table td { padding: 9px 12px; border-bottom: 1px solid var(--divider); color: var(--t2); }
+.rub-table tr:last-child td { border-bottom: none; }
+.rub-table tr:hover td { background: var(--bg); }
+.rub-media { font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--navy); font-size: 14px; }
+.rub-pos-1 { color: var(--green); font-weight: 700; }
+.rub-pos-last { color: var(--pink); font-weight: 700; }
+.rub-badge-ok { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #F0FDF4; color: var(--green); font-weight: 600; }
+.rub-badge-alerta { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #FFF8E1; color: #E65100; font-weight: 600; }
+.rub-ciclo-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.rub-ciclo-btn { padding: 6px 18px; border-radius: 9px; border: 1px solid var(--divider); background: var(--surface); font-size: 12px; font-weight: 600; font-family: 'Lato', sans-serif; color: var(--t3); cursor: pointer; transition: all .15s; }
+.rub-ciclo-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+.rub-bar-bg { background: var(--divider); border-radius: 2px; height: 4px; overflow: hidden; width: 80px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+.rub-bar-fill { height: 100%; background: var(--cyan); border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -286,13 +304,22 @@ section { margin-bottom: 32px; }
   <button class="tab-btn" onclick="showTab('performance',this)">Performance por Praça</button>
   <button class="tab-btn" onclick="showTab('orientadores',this)">Orientadores</button>
   <button class="tab-btn" onclick="showTab('marcos',this)">Marcos</button>
+  <button class="tab-btn" onclick="showTab('rubricas',this)">Rubricas</button>
   <button class="tab-btn" onclick="showTab('visao-geral',this)">Visão Geral</button>
   <div class="tab-sep"></div>
   <button class="tab-btn tab-present" id="btnPresent" onclick="togglePresent()">&#9654; Modo apresentação</button>
 </nav>
 
 <!-- ── ABA VISÃO GERAL ── -->
-<div id="tab-visao-geral" class="tab-pane">
+<div id="tab-rubricas" class="tab-pane">
+    <div class="tab-inner">
+      <div id="rubricas-content">
+        <div style="color:var(--soft);font-size:13px;padding:20px 0;">Clique em <strong>Atualizar dados</strong> para carregar a análise de rubricas.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-visao-geral" class="tab-pane">
   <div id="statusBar"></div>
   <div style="background:linear-gradient(135deg,#001845 0%,#002561 100%);padding:20px 32px;border-bottom:1px solid rgba(0,142,211,.2);">
     <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:24px;align-items:start;">
@@ -558,6 +585,101 @@ function openSetup() { document.getElementById('setup').style.display = 'flex'; 
 const SENHA_ADMIN = 'SenhaDash2026';
 let orientadoresDesbloqueado = false;
 let _pendingTabBtn = null;
+
+// ── RUBRICAS ──
+let _rubricasData = null;
+let _rubricasCiclo = 1;
+
+function renderRubricas(data) {
+  _rubricasData = data;
+  const el = document.getElementById('rubricas-content');
+  if (!el) return;
+
+  const d = _rubricasCiclo === 1 ? data.ciclo1 : data.ciclo2;
+  if (!d) { el.innerHTML = '<p style="color:var(--soft)">Dados indisponíveis.</p>'; return; }
+
+  const maxMedia = Math.max(...(d.pilares||[]).map(p => p.media), 4);
+
+  // Bloco 1: Pilares
+  const pilaresRows = (d.pilares||[]).map((p, i) => {
+    const isFirst = i === 0;
+    const isLast  = i === (d.pilares.length - 1);
+    const pct = Math.round(p.media / 4 * 100);
+    const posClass = isFirst ? 'rub-pos-1' : isLast ? 'rub-pos-last' : '';
+    const arrow = isFirst ? '▲' : isLast ? '▼' : '';
+    return `<tr>
+      <td class="${posClass}">${arrow} ${p.pos || (i+1)+'º'}</td>
+      <td>${p.nome}</td>
+      <td><span class="rub-media">${p.media.toFixed(2)}</span>
+        <span class="rub-bar-bg"><span class="rub-bar-fill" style="width:${pct}%"></span></span>
+      </td>
+      <td style="color:var(--t3);font-size:12px;">${p.avaliacoes}</td>
+    </tr>`;
+  }).join('');
+
+  // Bloco 2: Praças
+  const pracasRows = (d.pracas||[]).map(p => {
+    const vals = [p.sp, p.bh, p.rj, p.sjc];
+    const max = Math.max(...vals.filter(v => v));
+    const fmt = v => v ? `<td style="font-weight:${v===max?'700':'400'};color:${v===max?'var(--navy)':'var(--t2)'};">${v.toFixed(2)}</td>` : '<td style="color:var(--t4);">—</td>';
+    return `<tr><td>${p.nome}</td>${fmt(p.sp)}${fmt(p.bh)}${fmt(p.rj)}${fmt(p.sjc)}</tr>`;
+  }).join('');
+
+  // Bloco 3: Orientadores
+  const oriRows = (d.orientadores||[]).map(o => {
+    const isAlerta = (o.padrao||'').toLowerCase().includes('alta') || (o.padrao||'').toLowerCase().includes('baixa');
+    const badge = isAlerta
+      ? `<span class="rub-badge-alerta">⚠ ${o.padrao}</span>`
+      : `<span class="rub-badge-ok">✓ ${o.padrao}</span>`;
+    return `<tr>
+      <td style="font-weight:600;color:var(--navy);">${o.nome}</td>
+      <td><span class="rub-media">${o.media ? o.media.toFixed(2) : '—'}</span></td>
+      <td style="color:var(--t3);font-size:12px;">${o.alunos}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="rub-ciclo-tabs">
+      <button class="rub-ciclo-btn ${_rubricasCiclo===1?'active':''}" onclick="switchRubricaCiclo(1)">Ciclo 1</button>
+      <button class="rub-ciclo-btn ${_rubricasCiclo===2?'active':''}" onclick="switchRubricaCiclo(2)">Ciclo 2</button>
+    </div>
+
+    <div class="rub-section">
+      <div class="rub-title">Pilares da rubrica — do mais bem avaliado ao mais fraco</div>
+      <div style="background:var(--surface);border:1px solid var(--divider);border-radius:9px;overflow:hidden;">
+        <table class="rub-table">
+          <thead><tr><th>Pos.</th><th>Pilar</th><th>Média geral</th><th>Avaliações</th></tr></thead>
+          <tbody>${pilaresRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rub-section">
+      <div class="rub-title">Média por praça — como cada praça avaliou cada pilar</div>
+      <div style="background:var(--surface);border:1px solid var(--divider);border-radius:9px;overflow:hidden;">
+        <table class="rub-table">
+          <thead><tr><th>Pilar</th><th>SP</th><th>BH</th><th>RJ</th><th>SJC</th></tr></thead>
+          <tbody>${pracasRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rub-section">
+      <div class="rub-title">Padrão de avaliação por orientador — identifica outliers</div>
+      <div style="background:var(--surface);border:1px solid var(--divider);border-radius:9px;overflow:hidden;">
+        <table class="rub-table">
+          <thead><tr><th>Orientador</th><th>Média geral</th><th>Alunos avaliados</th><th>Padrão</th></tr></thead>
+          <tbody>${oriRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function switchRubricaCiclo(n) {
+  _rubricasCiclo = n;
+  if (_rubricasData) renderRubricas(_rubricasData);
+}
 
 let _presentMode = false;
 function togglePresent() {
@@ -1049,19 +1171,22 @@ async function doRefreshAll() {
   const erros = [];
 
   try {
-    // Busca milestones e progresso em paralelo
-    const [resMilestones, resProgress] = await Promise.all([
+    // Busca milestones, progresso e rubricas em paralelo
+    const [resMilestones, resProgress, resRubricas] = await Promise.all([
       fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_milestones' }) }),
-      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_ciclo_progress' }) })
+      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_ciclo_progress' }) }),
+      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_rubricas' }) })
     ]);
     const d = await resMilestones.json();
     const dp = await resProgress.json();
+    const dr = await resRubricas.json();
     if (d.error) throw new Error(d.error);
     if (d.updatedAt) document.getElementById('headerDate').textContent = d.updatedAt;
     if (dp.progress) _progressMap = dp.progress;
     const ms = d.milestones || d.ciclo1 || [];
     renderMarcos(ms);
     renderPainel(ms);
+    if (dr && !dr.error) renderRubricas(dr);
   } catch(e) { erros.push('Monday: '+e.message); }
 
   try { await carregarPracasC2(); }       catch(_) {}
