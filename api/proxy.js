@@ -596,6 +596,201 @@ ${textos}`;
     }
   }
 
+  // ── ALUNOS: índice leve (nome, turma, escola, praça) ─────────────
+  if (action === 'get_alunos_index') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    const PRACAS = {
+      SP:  '1anki0VweR8LweziQkN-KDTJbklAp9asfdxtU5JhkMhk',
+      BH:  '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
+      RJ:  '1TsCj4_MqfIWCZF8j30E_hnpw8z3nDz8Ph5lMIXZEAuc',
+      SJC: '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
+    };
+
+    function acharHeader(rows) {
+      for (let i = 0; i < Math.min(rows.length, 8); i++) {
+        const l = (rows[i] || []).map(x => (x || '').toString().toLowerCase()).join(' | ');
+        if (l.includes('orientador') && (l.includes('turma') || l.includes('escola'))) return i;
+      }
+      return 0;
+    }
+
+    try {
+      const entradas = Object.entries(PRACAS);
+      const respostas = await Promise.all(entradas.map(async ([praca, id]) => {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent("'Ciclo 1'!A1:D400")}?key=${sheetsKey}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        return { praca, rows: d.values || [] };
+      }));
+
+      const alunos = [];
+      for (const { praca, rows } of respostas) {
+        const h = acharHeader(rows);
+        for (let i = h + 1; i < rows.length; i++) {
+          const r = rows[i] || [];
+          const nome = (r[0] || '').toString().trim();
+          if (!nome) continue;
+          alunos.push({
+            nome,
+            orientador: (r[1] || '').toString().trim(),
+            turma:      (r[2] || '').toString().trim(),
+            escola:     (r[3] || '').toString().trim(),
+            praca
+          });
+        }
+      }
+
+      alunos.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      return res.status(200).json({ alunos, total: alunos.length });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // ── ALUNOS: detalhe de um aluno (4 ciclos) ───────────────────────
+  if (action === 'get_aluno_detalhe') {
+    const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
+
+    const PRACAS = {
+      SP:  '1anki0VweR8LweziQkN-KDTJbklAp9asfdxtU5JhkMhk',
+      BH:  '14uStnQL61Yu4xQJTGpmBt5d9d_s5681i8MAdLUkAnTg',
+      RJ:  '1TsCj4_MqfIWCZF8j30E_hnpw8z3nDz8Ph5lMIXZEAuc',
+      SJC: '1xBgYIGMjGDFyOS1VVu62RGciDoSNZNSy9ZtOFjEUjHc'
+    };
+
+    const nomeAlvo = (body.nome || '').toString().trim().toLowerCase();
+    const praca    = (body.praca || '').toString().trim().toUpperCase();
+    const sheetId  = PRACAS[praca];
+    if (!nomeAlvo) return res.status(400).json({ error: 'Nome do aluno não informado.' });
+    if (!sheetId)  return res.status(400).json({ error: 'Praça inválida.' });
+
+    const PILARES = [
+      { chave: 'realizacao',  busca: 'realiza' },
+      { chave: 'compreensao', busca: 'compreens' },
+      { chave: 'reflexao',    busca: 'reflex' },
+      { chave: 'comunicacao', busca: 'comunica' },
+      { chave: 'conexao',     busca: 'conex' }
+    ];
+
+    function acharHeader(rows) {
+      for (let i = 0; i < Math.min(rows.length, 8); i++) {
+        const l = (rows[i] || []).map(x => (x || '').toString().toLowerCase()).join(' | ');
+        if (l.includes('orientador') && (l.includes('turma') || l.includes('escola'))) return i;
+      }
+      return 0;
+    }
+    function findCol(head, termo) {
+      return head.findIndex(h => (h || '').toString().toLowerCase().includes(termo));
+    }
+    function nota(txt) {
+      if (txt === undefined || txt === null) return null;
+      const m = /^\s*(\d+)/.exec(txt.toString());
+      return m ? parseInt(m[1], 10) : null;
+    }
+    function preenchido(v) {
+      return v !== undefined && v !== null && v.toString().trim() !== '';
+    }
+
+    try {
+      const ranges = ["'Ciclo 1'!A1:Z400", "'Ciclo 2'!A1:Z400", "'Ciclo 3'!A1:Z400", "'Ciclo 4'!A1:Z400"];
+      const qs  = ranges.map(rg => `ranges=${encodeURIComponent(rg)}`).join('&');
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values:batchGet?${qs}&key=${sheetsKey}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.error) return res.status(400).json({ error: d.error.message });
+
+      const faixas = d.valueRanges || [];
+      const ciclos = [];
+      let perfil = null;
+
+      for (let c = 0; c < 4; c++) {
+        const rows = (faixas[c] && faixas[c].values) || [];
+        const base = { ciclo: c + 1, aconteceu: false, oficina: null, falaAi: null,
+                       mnm: null, feedback: null, formatoFeedback: null,
+                       observacao: '', pilares: {}, media: null };
+
+        if (!rows.length) { ciclos.push(base); continue; }
+
+        const h    = acharHeader(rows);
+        const head = rows[h] || [];
+        const iOfi = findCol(head, 'participação na oficina');
+        const iFal = findCol(head, 'participação no fala');
+        const iObs = findCol(head, 'observação');
+        const iMnm = findCol(head, 'mão na massa');
+        const iFbT = findCol(head, 'feedback ao aluno') >= 0
+                       ? findCol(head, 'feedback ao aluno')
+                       : findCol(head, 'feedback para o aluno');
+        const iFbB = findCol(head, 'feedback dado');
+        const iFmt = findCol(head, 'formato do feedback');
+
+        const linha = rows.slice(h + 1).find(rr =>
+          ((rr || [])[0] || '').toString().trim().toLowerCase() === nomeAlvo
+        );
+        if (!linha) { ciclos.push(base); continue; }
+
+        if (!perfil) {
+          perfil = {
+            nome:       (linha[0] || '').toString().trim(),
+            orientador: (linha[1] || '').toString().trim(),
+            turma:      (linha[2] || '').toString().trim(),
+            escola:     (linha[3] || '').toString().trim(),
+            praca
+          };
+        }
+
+        const ofi = iOfi >= 0 ? (linha[iOfi] || '').toString().trim() : '';
+        const fal = iFal >= 0 ? (linha[iFal] || '').toString().trim() : '';
+        base.aconteceu = preenchido(ofi) || preenchido(fal);
+
+        if (base.aconteceu) {
+          base.oficina = ofi ? (ofi.toLowerCase() === 'ausente' ? 'ausente' : 'ok') : null;
+          base.falaAi  = fal ? (fal.toLowerCase() === 'ausente' ? 'ausente' : 'ok') : null;
+
+          if (iMnm >= 0) {
+            const v = (linha[iMnm] || '').toString().trim().toUpperCase();
+            base.mnm = v === 'TRUE' ? 'ok' : (v === 'FALSE' ? 'ausente' : null);
+          }
+          if (iObs >= 0) base.observacao = (linha[iObs] || '').toString().trim();
+
+          if (iFbB >= 0) {
+            const v = (linha[iFbB] || '').toString().trim().toUpperCase();
+            base.feedback = v === 'TRUE' ? 'ok' : (v === 'FALSE' ? 'ausente' : null);
+          } else if (iFbT >= 0) {
+            base.feedback = preenchido(linha[iFbT]) ? 'ok' : 'ausente';
+          }
+          if (iFmt >= 0) base.formatoFeedback = (linha[iFmt] || '').toString().trim() || null;
+
+          const notas = [];
+          for (const p of PILARES) {
+            const idx = findCol(head, p.busca);
+            const n   = idx >= 0 ? nota(linha[idx]) : null;
+            base.pilares[p.chave] = n;
+            if (n !== null && n > 0) notas.push(n);
+          }
+          if (notas.length) {
+            base.media = Math.round(notas.reduce((a, b) => a + b, 0) / notas.length * 10) / 10;
+          }
+        }
+
+        ciclos.push(base);
+      }
+
+      if (!perfil) return res.status(404).json({ error: 'Aluno não encontrado nessa praça.' });
+
+      const medias = ciclos.map(c => c.media).filter(m => m !== null);
+      const mediaGeral = medias.length
+        ? Math.round(medias.reduce((a, b) => a + b, 0) / medias.length * 10) / 10
+        : null;
+
+      return res.status(200).json({ perfil, ciclos, mediaGeral });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
   // ── PROGRESSO POR CICLO (board 18417049088) ────────────────────
   if (action === 'get_ciclo_progress') {
     const mondayToken = process.env.MONDAY_API_TOKEN;
