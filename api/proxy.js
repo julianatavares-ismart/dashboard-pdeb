@@ -857,34 +857,41 @@ ${textos}`;
   if (!mondayToken) return res.status(500).json({ error: 'MONDAY_API_TOKEN não configurado.' });
 
   try {
-    const mondayRes = await fetch('https://api.monday.com/v2', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': mondayToken,
-        'API-Version': '2024-01'
-      },
-      body: JSON.stringify({
-        query: `{
-          boards(ids: [18404519367]) {
-            items_page(limit: 50) {
-              items {
+    function queryMarcos(campos) {
+      return `{
+        boards(ids: [18404519367]) {
+          items_page(limit: 50) {
+            items {
+              id
+              name
+              column_values { ${campos} }
+              subitems {
                 id
                 name
-                column_values { id text value }
-                subitems {
-                  id
-                  name
-                  column_values { id text value }
-                }
+                column_values { ${campos} }
               }
             }
           }
-        }`
-      })
-    });
+        }
+      }`;
+    }
 
-    const data = await mondayRes.json();
+    async function pedirMonday(campos) {
+      const r = await fetch('https://api.monday.com/v2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': mondayToken,
+          'API-Version': '2024-01'
+        },
+        body: JSON.stringify({ query: queryMarcos(campos) })
+      });
+      return r.json();
+    }
+
+    // Tenta com type e título da coluna. Se a API recusar, volta pra query simples.
+    let data = await pedirMonday('id text value type column { id title }');
+    if (data.errors) data = await pedirMonday('id text value');
     if (data.errors) return res.status(400).json({ error: data.errors[0].message });
 
     const items = data?.data?.boards?.[0]?.items_page?.items || [];
@@ -907,13 +914,55 @@ ${textos}`;
       return '';
     }
 
+    // Colunas de status que NÃO são o status da entrega (Time e Ciclo)
+    const NAO_STATUS = ['color_mm3xvc4a', 'color_mm3xrbwm'];
+    const rotulosVistos = new Set();
+
+    // Aceita sinônimos, então renomear rótulo no Monday não derruba o painel
+    function normalizarStatus(txt) {
+      const t = (txt || '').toString().trim();
+      if (!t) return 'Não iniciado';
+      const l = t.toLowerCase();
+      if (/feito|conclu|pronto|entregue|finaliz/.test(l))      return 'Feito';
+      if (/andamento|progresso|fazendo|execu|curso/.test(l))   return 'Em andamento';
+      if (/congel|pausad|standby|em espera/.test(l))           return 'Congelado';
+      if (/atrasad|vencid/.test(l))                            return 'Atrasado';
+      if (/planejad|previst|backlog/.test(l))                  return 'Planejado';
+      if (/n[aã]o iniciad|not started|a fazer/.test(l))        return 'Não iniciado';
+      return t;
+    }
+
     function findStatus(column_values) {
-      // Tenta pelo ID específico primeiro
-      const byId = column_values.find(c => c.id === 'color_mm1jjjjy' || c.id === 'status');
-      if (byId?.text && STATUS_VALUES.includes(byId.text)) return byId.text;
-      // Fallback: qualquer coluna com valor de status
-      const byVal = column_values.find(c => STATUS_VALUES.includes(c.text));
-      return byVal?.text || 'Não iniciado';
+      const cvs = column_values || [];
+      const ehStatus = c => c.type === 'status' || c.type === 'color';
+      const titulo   = c => ((c.column && c.column.title) || '').toString();
+
+      let bruto = '';
+
+      // 1. Pelo título da coluna
+      const porTitulo = cvs.find(c => /^status$|situa[cç]/i.test(titulo(c).trim()) && c.text);
+      if (porTitulo) bruto = porTitulo.text;
+
+      // 2. Pelo ID conhecido
+      if (!bruto) {
+        const porId = cvs.find(c => (c.id === 'color_mm1jjjjy' || c.id === 'status') && c.text);
+        if (porId) bruto = porId.text;
+      }
+
+      // 3. Única coluna de status que não seja Time nem Ciclo
+      if (!bruto) {
+        const cand = cvs.find(c => ehStatus(c) && !NAO_STATUS.includes(c.id) && c.text);
+        if (cand) bruto = cand.text;
+      }
+
+      // 4. Último recurso: texto que bate com a lista conhecida
+      if (!bruto) {
+        const porTexto = cvs.find(c => STATUS_VALUES.includes(c.text));
+        if (porTexto) bruto = porTexto.text;
+      }
+
+      if (bruto) rotulosVistos.add(bruto);
+      return normalizarStatus(bruto);
     }
 
     function formatTimeline(raw) {
@@ -993,6 +1042,9 @@ ${textos}`;
     return res.status(200).json({
       updatedAt: new Date().toLocaleDateString('pt-BR'),
       milestones,
+      // Rótulos de status que o Monday devolveu de fato. Serve pra diagnosticar
+      // quando o painel zera: se vier vazio, o board não tem status preenchido.
+      _statusLabels: [...rotulosVistos].sort(),
       // Mantém ciclo1 por compatibilidade com eventuais referências antigas no index
       ciclo1: milestones
     });
