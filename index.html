@@ -244,6 +244,41 @@ section { margin-bottom: 32px; }
 
 /* Legenda */
 .painel-legenda { display: flex; gap: 12px; flex-wrap: wrap; padding: 10px 14px; background: var(--surface); border: 1px solid var(--divider); border-radius: 9px; align-items: center; margin-top: 14px; }
+/* Alunos */
+.al-input { width:100%; padding:9px 14px; font-family:'Lato',sans-serif; font-size:14px; color:var(--t1); background:var(--surface); border:1px solid var(--divider); border-radius:9px; outline:none; }
+.al-input:focus { border-color:var(--cyan); }
+.al-res { background:var(--surface); border:1px solid var(--divider); border-radius:9px; margin-top:6px; overflow:hidden; }
+.al-res-item { padding:9px 14px; cursor:pointer; border-bottom:1px solid var(--divider); }
+.al-res-item:last-child { border-bottom:none; }
+.al-res-item:hover { background:var(--bg); }
+.al-res-nome { font-size:13px; font-weight:600; color:var(--navy); }
+.al-res-meta { font-size:11px; color:var(--t3); margin-top:1px; }
+.al-vazio { padding:10px 14px; font-size:12px; color:var(--t3); }
+.al-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding-bottom:16px; border-bottom:1px solid var(--divider); margin-bottom:24px; }
+.al-nome { font-family:'Montserrat',sans-serif; font-size:20px; font-weight:700; color:var(--navy); margin-bottom:3px; }
+.al-sub { font-size:12px; color:var(--t3); }
+.al-media { font-family:'Montserrat',sans-serif; font-size:32px; font-weight:800; color:var(--navy); line-height:1; }
+.al-media-lb { font-size:10px; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+.al-bloco { margin-bottom:28px; }
+.al-tit { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:12px; }
+.al-tab { width:100%; max-width:520px; border-collapse:collapse; }
+.al-tab td, .al-tab th { padding:5px 0; }
+.al-tab th { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; color:var(--t3); text-align:center; padding-bottom:10px; }
+.al-lb { font-size:13px; color:var(--t2); width:190px; }
+.al-cel { display:inline-block; width:26px; height:26px; border-radius:5px; }
+.al-ok { background:#8EC5B1; }
+.al-no { background:#F598AA; }
+.al-na { background:var(--divider); }
+.al-sr { background:transparent; border:1.5px dashed #F598AA; }
+.al-nota { font-family:'Montserrat',sans-serif; font-size:15px; font-weight:700; color:var(--navy); text-align:center; }
+.al-nota-na { font-size:15px; color:var(--t4); text-align:center; }
+.al-rodape { border-top:1px solid var(--divider); }
+.al-legenda { font-size:11px; color:var(--t3); margin-top:14px; }
+.al-key { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+.al-obs { background:var(--bg); border-radius:9px; padding:12px 14px; margin-bottom:8px; }
+.al-obs-lb { font-size:11px; color:var(--t3); margin-bottom:4px; }
+.al-obs-tx { font-size:13px; line-height:1.55; color:var(--t2); }
+
 /* Rubricas */
 .rub-section { margin-bottom: 28px; }
 .rub-title { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--divider); }
@@ -305,13 +340,26 @@ section { margin-bottom: 32px; }
   <button class="tab-btn" onclick="showTab('orientadores',this)">Orientadores</button>
   <button class="tab-btn" onclick="showTab('marcos',this)">Marcos</button>
   <button class="tab-btn" onclick="showTab('rubricas',this)">Rubricas</button>
+  <button class="tab-btn" onclick="showTab('alunos',this)">Alunos</button>
   <button class="tab-btn" onclick="showTab('visao-geral',this)">Visão Geral</button>
   <div class="tab-sep"></div>
   <button class="tab-btn tab-present" id="btnPresent" onclick="togglePresent()">&#9654; Modo apresentação</button>
 </nav>
 
 <!-- ── ABA VISÃO GERAL ── -->
-<div id="tab-rubricas" class="tab-pane">
+<div id="tab-alunos" class="tab-pane">
+    <div class="tab-inner">
+      <div style="max-width:620px;margin-bottom:20px;">
+        <input type="text" id="alunoBusca" class="al-input" placeholder="Buscar aluno pelo nome" autocomplete="off" oninput="buscarAluno(this.value)">
+        <div id="alunoResultados"></div>
+      </div>
+      <div id="alunoFicha">
+        <div style="color:var(--t3);font-size:13px;">Clique em <strong>Atualizar dados</strong> e depois busque um aluno pelo nome.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-rubricas" class="tab-pane">
     <div class="tab-inner">
       <div id="rubricas-content">
         <div style="color:var(--soft);font-size:13px;padding:20px 0;">Clique em <strong>Atualizar dados</strong> para carregar a análise de rubricas.</div>
@@ -681,11 +729,168 @@ function switchRubricaCiclo(n) {
   if (_rubricasData) renderRubricas(_rubricasData);
 }
 
+// ── ALUNOS ──
+let _alunosIndex = [];
+let _alunosFiltrados = [];
+
+function normNome(s) {
+  return (s || '').toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function buscarAluno(termo) {
+  const box = document.getElementById('alunoResultados');
+  if (!box) return;
+  const t = normNome(termo);
+
+  if (!_alunosIndex.length) {
+    box.innerHTML = '<div class="al-res"><div class="al-vazio">Clique em Atualizar dados para carregar a lista de alunos.</div></div>';
+    return;
+  }
+  if (t.length < 2) { box.innerHTML = ''; return; }
+
+  _alunosFiltrados = _alunosIndex.filter(a => normNome(a.nome).includes(t)).slice(0, 8);
+
+  if (!_alunosFiltrados.length) {
+    box.innerHTML = '<div class="al-res"><div class="al-vazio">Nenhum aluno encontrado.</div></div>';
+    return;
+  }
+
+  box.innerHTML = '<div class="al-res">' + _alunosFiltrados.map((a, i) =>
+    '<div class="al-res-item" onclick="abrirAlunoIdx(' + i + ')">' +
+      '<div class="al-res-nome">' + a.nome + '</div>' +
+      '<div class="al-res-meta">' + [a.turma, a.escola, a.praca, a.orientador].filter(Boolean).join(' \u00b7 ') + '</div>' +
+    '</div>'
+  ).join('') + '</div>';
+}
+
+async function abrirAlunoIdx(i) {
+  const a = _alunosFiltrados[i];
+  if (!a) return;
+  document.getElementById('alunoResultados').innerHTML = '';
+  document.getElementById('alunoBusca').value = a.nome;
+  const ficha = document.getElementById('alunoFicha');
+  ficha.innerHTML = '<div style="color:var(--t3);font-size:13px;">Carregando...</div>';
+  try {
+    const r = await fetch('/api/proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_aluno_detalhe', nome: a.nome, praca: a.praca })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    renderFichaAluno(d);
+  } catch (e) {
+    ficha.innerHTML = '<div style="color:var(--pink);font-size:13px;">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+function celAluno(estado, aconteceu) {
+  let cls = 'al-na', tit = 'ainda não aconteceu';
+  if (aconteceu) {
+    if (estado === 'ok')           { cls = 'al-ok'; tit = 'participou'; }
+    else if (estado === 'ausente') { cls = 'al-no'; tit = 'ausente ou não entregue'; }
+    else                           { cls = 'al-sr'; tit = 'ciclo aconteceu mas o campo não foi preenchido'; }
+  }
+  return '<td style="text-align:center;"><span class="al-cel ' + cls + '" title="' + tit + '"></span></td>';
+}
+
+function renderFichaAluno(d) {
+  const ficha = document.getElementById('alunoFicha');
+  if (!ficha) return;
+  const p = d.perfil || {};
+  const ciclos = d.ciclos || [];
+
+  const linhas = [
+    { lb: 'Oficina',      campo: 'oficina'  },
+    { lb: 'Fala A\u00ed', campo: 'falaAi'   },
+    { lb: 'M\u00e3o na Massa', campo: 'mnm' },
+    { lb: 'Feedback',     campo: 'feedback' }
+  ];
+
+  let matriz = '<table class="al-tab"><tr><th style="text-align:left;"></th>';
+  ciclos.forEach(cc => { matriz += '<th>C' + cc.ciclo + '</th>'; });
+  matriz += '</tr>';
+  linhas.forEach(l => {
+    matriz += '<tr><td class="al-lb">' + l.lb + '</td>';
+    ciclos.forEach(cc => { matriz += celAluno(cc[l.campo], cc.aconteceu); });
+    matriz += '</tr>';
+  });
+  matriz += '<tr class="al-rodape"><td class="al-lb" style="padding-top:13px;color:var(--t1);">Nota do ciclo</td>';
+  ciclos.forEach(cc => {
+    matriz += cc.media !== null
+      ? '<td class="al-nota" style="padding-top:13px;">' + cc.media.toFixed(1).replace('.', ',') + '</td>'
+      : '<td class="al-nota-na" style="padding-top:13px;">\u2014</td>';
+  });
+  matriz += '</tr></table>';
+
+  const PIL = [
+    ['realizacao',  'Realiza\u00e7\u00e3o da proposta'],
+    ['compreensao', 'Compreens\u00e3o da proposta'],
+    ['reflexao',    'N\u00edvel de reflex\u00e3o'],
+    ['comunicacao', 'Comunica\u00e7\u00e3o / escrita'],
+    ['conexao',     'Conex\u00e3o com a trajet\u00f3ria']
+  ];
+  const temNota = ciclos.some(cc => cc.media !== null);
+  let rub = '';
+  if (temNota) {
+    rub = '<div class="al-bloco"><div class="al-tit">Rubricas por ciclo</div><table class="al-tab"><tr><th style="text-align:left;"></th>';
+    ciclos.forEach(cc => { rub += '<th>C' + cc.ciclo + '</th>'; });
+    rub += '</tr>';
+    PIL.forEach(([k, lb]) => {
+      rub += '<tr><td class="al-lb">' + lb + '</td>';
+      ciclos.forEach(cc => {
+        const n = (cc.pilares || {})[k];
+        rub += (n !== null && n !== undefined && n > 0)
+          ? '<td class="al-nota">' + n + '</td>'
+          : '<td class="al-nota-na">\u2014</td>';
+      });
+      rub += '</tr>';
+    });
+    rub += '</table></div>';
+  }
+
+  const canais = ciclos
+    .filter(cc => cc.aconteceu && cc.formatoFeedback)
+    .map(cc => 'Ciclo ' + cc.ciclo + ': ' + cc.formatoFeedback);
+  const blocoCanais = canais.length
+    ? '<div class="al-legenda" style="margin-top:8px;">Canal do feedback \u2014 ' + canais.join(' \u00b7 ') + '</div>'
+    : '';
+
+  const obs = ciclos.filter(cc => cc.observacao);
+  const blocoObs = obs.length
+    ? '<div class="al-bloco"><div class="al-tit">Observa\u00e7\u00f5es do orientador</div>' +
+      obs.map(cc => '<div class="al-obs"><div class="al-obs-lb">Ciclo ' + cc.ciclo + '</div><div class="al-obs-tx">' + cc.observacao + '</div></div>').join('') +
+      '</div>'
+    : '';
+
+  const mediaTxt = d.mediaGeral !== null && d.mediaGeral !== undefined
+    ? d.mediaGeral.toFixed(1).replace('.', ',') : '\u2014';
+
+  ficha.innerHTML =
+    '<div class="al-head">' +
+      '<div><div class="al-nome">' + p.nome + '</div>' +
+      '<div class="al-sub">' + [p.turma, p.escola, p.praca].filter(Boolean).join(' \u00b7 ') +
+      (p.orientador ? ' \u00b7 orientador(a) ' + p.orientador : '') + '</div></div>' +
+      '<div style="text-align:right;flex-shrink:0;"><div class="al-media-lb">M\u00e9dia geral</div>' +
+      '<div class="al-media">' + mediaTxt + '</div></div>' +
+    '</div>' +
+    '<div class="al-bloco"><div class="al-tit">Percurso por ciclo</div>' + matriz +
+      '<div class="al-legenda">' +
+        '<span class="al-key al-ok"></span>participou &nbsp; ' +
+        '<span class="al-key al-no"></span>ausente ou n\u00e3o entregue &nbsp; ' +
+        '<span class="al-key al-sr"></span>sem registro na planilha &nbsp; ' +
+        '<span class="al-key al-na"></span>ainda n\u00e3o aconteceu' +
+      '</div>' + blocoCanais +
+    '</div>' +
+    rub + blocoObs;
+}
+
 let _presentMode = false;
 function togglePresent() {
   _presentMode = !_presentMode;
   const btn = document.getElementById('btnPresent');
-  const abas = ['performance','orientadores','marcos','visao-geral'];
+  const abas = ['performance','orientadores','marcos','rubricas','alunos','visao-geral'];
   abas.forEach(id => {
     const b = document.querySelector(`button[onclick="showTab('${id}',this)"]`);
     if (b) b.style.display = _presentMode ? 'none' : '';
@@ -1172,10 +1377,11 @@ async function doRefreshAll() {
 
   try {
     // Busca milestones, progresso e rubricas em paralelo
-    const [resMilestones, resProgress, resRubricas] = await Promise.all([
+    const [resMilestones, resProgress, resRubricas, resAlunos] = await Promise.all([
       fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_milestones' }) }),
       fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_ciclo_progress' }) }),
-      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_rubricas' }) })
+      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_rubricas' }) }),
+      fetch('/api/proxy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'get_alunos_index' }) })
     ]);
     const d = await resMilestones.json();
     const dp = await resProgress.json();
@@ -1187,6 +1393,8 @@ async function doRefreshAll() {
     renderMarcos(ms);
     renderPainel(ms);
     if (dr && !dr.error) renderRubricas(dr);
+    const da = await resAlunos.json();
+    if (da && da.alunos) _alunosIndex = da.alunos;
   } catch(e) { erros.push('Monday: '+e.message); }
 
   try { await carregarPracasC2(); }       catch(_) {}
