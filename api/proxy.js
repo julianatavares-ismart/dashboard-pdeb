@@ -361,8 +361,71 @@ ${textos}`;
     }
   }
 
-  // ── PRAÇAS CICLO 2 ──────────────────────────────────────────────
-  if (action === 'get_pracas_c2') {
+  // ── CICLO CORRENTE, a partir das datas da aba Config ────────────
+  // Mesma regra do Apps Script: para cada ciclo, pega a data de fim mais
+  // cedo entre as turmas; o corrente e o primeiro cujo fim ainda nao passou.
+  // Assim a virada de ciclo acontece sozinha, sem ninguem editar codigo.
+  const ID_DADOS_SEMANAIS = '1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc';
+
+  async function lerCicloCorrente(sheetsKey) {
+    const vazio = { ciclo: null, prazos: {} };
+    try {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${ID_DADOS_SEMANAIS}/values/${encodeURIComponent('Config!A1:B200')}?key=${sheetsKey}`;
+      const r = await fetch(url);
+      const d = await r.json();
+      if (d.error || !d.values) return vazio;
+
+      const parseData = (s) => {
+        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec((s || '').toString().trim());
+        return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
+      };
+
+      // fins[n] = { min: data mais cedo, em3: data do 3EM }
+      const fins = {};
+      for (const linha of d.values) {
+        const rot = (linha[0] || '').toString();
+        const m = /Ciclo\s*(\d+)/i.exec(rot);
+        if (!m) continue;
+        const dt = parseData(linha[1]);
+        if (!dt) continue;
+        const num = parseInt(m[1], 10);
+        if (!fins[num]) fins[num] = { min: dt, em3: null };
+        if (dt < fins[num].min) fins[num].min = dt;
+        if (/^3\s*EM/i.test(rot.trim())) fins[num].em3 = dt;
+      }
+
+      const nums = Object.keys(fins).map(Number).sort((a, b) => a - b);
+      if (!nums.length) return vazio;
+
+      const hoje = new Date();
+      let corrente = nums[nums.length - 1];
+      for (const num of nums) {
+        if (fins[num].min >= hoje) { corrente = num; break; }
+      }
+
+      const fmt = (dt) => dt ? String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0') : null;
+      return {
+        ciclo: corrente,
+        prazos: {
+          geral:    fins[corrente].min.toISOString().slice(0,10),
+          em3:      fins[corrente].em3 ? fins[corrente].em3.toISOString().slice(0,10) : null,
+          rotGeral: fmt(fins[corrente].min),
+          rot3em:   fmt(fins[corrente].em3)
+        }
+      };
+    } catch (e) {
+      return vazio;
+    }
+  }
+
+  // ── PRAÇAS POR CICLO ────────────────────────────────────────────
+  // Sem body.ciclo, descobre o ciclo corrente pelas datas da Config.
+  if (action === 'get_pracas_c2' || action === 'get_pracas_ciclo') {
+    const sheetsKeyTmp = process.env.GOOGLE_SHEETS_API_KEY;
+    const auto = body.ciclo ? { ciclo: null, prazos: {} } : await lerCicloCorrente(sheetsKeyTmp);
+    const pedido = parseInt(body.ciclo, 10);
+    const cicloNum = (pedido >= 1 && pedido <= 4) ? pedido : (auto.ciclo || 2);
+    const prazosAuto = auto.prazos || {};
     const sheetsKey = process.env.GOOGLE_SHEETS_API_KEY;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
@@ -397,7 +460,8 @@ ${textos}`;
           if (rows.length < 2) { resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } }; return; }
           const row0 = rows[0].map(h => (h||'').toLowerCase().trim());
           const row1 = rows[1] ? rows[1].map(h => (h||'').toLowerCase().trim()) : [];
-          const ciclo2Start = row0.findIndex(h => h.includes('ciclo 2') || h === 'ciclo2');
+          const alvo = 'ciclo ' + cicloNum;
+          const ciclo2Start = row0.findIndex(h => h.includes(alvo) || h === 'ciclo' + cicloNum);
           let iturma = row0.findIndex(h => h.includes('turma'));
           if (iturma === -1) iturma = row1.findIndex(h => h.includes('turma'));
           let iofic = -1, ifa = -1;
@@ -409,7 +473,7 @@ ${textos}`;
             if (iofic === -1) iofic = ciclo2Start;
             if (ifa   === -1) ifa   = ciclo2Start + 1;
           }
-          debugInfo[praca] = { ciclo2Start, iturma, iofic, ifa };
+          debugInfo[praca] = { ciclo: cicloNum, ciclo2Start, iturma, iofic, ifa };
           if (iturma === -1 || ciclo2Start === -1) { resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } }; return; }
           const data = rows.slice(2);
           resultado[praca] = { geral: calcPct(data, iturma, iofic, ifa, SERIES_GERAL), em3: calcPct(data, iturma, iofic, ifa, SERIES_3EM) };
@@ -418,7 +482,7 @@ ${textos}`;
           resultado[praca] = { geral: { oficinas: null, falaAi: null }, em3: { oficinas: null, falaAi: null } };
         }
       }));
-      return res.status(200).json({ pracas: resultado, _debug: debugInfo });
+      return res.status(200).json({ ciclo: cicloNum, prazos: prazosAuto, pracas: resultado, _debug: debugInfo });
     } catch(err) {
       return res.status(500).json({ error: err.message });
     }
@@ -510,10 +574,16 @@ ${textos}`;
     if (!sheetsKey) return res.status(500).json({ error: 'GOOGLE_SHEETS_API_KEY não configurada.' });
 
     async function fetchAba(aba) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/values/${encodeURIComponent(aba + '!A1:Z200')}?key=${sheetsKey}`;
-      const r = await fetch(url);
-      const d = await r.json();
-      return d.values || [];
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/1A_AP1pUt5f-wwoFyhEWuzn1zt2O1baIhLsH5oZjE4Fc/values/${encodeURIComponent(aba + '!A1:Z200')}?key=${sheetsKey}`;
+        const r = await fetch(url);
+        const d = await r.json();
+        // Aba inexistente devolve erro 400: trata como vazia em vez de quebrar.
+        if (d.error) return [];
+        return d.values || [];
+      } catch (e) {
+        return [];
+      }
     }
 
     function parseRubricas(rows) {
@@ -583,13 +653,19 @@ ${textos}`;
     }
 
     try {
-      const [rows1, rows2] = await Promise.all([
+      // Busca os quatro ciclos. Abas que ainda nao existem voltam vazias,
+      // e o front so mostra botao para o ciclo que tiver dado.
+      const [rows1, rows2, rows3, rows4] = await Promise.all([
         fetchAba('Ciclo 1 - Detalhes'),
-        fetchAba('Ciclo 2 - Detalhes')
+        fetchAba('Ciclo 2 - Detalhes'),
+        fetchAba('Ciclo 3 - Detalhes'),
+        fetchAba('Ciclo 4 - Detalhes')
       ]);
       return res.status(200).json({
         ciclo1: parseRubricas(rows1),
-        ciclo2: parseRubricas(rows2)
+        ciclo2: parseRubricas(rows2),
+        ciclo3: parseRubricas(rows3),
+        ciclo4: parseRubricas(rows4)
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
