@@ -1288,9 +1288,17 @@ async function carregarPracasC2() {
     }
     const pracas = ['SP','BH','RJ','SJC'];
     const gh = (label,prazo) => `<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--border);">${label}<span style="float:right;font-weight:400;text-transform:none;">${prazo}</span></div>`;
-    grid.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div>${gh('8ºEF · 9ºEF · 1ºEM · 2ºEM','prazo ' + PERF.rotGeral)}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${pracas.map(id=>card(id,C2_FIM_GERAL,(d.pracas[id]||{}).geral||{oficinas:null,falaAi:null})).join('')}</div></div>
-      ${(PERF_MOSTRAR_3EM[PERF_CICLO] && C2_FIM_3EM) ? `<div>${gh('3ºEM','prazo ' + PERF.rot3em)}<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${pracas.map(id=>card(id,C2_FIM_3EM,(d.pracas[id]||{}).em3||{oficinas:null,falaAi:null})).join('')}</div></div>` : ''}
+    // Com os dois grupos, cada um ocupa metade e as praças ficam 2x2.
+    // Com um grupo só, ele usa a largura toda e as praças ficam lado a lado.
+    const doisGrupos = !!(PERF_MOSTRAR_3EM[PERF_CICLO] && C2_FIM_3EM);
+    const colsFora   = doisGrupos ? '1fr 1fr' : '1fr';
+    const colsPracas = doisGrupos
+      ? 'repeat(auto-fit, minmax(210px, 1fr))'
+      : 'repeat(auto-fit, minmax(240px, 1fr))';
+
+    grid.innerHTML = `<div style="display:grid;grid-template-columns:${colsFora};gap:20px;">
+      <div>${gh('8ºEF · 9ºEF · 1ºEM · 2ºEM','prazo ' + PERF.rotGeral)}<div style="display:grid;grid-template-columns:${colsPracas};gap:10px;">${pracas.map(id=>card(id,C2_FIM_GERAL,(d.pracas[id]||{}).geral||{oficinas:null,falaAi:null})).join('')}</div></div>
+      ${doisGrupos ? `<div>${gh('3ºEM','prazo ' + PERF.rot3em)}<div style="display:grid;grid-template-columns:${colsPracas};gap:10px;">${pracas.map(id=>card(id,C2_FIM_3EM,(d.pracas[id]||{}).em3||{oficinas:null,falaAi:null})).join('')}</div></div>` : ''}
     </div>`;
   } catch(e) { console.warn('Praças C2:',e.message); }
 }
